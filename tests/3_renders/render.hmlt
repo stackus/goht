@@ -1,0 +1,11 @@
+package __renders
+
+@hmlt wrapper() {
+%p.wrapper
+	= @children
+}
+
+@hmlt content() {
+= @render wrapper()
+	.content This is the content
+}

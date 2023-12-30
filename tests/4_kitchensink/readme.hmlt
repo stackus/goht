@@ -1,0 +1,16 @@
+package __kitchensink
+
+@hmlt SiteLayout() {
+	%html{lang:"en"}
+		%head
+			%title Hamlet
+		%body
+			%h1 Hamlet
+			%p A HAML-like template engine for Go.
+			= @children
+}
+
+@hmlt HomePage() {
+	= @render SiteLayout()
+		%p This is the home page.
+}

@@ -1,0 +1,82 @@
+package __kitchensink
+
+import "strconv"
+
+var attrs = map[string]string{
+	"lang":  "en",
+	"class": "dark",
+}
+
+var boolAttrs = map[string]bool{
+	"checked": true,
+	"disabled": true,
+}
+
+@hmlt KitchenSink() {
+!!! 5
+%html{lang:"en", class:"dark"}
+	%head
+		%meta{charset:"utf-8"}
+		%title
+			= "Kitchen Sink"
+		%meta{name:"viewport", content:"width=device-width, initial-scale=1"}
+		%link{rel:"stylesheet", href:"/css/kitchensink.css"}
+	%body
+		%script{src:"/js/kitchensink.js"}
+		%header
+			%h1
+				= "Kitchen Sink"
+			%p
+				= "A collection of examples of the Haml markup language."
+		%section
+			%h2
+				= "Basic HTML"
+			%p.important{hx-post:"/api/important"}
+				= "This is a basic example of Haml markup."
+			%ul
+				%li
+					= "This is an unordered list item"
+				%li
+					= "This is another list item"
+		%section
+			%h2
+				= "Nested HTML"
+			%p
+				= "This is an example of a nested HTML tag."
+			%ul{@attributes:{attrs}}
+				%li{@attributes:{attrs, boolAttrs}}
+					= "This is an unordered list item"
+					%ul
+						%li
+							= "This is a nested list item"
+						%li
+							= "This is another nested list item"
+				%li
+					= "This is another list item"
+		%section
+			%h2
+				= "HTML Attributes"
+			%p
+				= "This is an example of an HTML tag with attributes."
+			%ul
+				%li
+					%a{href:"http://haml.info"}
+						= "This is a link"
+				%li
+					%img{src:"http://haml.info/images/haml.png", alt:"Haml logo"}
+		%section
+			%h2
+				= "Haml Code"
+			%p
+				= "This is an example of a Haml code block."
+			%ul
+				- for i:=0; i<5; i++
+					%li
+						= "This is list item "
+						!= strconv.Itoa(i)
+		%section
+			%h2
+				= "Haml Comments"
+			%p
+				= "This is an example of a Haml comment."
+}
