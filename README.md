@@ -14,7 +14,7 @@ A [Haml](http://haml.info/) template engine for Go.
 - Mix Go and templates together in the same file
 - Easy nesting of templates
 
-```
+```haml
 @hmlt SiteLayout() {
 	!!!
 	%html{lang:"en"}
