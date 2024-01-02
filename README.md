@@ -329,9 +329,9 @@ This directive takes a list of arguments which comes in two forms:
 } Click me
 ```
 ### Classes
-Hamlet supports the `.` operator for classes and also will accept the `class` attribute such as `class="foo bar"`.
+Hamlet supports the `.` operator for classes and also will accept the `class` attribute such as `class:"foo bar"`.
 However, if the class attribute is given an interpolated value, it will need to be a comma separated list of values.
-These values maybe the following types:
+These values can be the following types:
 - `string`
 	- `myClass` variable or `"foo bar"` string literal
 - `[]string`
@@ -345,7 +345,7 @@ Examples:
 %button.fizz{class:"foo bar baz"} Click me
 %button.foo{class:#{myStrClasses, myBoolClasses}} Click me
 ```
-All three sources of classes will be combined and deduplicated into a single class attribute.
+All sources of classes will be combined and deduplicated into a single class attribute.
 
 ### Object References
 Haml supports using a Ruby object to supply the id and class for a tag using the `[]` object reference syntax.
