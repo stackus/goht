@@ -478,13 +478,6 @@ func lexHmltTextContent(l *lexer) lexFn {
 		}
 		return lexHmltLineEnd
 	}
-	// if l.peek() == '#' {
-	// 	return lexHmltDynamicText
-	// }
-	// if l.current() != "" {
-	// 	l.emit(tPlainText)
-	// }
-	// return lexHmltLineEnd
 }
 
 func lexHmltDynamicText(l *lexer) lexFn {
@@ -494,13 +487,6 @@ func lexHmltDynamicText(l *lexer) lexFn {
 		l.next()
 		return lexHmltTextContent
 	}
-	// if strings.HasSuffix(l.current(), "\\") {
-	// 	// the backslash is itself being escaped, so we need to continue interpreting it as plain text
-	// 	if !strings.HasSuffix(l.current(), "\\\\") {
-	// 		l.next()
-	// 		return lexHmltTextContent
-	// 	}
-	// }
 	if l.current() != "" {
 		l.emit(tPlainText)
 	}
