@@ -170,12 +170,12 @@ Hamlet templates are files with the extension `.hmlt` that when process will pro
 In these files you are free to write any Go code that you wish, and then drop into HAML mode using the `@hmlt` directive.
 
 The following starts the creation of a SiteLayout template:
-```	
+```haml
 @hmlt SiteLayout() {
 ```
 
 Hamlet templates are closed like Go functions, with a closing brace `}`. So a complete but empty example is this:
-```
+```haml
 @hmlt SiteLayout() {
 }
 ```
@@ -205,7 +205,7 @@ You may also import any packages that you need to use in your template. The impo
 
 ### Multiple templates per file
 You can declare as many templates in a file as you wish. Each template must have a unique name in the module they will be output into.
-```
+```haml
 @hmlt SiteLayout() {
 }
 
@@ -215,7 +215,7 @@ You can declare as many templates in a file as you wish. Each template must have
 
 The templates are converted into Go functions, so they must be valid Go function names.
 This also means that you can declare them with parameters and can use those parameters in the template.
-```
+```haml
 @hmlt SiteLayout(title string) {
 	!!!
 	%html{lang:"en"}
@@ -228,7 +228,7 @@ This also means that you can declare them with parameters and can use those para
 
 ### Doctypes
 Only the HTML 5 doctype is supported, and is written using `!!!`.
-```html
+```haml
 @hmlt SiteLayout() {
 	!!!
 }
@@ -245,7 +245,7 @@ So instead of this:
 	%strong The user exists
 ```
 You would write this:
-```
+```haml
 - if user != nil {
 	%strong The user exists
 - }
@@ -254,26 +254,26 @@ There is no processing performed on the Go code you put into the templates, so i
 
 ### Rendering code
 Like in Haml, you can output variables and the results of expressions. The `=` script syntax and text interpolation `#{}` are supported.
-```
+```haml
 %strong= user.Name
 %strong The user's name is #{user.Name}
 ```
 
 The catch is what is being outputted will need to be a string in all cases.
 So instead of writing this to output an integer value:
-```ruby
+```haml
 %strong= user.Age
 ```
 You would need to write this:
-```
+```haml
 %strong= fmt.Sprintf("%d", user.Age)
 ```
 Which to be honest can be a bit long to write, so a shortcut is provided:
-```
+```haml
 %strong=%d user.Age
 ```
 The interpolation also supports the shortcut:
-```
+```haml
 %strong #{user.Name} is #{%d user.Age} years old.
 ```
 When formatting a value into a string `fmt.Sprintf` is used under the hood, so you can use any of the formatting options that it supports.
@@ -282,15 +282,15 @@ When formatting a value into a string `fmt.Sprintf` is used under the hood, so y
 Only the Ruby 1.9 style of attributes is supported.
 This syntax is closest to the Go syntax, and is the most readable.
 Between the attribute name, operator, and value you can include or leave out as much whitespace as you like.
-```
+```haml
 %a{href: "https://github.com/stackus/hamlet", target: "_blank"} Hamlet
 ```
 You can supply a value to an attribute using the text interpolation syntax.
-```
+```haml
 %a{href:#{url}} Hamlet
 ```
 Attributes can be written over multiple lines, and the closing brace can be on a new line.
-```
+```haml
 %a{
 	href: "...",
 	target: "_blank",
@@ -298,7 +298,7 @@ Attributes can be written over multiple lines, and the closing brace can be on a
 ```
 Attributes which you want to render conditionally use the `?` operator instead of the `:` operator.
 For conditional attributes the attribute value is required to be an interpolated value which will be used as the condition in a Go `if` statement.
-```
+```haml
 %button{
 	disabled ? #{disabled},
 } Click me
@@ -306,7 +306,7 @@ For conditional attributes the attribute value is required to be an interpolated
 > Note: The final comma is not required on the last attribute when they are spread across multiple lines like it would be in Go. Including it is fine and will not cause any issues.
 
 Certain characters in the attribute name will require that the name be escaped.
-```
+```haml
 %button{
 	"@click": "onClick",
 	":disabled": "disabled",
@@ -321,7 +321,7 @@ This directive takes a list of arguments which comes in two forms:
 	- The attribute will be rendered if the value is not empty.
 - `map[string]bool`
   - The key is the attribute name, the value is the condition to render the attribute.
-```
+```haml
 %button{
 	"@click": "onClick",
 	":disabled": "disabled",
@@ -340,7 +340,7 @@ These values can be the following types:
 	- The key is the class name, the value is the condition to include the class.
 
 Examples:
-```
+```haml
 %button.foo.bar.baz Click me
 %button.fizz{class:"foo bar baz"} Click me
 %button.foo{class:#{myStrClasses, myBoolClasses}} Click me
@@ -373,20 +373,20 @@ Only the following Haml filters are supported:
 
 ### Template nesting
 The biggest departure from Haml is how templates can be combined. When working Haml you could use `= render :partial_name` or `= haml :partial_name` to render a partial. The `render` and `haml` functions are not available in Hamlet, instead you can use the `@render` directive.
-```
+```haml
 @hmlt HomePage() {
 	= @render SiteLayout()
 }
 ```
 The above would render the `SiteLayout` template, and you would call it with any parameters that it needs. You can also call it and provide it with a block of content to render where it chooses.
-```
+```haml
 @hmlt HomePage() {
 	= @render SiteLayout()
 		%p This is the home page for Hamlet.
 }
 ```
 Any content nested under the `@render` directive will be passed into the template that it can render where it wants using the `@children` directive.
-```
+```haml
 @hmlt SiteLayout() {
 	!!!
 	%html{lang:"en"}
