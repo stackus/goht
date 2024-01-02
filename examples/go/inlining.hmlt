@@ -1,0 +1,17 @@
+package example
+
+// You can include Go code to handle conditional and loop statements
+// in your Hamlet templates.
+
+var isAdmin = true
+
+@hmlt Conditional() {
+	.actions
+		- if isAdmin {
+			%button<
+				Edit content
+		- } else {
+			%button Login
+		- }
+		%button View content
+}

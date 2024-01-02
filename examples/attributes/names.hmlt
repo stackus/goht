@@ -1,0 +1,28 @@
+// For most attribute names you can include the name in the list
+// of attributes just as you expect it to appear in the HTML. Names
+// that contain alphanumeric characters, dashes (-), and
+// underscores (_) are all acceptable as-is.
+
+@hmlt SimpleNames() {
+	%a{
+		href: "https://github.com/stackus/hamlet",
+		data-foo: "bar",
+		odd_name: "baz",
+		_: "I'm a _hyperscript attribute!"
+	} Hamlet
+}
+
+// For more complex names, such as data attributes, you can use
+// enclose the name in in double quotes or backticks.
+// - Names that start with an at sign (@).
+// - Names that contain a colon (:).
+// - Names that contain a question mark (?).
+// The names will be rendered into the HTML without the quotes.
+
+@hmlt ComplexNames() {
+	%a{
+		href: "https://github.com/stackus/hamlet",
+		`:class`: "show ? '' : 'hidden'",
+		`@click`: "show = !show",
+	} Hamlet
+}

@@ -1,5 +1,0 @@
-package __interpolate
-
-@hmlt interpolate(foo string) {
-%p won & done #{foo}
-}

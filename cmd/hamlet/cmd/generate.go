@@ -13,7 +13,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/stackus/hamlet/transpiler"
+	"github.com/stackus/hamlet/compiler"
 )
 
 const HamletFileExtension = ".hmlt"
@@ -23,6 +23,7 @@ type generateFlags struct {
 	path     string
 	skipDirs []string
 	force    bool
+	keep     bool
 }
 
 var generateOptions generateFlags
@@ -31,8 +32,7 @@ var maxWorkers = runtime.NumCPU()
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
 	Use:   "generate",
-	Short: "Generates Go code from hmlt files",
-	Long:  ``,
+	Short: "Generates Go code from Hamlet files",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runGenerate()
 	},
@@ -45,8 +45,9 @@ func init() {
 	generateCmd.Flags().StringSliceVar(&generateOptions.skipDirs, "skip-dirs", []string{
 		"vendor", "node_modules",
 	}, "The directories to skip.")
-	generateCmd.Flags().IntVar(&maxWorkers, "max-workers", maxWorkers, "The maximum number of workers to use.")
+	generateCmd.Flags().IntVar(&maxWorkers, "max-workers", maxWorkers, "The maximum number of workers to use. (default: number of CPUs)")
 	generateCmd.Flags().BoolVar(&generateOptions.force, "force", false, "Force generation of all files.")
+	generateCmd.Flags().BoolVar(&generateOptions.keep, "keep", false, "Preserve Go files lacking a Hamlet counterpart.")
 }
 
 func runGenerate() error {
@@ -99,11 +100,13 @@ func runGenerate() error {
 				return nil
 			}
 			if strings.HasSuffix(entryName, GeneratedFileExtension) {
-				// check for a matching .hmlt file; if it doesn't exist, delete the .hmlt.go file
-				hmltFile := strings.TrimSuffix(entryName, ".go")
-				if _, err := os.Stat(hmltFile); os.IsNotExist(err) {
-					fmt.Printf("deleting %s\n", entryName)
-					return os.Remove(entryName)
+				if !generateOptions.keep {
+					// check for a matching .hmlt file; if it doesn't exist, delete the .hmlt.go file
+					hmltFile := strings.TrimSuffix(entryName, ".go")
+					if _, err := os.Stat(hmltFile); os.IsNotExist(err) {
+						fmt.Printf("deleting %s\n", entryName)
+						return os.Remove(entryName)
+					}
 				}
 			}
 			// ignore non-Hamlet files
@@ -147,7 +150,7 @@ func runGenerate() error {
 }
 
 func processFile(path, fileName string) (err error) {
-	t, err := transpiler.ParseFile(filepath.Join(path, fileName))
+	t, err := compiler.ParseFile(filepath.Join(path, fileName))
 	if err != nil {
 		return err
 	}

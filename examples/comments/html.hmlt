@@ -1,0 +1,19 @@
+// HTML comments can be included and will be added to the rendered
+// output.
+// HTML comments are added using the forward slash at the beginning
+// of the line
+
+@hmlt HtmlComments() {
+	%p This is a paragraph
+	/ This is a HTML comment
+}
+
+// You may also use them to comment out nested elements. This does
+// not stop the nested elements from being parsed, just from being
+// displayed.
+
+@hmlt HtmlCommentsNested() {
+	%p This is a paragraph
+	/
+		%p This is a paragraph that is commented out
+}

@@ -1,0 +1,15 @@
+
+// The `:plain` filter can be used to display a large amount of text
+// without any parsing. Lines may begin with Haml syntax and it will
+// be ignored.
+// Variable interpolation is still performed.
+
+@hmlt PlainExample() {
+	:plain
+		## Header ##
+		... important? ...
+		This is plain text.
+		It will be displayed exactly as it is written,
+		newlines and all.
+		#{"This will \"be\" interpolated"}
+}

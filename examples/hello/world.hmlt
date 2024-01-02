@@ -1,0 +1,33 @@
+package hello
+// An example of several Haml features supported by Hamlet.
+
+var terms = []string{"foo", "bar", "baz", "fizz", "buzz", "quux"}
+
+@hmlt termsWrapper(term string) {
+	%div=@children
+}
+
+@hmlt World() {
+!!!
+%html{lang: "en"}
+	%head
+		%meta{charset: "utf-8"}
+		%title Hello World
+		:css
+			body {
+				color: white;
+				font-family: sans-serif;
+				background-color: #333;
+			}
+			.term {
+				font-weight: bold;
+				color: #99f;
+			}
+	%body
+		%h1 Hello World
+		%p the following will use a slice of strings and will each string into a child template
+		- for _, term := range terms {
+			=@render termsWrapper(term)
+				%p.term= term
+		- }
+}

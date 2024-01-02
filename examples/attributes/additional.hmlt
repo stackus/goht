@@ -1,0 +1,22 @@
+
+// Additional attributes may be added to an element using the `@attributes`
+// command. This command accepts a list of additional attributes in the
+// following formats:
+// - A map[string]bool - Any attribute with a true value is added as is.
+// - A map[string]string - Any attribute with a non-empty string value is
+//   added as is.
+
+var boolAttrs = map[string]bool{
+	"disabled": true,
+	"checked":  false,
+}
+var strAttrs = map[string]string{
+	"type": "checkbox",
+	"value": "foo",
+}
+
+@hmlt AttributesCmd() {
+	%input{
+		@attributes: #{boolAttrs, strAttrs},
+	}
+}

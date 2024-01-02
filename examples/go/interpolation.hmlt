@@ -1,0 +1,42 @@
+package example
+
+// Variables and calls to functions that return values can be interpolated
+// into the Hamlet templates.
+
+var someVar = "Hello"
+
+@hmlt InterpolateCode() {
+	%p #{someVar}, World!
+}
+
+// Because the interpolation and tag id share the same starting character,
+// a `#` you will need to escape the interpolation with a backslash when it
+// is the first character of a line.
+// This is only necessary when it is the first character of a line and not
+// when it is the first character of text following a tag.
+
+@hmlt EscapeInterpolation() {
+	\#{someVar}, World!
+	%p #{someVar}, World!
+}
+
+// There are also times when you want to ignore the interpolation and just
+// print the text. This is also handled with the backslash.
+// This can be done at the start of a line, after a tag or even mid-text.
+//
+// You will need to use two backslashes to escape the interpolation when
+// it is at the start of a line. This is because the first backslash is
+// triggering the parser to not interpret the next character as any
+// kind of special character.
+// This is also how you would escape a tag, id, or class character at the
+// start of a line.
+
+@hmlt IgnoreInterpolation() {
+	\\#{someVar}, World!
+	%p
+		\\#{someVar}, World!
+	A greeting: \#{someVar}, World!
+	\. this line begins with a period
+	\# this line begins with a hash
+	\% this line begins with a percent
+}

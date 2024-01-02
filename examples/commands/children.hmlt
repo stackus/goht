@@ -1,0 +1,15 @@
+// Any template can be included into another template; assuming that
+// you have not created a circular reference, this will not cause the
+// compiler to loop but will instead cause the generated code to
+// run into errors.
+// When you are creating a template that will be included into another
+// template, you can use the `@children` command to indicate where any
+// optional content from the calling template should be inserted.
+// The `@children` command is used in combination with the rendering
+// code syntax `=`.
+
+@hmlt ChildrenExample() {
+	%p
+		The following was passed in from the calling template:
+		= @children
+}
