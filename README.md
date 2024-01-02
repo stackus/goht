@@ -154,10 +154,10 @@ go get github.com/stackus/hamlet
 ```
 
 ## Using Hamlet
-To start using Hamlet, the first step is to create a Hamlet file with template.
+To start using Hamlet, the first step is to create a Hamlet file with one or more Haml templates.
 If you need guidance, the section [The Hamlet template](#the-hamlet-template) has all the information you need.
 
-Once your templates are written, the next step involves generating Go code from them.
+With your Hamlet files written, the next step involves generating Go code from them.
 The [CLI](#hamlet-cli) tool handles this generation step.
 It's a straightforward process that converts your Hamlet files and templates into ready to run Go files.
 
