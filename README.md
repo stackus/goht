@@ -67,7 +67,7 @@ A [Haml](http://haml.info/) template engine for Go.
 
 ### CLI Installation
 ```sh
-go install github.com/a-h/hamlet/cmd/hamlet@latest
+go install github.com/stackus/hamlet/cmd/hamlet@latest
 ```
 
 ### CLI Usage
