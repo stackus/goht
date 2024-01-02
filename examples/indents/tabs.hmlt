@@ -1,0 +1,22 @@
+package indents
+
+// You may use tabs to indent the Haml templates.
+// Hamlet does not change how indenting works in Haml. If you want
+// to use tabs, you must use tabs consistently.
+// Do not mix tabs and spaces in a single template. You would be
+// asking for trouble IMO but you may use tabs in one template and
+// spaces in another.
+
+@hmlt UsingTabs() {
+!!!
+%html{lang: "en"}
+	%head
+		%meta{charset: "utf-8"}
+		%title
+			Hello World
+	%body
+		%h1
+			Hello World
+		%p
+			Hello World
+}
