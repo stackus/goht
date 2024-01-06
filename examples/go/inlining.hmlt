@@ -15,3 +15,36 @@ var isAdmin = true
 		- }
 		%button View content
 }
+
+// However, we are using Haml and so we're into shortcuts. We can
+// continue to write out the brackets or we can use the shorthand
+// syntax.
+// The short hand form simply drops the opening and closing brackets
+// for statements that wrap around children.
+// Shorthand statements include:
+// for, if, else, else if, switch
+
+@hmlt ShorthandConditional() {
+  .actions
+    - if isAdmin
+      %button<
+        Edit content
+    - else
+      %button Login
+    %button View content
+}
+
+// With a switch statement, we can use the case and default keywords
+// but we will need to nest these statements if we're using the
+// shorthand syntax. (win some, lose some)
+
+@hmlt ShorthandSwitch() {
+  .actions
+    - switch isAdmin
+      - case true:
+        %button<
+          Edit content
+      - case false:
+        %button Login
+    %button View content
+}

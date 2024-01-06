@@ -83,6 +83,8 @@ type nodeBase interface {
 	Children() []nodeBase
 	// AddChild adds a child to the node.
 	AddChild(nodeBase)
+	// SetNextSibling sets the next sibling of the node.
+	SetNextSibling(nodeBase)
 	// Source returns the source code of the node.
 	Source(tw *templateWriter) error
 	Tree(buf *bytes.Buffer, indent int) string
@@ -95,10 +97,11 @@ type parsingNode interface {
 }
 
 type node struct {
-	typ      nodeType
-	indent   int
-	origin   token
-	children []nodeBase
+	typ         nodeType
+	indent      int
+	origin      token
+	children    []nodeBase
+	nextSibling nodeBase
 }
 
 func newNode(typ nodeType, indent int, origin token) node {
@@ -125,7 +128,14 @@ func (n *node) Children() []nodeBase {
 	return n.children
 }
 
+func (n *node) SetNextSibling(sibling nodeBase) {
+	n.nextSibling = sibling
+}
+
 func (n *node) AddChild(c nodeBase) {
+	if len(n.children) > 0 {
+		n.children[len(n.children)-1].SetNextSibling(c)
+	}
 	n.children = append(n.children, c)
 }
 
@@ -906,7 +916,8 @@ func (n *UnescapeNode) parse(p *parser) error {
 
 type SilentScriptNode struct {
 	node
-	code string
+	code       string
+	needsClose bool
 }
 
 func NewSilentScriptNode(t token, indent int) *SilentScriptNode {
@@ -916,10 +927,32 @@ func NewSilentScriptNode(t token, indent int) *SilentScriptNode {
 	}
 }
 
+var openingStatements = []string{"if", "else if", "for", "switch"}
+var elseStatements = []string{"else", "else if"}
+
 func (n *SilentScriptNode) Source(tw *templateWriter) error {
 	code := strings.TrimSpace(n.code)
 
-	if err := tw.WriteIndent(code + "\n"); err != nil {
+	isOpening := false
+	for _, statement := range openingStatements {
+		if strings.HasPrefix(code, statement) {
+			isOpening = true
+			break
+		}
+	}
+
+	start := ""
+	end := "\n"
+	if n.needsClose && !strings.HasPrefix(code, "}") {
+		start = "} "
+	}
+	if len(n.children) > 0 {
+		if isOpening && !strings.HasSuffix(code, "{") {
+			end = " {\n"
+		}
+	}
+
+	if err := tw.WriteIndent(start + code + end); err != nil {
 		return err
 	}
 
@@ -933,8 +966,22 @@ func (n *SilentScriptNode) Source(tw *templateWriter) error {
 			return err
 		}
 	}
+
 	if err := itw.Close(); err != nil {
 		return err
+	}
+
+	if p, ok := n.nextSibling.(*SilentScriptNode); ok {
+		for _, statement := range elseStatements {
+			if strings.HasPrefix(p.code, statement) {
+				p.needsClose = true
+				break
+			}
+		}
+	} else if isOpening {
+		if err := tw.WriteIndent("}\n"); err != nil {
+			return err
+		}
 	}
 
 	return nil
