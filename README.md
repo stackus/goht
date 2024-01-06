@@ -311,19 +311,22 @@ Only the HTML 5 doctype is supported, and is written using `!!!`.
 
 ### Inlined code
 You won't be using Ruby here, you'll be using Go.
-And in Go you need to use curly braces to denote the start and end of a block of code.
-So instead of this:
-```ruby
+In most situations where we would need to include opening and closing braces in Go, we can omit them in Hamlet.
+This makes it a lot closer to the Ruby-based Haml, and makes the templates easier to read.
+Go will still require we have a full statement, no shorthands for boolean conditionals.
+So instead of this with Ruby:
+```haml
 - if user
   %strong The user exists
 ```
-You would write this:
+You would write this with Go:
 ```haml
-- if user != nil {
+- if user != nil
   %strong The user exists
-- }
 ```
-There is no processing performed on the Go code you put into the templates, so it needs to be valid Go code.
+There is minimal processing performed on the Go code you put into the templates, so it needs to be valid Go code sans braces.
+> You may continue to use the braces if you wish. Existing code with braces will continue to work without modifications.
+
 
 ### Rendering code
 Like in Haml, you can output variables and the results of expressions. The `=` script syntax and text interpolation `#{}` are supported.
