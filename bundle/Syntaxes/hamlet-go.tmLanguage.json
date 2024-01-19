@@ -1,0 +1,479 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Hamlet (Go+Haml)",
+	"scopeName": "source.hamlet-go",
+	"fileTypes": [
+		"hmlt"
+	],
+	"patterns": [
+		{
+			"include": "source.go"
+		},
+		{
+			"include": "#hamlet-template"
+		}
+	],
+	"repository": {
+		"hamlet-template": {
+			"begin": "^(@hmlt) (.+? {)",
+			"end": "(^}$)",
+			"beginCaptures": {
+				"1": {
+					"patterns": [
+						{
+							"include": "#hamlet-template-start"
+						}
+					]
+				},
+				"2": {
+					"patterns": [
+						{
+							"include": "source.go"
+						}
+					]
+				}
+			},
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.end.bracket.curly.go"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#hamlet-template-content"
+				}
+			],
+			"name": "hamlet-template.hamlet-go"
+		},
+		"hamlet-template-start": {
+			"match": ".+",
+			"captures": {
+				"0": {
+					"name": "keyword.function.go"
+				}
+			}
+		},
+		"hamlet-template-content": {
+			"patterns": [
+				{
+					"include": "#doctype"
+				},
+				{
+					"include": "#tag"
+				},
+				{
+					"include": "#filter-javascript"
+				},
+				{
+					"include": "#filter-css"
+				},
+				{
+					"include": "#filter-text"
+				},
+				{
+					"include": "#inline-javascript"
+				},
+				{
+					"include": "#comment-line"
+				},
+				{
+					"include": "#comment-block"
+				},
+				{
+					"include": "#go-line"
+				},
+				{
+					"include": "#interpolated-go-line"
+				},
+				{
+					"include": "#string-line"
+				}
+			]
+		},
+		"doctype": {
+			"name": "meta.doctype.html",
+			"match": "^\\s*(!!!)($|\\s.*)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.doctype.html"
+				}
+			}
+		},
+		"tag": {
+			"name": "tag.html",
+			"begin": "^\\s*(?:((%)([-\\w:]+))|(?=\\.|#))",
+			"end": "$|(?!\\.|#|\\{|\\[|=|-|~|!=|/)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.tag.html"
+				},
+				"2": {
+					"name": "punctuation.definition.tag.html"
+				},
+				"3": {
+					"name": "entity.name.tag"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#tag-id"
+				},
+				{
+					"include": "#tag-class"
+				},
+				{
+					"include": "#tag-attributes"
+				},
+				{
+					"include": "#tag-object-ref"
+				},
+				{
+					"include": "#interpolated-go-line"
+				},
+				{
+					"name": "punctuation.terminator.tag.html",
+					"match": "/"
+				}
+			]
+		},
+		"filter-javascript": {
+			"name": "js.html",
+			"begin": "^(\\s*)(:)(javascript)",
+			"end": "^(?!\\1\\s+|$\\n*)",
+			"beginCaptures": {
+				"2": {
+					"name": "punctuation.definition.tag.html"
+				},
+				"3": {
+					"name": "support.function.builtin.hamlet-go"
+				}
+			},
+			"contentName": "meta.embedded.block.javascript",
+			"patterns": [
+				{
+					"include": "source.js"
+				},
+				{
+					"include": "#interpolated-go"
+				}
+			]
+		},
+		"filter-css": {
+			"begin": "^(\\s*)(:)(css)",
+			"end": "^(?!\\1\\s+|$\\n*)",
+			"beginCaptures": {
+				"2": {
+					"name": "punctuation.definition.tag.html"
+				},
+				"3": {
+					"name": "support.function.builtin.hamlet-go"
+				}
+			},
+			"contentName": "meta.embedded.block.css",
+			"patterns": [
+				{
+					"include": "source.css"
+				},
+				{
+					"include": "#interpolated-go"
+				}
+			]
+		},
+		"filter-text": {
+			"begin": "^(\\s*)(:)(plain|escaped|preserve)$",
+			"end": "^(?=\\1\\s+|$\\n*)",
+			"beginCaptures": {
+				"2": {
+					"name": "punctuation.definition.tag.html"
+				},
+				"3": {
+					"name": "support.function.builtin.hamlet-go"
+				}
+			},
+			"patterns": [
+				{
+					"include": "text.plain"
+				},
+				{
+					"include": "#interpolated-go"
+				}
+			]
+		},
+		"inline-javascript": {
+			"name": "js.inline.html",
+			"begin": "^(\\s*)%script",
+			"end": "^(?!\\1\\s+|$\\n*)",
+			"patterns": [
+				{
+					"include": "source.js"
+				}
+			]
+		},
+		"comment-line": {
+			"name": "comment.line.go",
+			"match": "^(\\s*)(\\/\\[[^\\]].*?$\\n*)",
+			"captures": {
+				"1": {
+					"name": "punctuation.section.comment.html"
+				}
+			}
+		},
+		"comment-block": {
+			"name": "comment.block.html",
+			"begin": "^(\\s*)(\\-\\#|\\/|\\-\\s*\\/\\*+)",
+			"end": "^(?!\\1\\s+|\\n)"
+		},
+		"interpolated-go": {
+			"patterns": [
+				{
+					"match": "(?<!\\\\)#\\{(\\})",
+					"captures": {
+						"0": {
+							"name": "punctuation.definition.begin.bracket.curly.go"
+						},
+						"1": {
+							"name": "punctuation.definition.end.bracket.curly.go"
+						}
+					}
+				},
+				{
+					"begin": "(?<!\\\\)#\\{",
+					"end": "(\\})",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.begin.bracket.curly.go"
+						}
+					},
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.end.bracket.curly.go"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#interpolated-value"
+						}
+					]
+				}
+			]
+		},
+		"interpolated-value": {
+			"match": "(%[^\\s]+\\s)?[^\\}]+(?=\\})",
+			"name": "variable.other.assignment.go.embedded.hamlet-go",
+			"captures": {
+				"0": {
+					"name": "variable.other.assignment.go.embedded.hamlet-go"
+				},
+				"1": {
+					"patterns": [
+						{
+							"include": "source.go#string_placeholder"
+						}
+					]
+				}
+			}
+		},
+		"interpolated-go-line": {
+			"name": "meta.line.go.interpolated.html",
+			"begin": "!?=",
+			"end": "$",
+			"beginCaptures": {
+				"0": {
+					"name": "keyword.operator.go"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#commands"
+				},
+				{
+					"include": "source.go"
+				}
+			]
+		},
+		"go-line": {
+			"name": "meta.line.go.html",
+			"begin": "^\\s*!?(=|-)",
+			"end": "$",
+			"beginCaptures": {
+				"0": {
+					"name": "keyword.operator.go"
+				}
+			},
+			"endCaptures": {
+				"0": {
+					"name": "keyword.operator.go"
+				}
+			},
+			"contentName": "source.go.embedded.html",
+			"patterns": [
+				{
+					"include": "#commands"
+				},
+				{
+					"include": "source.go"
+				}
+			]
+		},
+		"string-line": {
+			"patterns": [
+				{
+					"match": "\\s*(!)(.+)$",
+					"captures": {
+						"1": {
+							"name": "punctuation.definition.tag.html"
+						},
+						"2": {
+							"patterns": [
+								{
+									"include": "#interpolated-go"
+								},
+								{
+									"match": "(?!#\\{)([^{}]+?)(?<!\\})",
+									"name": "string.quoted.double.go"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": "\\s*(?![!%#.=-])(.+)$",
+					"captures": {
+						"1": {
+							"patterns": [
+								{
+									"include": "#interpolated-go"
+								},
+								{
+									"match": "(?!#\\{)([^{}]+?)(?<!\\})",
+									"name": "string.quoted.double.go"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		"tag-id": {
+			"name": "meta.selector.css",
+			"match": "(#)([\\w-]+)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.tag.html"
+				},
+				"2": {
+					"name": "constant.language.go"
+				}
+			}
+		},
+		"tag-class": {
+			"name": "meta.selector.css",
+			"match": "(\\.)([\\w\\-\\:]+)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.tag.html"
+				},
+				"2": {
+					"name": "entity.other.attribute-name.class"
+				}
+			}
+		},
+		"tag-attributes": {
+			"name": "meta.section.attributes.html",
+			"begin": "(?<!\\#)\\{(?=.*(,|\\{|\\}|(\\#.*)|\\R)\\s*)",
+			"end": "\\s*\\}(?!\\s*\\,)(?!\\#\\{.*\\})",
+			"beginCaptures": {
+				"0": {
+					"name": "keyword.operator.go"
+				}
+			},
+			"endCaptures": {
+				"0": {
+					"name": "keyword.operator.go"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#attribute-list"
+				}
+			]
+		},
+		"attribute-list": {
+			"patterns": [
+				{
+					"include": "#attribute-field-value"
+				},
+				{
+					"include": "#attribute-field-name"
+				},
+				{
+					"name": "punctuation.other.go",
+					"match": "\\s*[:?,]\\s*"
+				},        {
+					"include": "#interpolated-go"
+				}
+			]
+		},
+		"attribute-field-name": {
+			"patterns": [
+				{
+					"name": "entity.other.attribute-name.html",
+					"match": "(?<![:?])\\s*([a-zA-Z_][\\-\\w]*)(?=\\s*(?:[:?,}]))"
+				},
+				{
+					"name": "entity.other.attribute-name.html",
+					"match": "(?<![:?])\\s*(?:((?<![\\\\])[`\"])((?:.(?!(?<![\\\\])[`\"]))*.?)[`\"])(?=\\s*(?:[:?}]))"
+				},
+				{
+					"name": "entity.name.function.embedded.go",
+					"match": "(?<![:?])\\s*@attributes(?=\\s*(?:[:?,}]))"
+				}
+			]
+		},
+		"attribute-field-value": {
+			"patterns": [
+				{
+					"match": "([:?])\\s*((?<![\\\\])[`\"])((?:.(?!(?<![\\\\])[`\"]))*.?)(\\2)",
+					"captures": {
+						"1": {
+							"name": "punctuation.other.go"
+						},
+						"2": {
+							"name": "string.quoted.double.go"
+						},
+						"3": {
+							"name": "string.quoted.double.go"
+						},
+						"4": {
+							"name": "string.quoted.double.go"
+						}
+					}
+				}
+			]
+		},
+		"tag-object-ref": {
+			"begin": "(\\[)(?=.+(,|\\[|\\]|\\||(\\#.*))\\s*)",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.definition.begin.bracket.square.go"
+				}
+			},
+			"end": "\\s*(\\])(?!.*(?!\\#\\[)\\])",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.end.bracket.square.go"
+				}
+			},
+			"name": "meta.section.object.html",
+			"patterns": [
+				{
+					"include": "source.go"
+				}
+			]
+		},
+		"commands": {
+			"name": "entity.name.function.embedded.go",
+			"match": "(?<=[=-])\\s*@(?:render|children)(?:\\s|$)"
+		}
+	}
+}
