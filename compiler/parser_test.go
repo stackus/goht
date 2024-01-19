@@ -415,6 +415,19 @@ func Test_ElementAttributes(t *testing.T) {
 			NewLine
 `,
 		},
+		"indented elements": {
+			input: `@hmlt test() {
+  %p foo
+  %p bar
+}`,
+			want: `Root
+	Hmlt
+		Element p()
+			Text(S)
+		Element p()
+			Text(S)
+`,
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -621,7 +634,6 @@ func Test_RenderNode(t *testing.T) {
 			want: `Root
 	Hmlt
 		RenderCommand
-			NewLine
 `,
 		},
 		"with children": {
@@ -629,7 +641,6 @@ func Test_RenderNode(t *testing.T) {
 			want: `Root
 	Hmlt
 		RenderCommand
-			NewLine
 			Element p()
 				Text(S)
 `,
@@ -641,7 +652,6 @@ func Test_RenderNode(t *testing.T) {
 		Element p1()
 			Text(S)
 		RenderCommand
-			NewLine
 			Element p()
 				Text(S)
 		Element p2()

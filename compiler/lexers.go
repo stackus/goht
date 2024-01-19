@@ -122,7 +122,8 @@ func lexHmltStart(l *lexer) lexFn {
 	l.acceptUntil(")")
 	l.next()
 	l.emit(tHmltStart)
-	l.skipRun(" {\n\r")
+	l.skipRun(" {")
+	l.skipRun("\n\r")
 
 	return lexHmltLineStart
 }
