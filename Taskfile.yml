@@ -1,0 +1,16 @@
+# https://taskfile.dev
+version: '3'
+
+silent: true
+
+dotenv:
+  - ./.version
+
+tasks:
+  version:
+    desc: Set the version
+    summary: |
+      Set the version
+    cmds:
+      - git tag -a v{{ .VERSION }} -m "Release v{{ .VERSION }}"
+      - git push origin
