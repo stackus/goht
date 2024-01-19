@@ -26,8 +26,7 @@ var terms = []string{"foo", "bar", "baz", "fizz", "buzz", "quux"}
 	%body
 		%h1 Hello World
 		%p the following will use a slice of strings and will each string into a child template
-		- for _, term := range terms {
+		- for _, term := range terms
 			=@render termsWrapper(term)
 				%p.term= term
-		- }
 }
