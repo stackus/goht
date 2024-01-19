@@ -10,6 +10,11 @@ import (
 )
 
 // You may use tabs to indent the Haml templates.
+// Hamlet does not change how indenting works in Haml. If you want
+// to use tabs, you must use tabs consistently.
+// Do not mix tabs and spaces in a single template. You would be
+// asking for trouble IMO but you may use tabs in one template and
+// spaces in another.
 
 func UsingTabs() hamlet.Template {
 	return hamlet.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {

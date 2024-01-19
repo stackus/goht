@@ -44,6 +44,47 @@ func InterpolateCode() hamlet.Template {
 	})
 }
 
+// Interpolation is not done within Go code or within a string literal.
+func NoInterpolation() hamlet.Template {
+	return hamlet.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(*bytes.Buffer)
+		if !__isBuf {
+			__buf = hamlet.GetBuffer()
+			defer hamlet.ReleaseBuffer(__buf)
+		}
+		var __children hamlet.Template
+		ctx, __children = hamlet.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p>Do the following; No interpolation is necessary.</p>\n<p>"); __err != nil {
+			return
+		}
+		var __var2 string
+		if __var2, __err = hamlet.CaptureErrors(hamlet.EscapeString(someVar + ", World!")); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var2); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</p>\n<p>"); __err != nil {
+			return
+		}
+		var __var3 string
+		if __var3, __err = hamlet.CaptureErrors(hamlet.EscapeString("No interpolation is #{performed} here.")); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var3); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(hamlet.NukeWhitespace(__buf.Bytes()))
+		}
+		return
+	})
+}
+
 // Because the interpolation and tag id share the same starting character,
 // a `#` you will need to escape the interpolation with a backslash when it
 // is the first character of a line.
@@ -60,21 +101,21 @@ func EscapeInterpolation() hamlet.Template {
 		var __children hamlet.Template
 		ctx, __children = hamlet.PopChildren(ctx)
 		_ = __children
-		var __var2 string
-		if __var2, __err = hamlet.CaptureErrors(hamlet.EscapeString(someVar)); __err != nil {
+		var __var4 string
+		if __var4, __err = hamlet.CaptureErrors(hamlet.EscapeString(someVar)); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var2); __err != nil {
+		if _, __err = __buf.WriteString(__var4); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(", World!\n<p>"); __err != nil {
 			return
 		}
-		var __var3 string
-		if __var3, __err = hamlet.CaptureErrors(hamlet.EscapeString(someVar)); __err != nil {
+		var __var5 string
+		if __var5, __err = hamlet.CaptureErrors(hamlet.EscapeString(someVar)); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var3); __err != nil {
+		if _, __err = __buf.WriteString(__var5); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(", World!</p>\n"); __err != nil {
