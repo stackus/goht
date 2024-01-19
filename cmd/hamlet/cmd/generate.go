@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 
 	"github.com/stackus/hamlet/compiler"
@@ -39,6 +40,7 @@ var generateCmd = &cobra.Command{
 }
 
 func init() {
+	log.SetReportTimestamp(false)
 	rootCmd.AddCommand(generateCmd)
 
 	generateCmd.Flags().StringVar(&generateOptions.path, "path", ".", "The path to the templates directory.")
@@ -59,7 +61,6 @@ func runGenerate() error {
 			return err
 		}
 	}
-	fmt.Printf("processing %s\n", generateOptions.path)
 
 	wg := sync.WaitGroup{}
 	queue := make(chan string)
@@ -70,18 +71,18 @@ func runGenerate() error {
 			defer wg.Done()
 			for fileName := range queue {
 				start := time.Now()
-				fmt.Printf("processing template '%s'\n", fileName)
 				err := processFile(generateOptions.path, fileName)
 				if err != nil {
-					fmt.Printf("error processing template '%s': %s\n", fileName, err)
+					log.Errorf("failed to process: '%s': %s", fileName, err)
 					continue
 				}
-				fmt.Printf("processed '%s' in %s\n", fileName, time.Since(start))
+				log.Infof("processed: '%s' in %s", fileName, time.Since(start))
 			}
 		}()
 	}
 
 	go func() {
+		log.Infof("processing path: '%s'", filepath.Clean(generateOptions.path))
 		// walk the file tree
 		err := filepath.WalkDir(generateOptions.path, func(entryName string, entry os.DirEntry, err error) error {
 			// nope out if there was an error
@@ -104,7 +105,7 @@ func runGenerate() error {
 					// check for a matching .hmlt file; if it doesn't exist, delete the .hmlt.go file
 					hmltFile := strings.TrimSuffix(entryName, ".go")
 					if _, err := os.Stat(hmltFile); os.IsNotExist(err) {
-						fmt.Printf("deleting %s\n", entryName)
+						log.Warnf("deleting orphaned file: %s", entryName)
 						return os.Remove(entryName)
 					}
 				}
@@ -139,7 +140,7 @@ func runGenerate() error {
 			return nil
 		})
 		if err != nil {
-			fmt.Printf("error walking the path %q: %v\n", generateOptions.path, err)
+			log.Errorf("error processing path '%s': %v", generateOptions.path, err)
 		}
 		close(queue)
 	}()
