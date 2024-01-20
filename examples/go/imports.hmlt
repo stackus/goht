@@ -1,6 +1,10 @@
 package example
 
-import "fmt"
+import "strings"
+
+import (
+  fmt "fmt"
+)
 
 // Just like in Go files you can specify imports that are needed
 // by your Go code or Go code inlined into the Hamlet template.
@@ -9,5 +13,5 @@ import "fmt"
 // will be removed.
 
 @hmlt ImportExample() {
-	%p= fmt.Sprintf("Hello, %s!", "World")
+	%p= fmt.Sprintf("Hello, %s!", strings.TrimSuffix("World!", "!"))
 }

@@ -5,9 +5,10 @@ package example
 import (
 	"bytes"
 	"context"
-	"fmt"
+	fmt "fmt"
 	"github.com/stackus/hamlet"
 	"io"
+	"strings"
 )
 
 // Just like in Go files you can specify imports that are needed
@@ -30,7 +31,7 @@ func ImportExample() hamlet.Template {
 			return
 		}
 		var __var1 string
-		if __var1, __err = hamlet.CaptureErrors(hamlet.EscapeString(fmt.Sprintf("Hello, %s!", "World"))); __err != nil {
+		if __var1, __err = hamlet.CaptureErrors(hamlet.EscapeString(fmt.Sprintf("Hello, %s!", strings.TrimSuffix("World!", "!")))); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(__var1); __err != nil {

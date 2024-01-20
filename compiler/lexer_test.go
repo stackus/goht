@@ -259,6 +259,70 @@ func Test_Package(t *testing.T) {
 	}
 }
 
+func Test_Import(t *testing.T) {
+	tests := map[string]struct {
+		input string
+		want  []token
+	}{
+		"import": {
+			input: "import \"fmt\"",
+			want: []token{
+				{typ: tImport, lit: "\"fmt\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"named import": {
+			input: "import foo \"fmt\"",
+			want: []token{
+				{typ: tImport, lit: "foo \"fmt\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"import with newline": {
+			input: "import \"fmt\"\n",
+			want: []token{
+				{typ: tImport, lit: "\"fmt\""},
+				{typ: tNewLine, lit: "\n"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"import with multibyte characters": {
+			input: "import \"测试\"",
+			want: []token{
+				{typ: tImport, lit: "\"测试\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"import with multiple packages": {
+			input: "import (\n\t\"fmt\"\n\t\"strings\"\n)",
+			want: []token{
+				{typ: tImport, lit: "\"fmt\""},
+				{typ: tImport, lit: "\"strings\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"import with multiple named packages": {
+			input: "import (\n\tfoo \"fmt\"\n\tbar \"strings\"\n)",
+			want: []token{
+				{typ: tImport, lit: "foo \"fmt\""},
+				{typ: tImport, lit: "bar \"strings\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			l := newLexer([]byte(tt.input))
+			for _, want := range tt.want {
+				got := l.nextToken()
+				if got.typ != want.typ || got.lit != want.lit {
+					t.Errorf("want %v, got %v", want, got)
+				}
+			}
+		})
+	}
+}
+
 func Test_Go(t *testing.T) {
 	tests := map[string]struct {
 		input string

@@ -90,7 +90,7 @@ func lexImports(l *lexer) lexFn {
 		case scanner.EOF:
 			return l.errorf("import expected")
 		default:
-			l.acceptUntil(" \t\n\r")
+			l.acceptUntil("\n\r")
 			if l.current() == "" {
 				return l.errorf("import expected")
 			}
