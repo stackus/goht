@@ -299,7 +299,7 @@ func (n *CodeNode) parse(p *parser) error {
 	case tGoCode, tNewLine:
 		_, err := n.text.WriteString(p.next().lit)
 		return err
-	case tImport, tHmltStart, tEOF:
+	case tPackage, tImport, tHmltStart, tEOF:
 		return p.backToType(nRoot)
 	default:
 		return n.errorf("unexpected: %s", p.peek())
