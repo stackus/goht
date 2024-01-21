@@ -245,6 +245,15 @@ func Test_Package(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"package with comments": {
+			input: "// comment for package\npackage foo",
+			want: []token{
+				{typ: tGoCode, lit: "// comment for package"},
+				{typ: tNewLine, lit: "\n"},
+				{typ: tPackage, lit: "foo"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
