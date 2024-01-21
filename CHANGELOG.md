@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Fixed a parsing issue when there are multiple imports and either all or some of the imports are named.
+- Fixed a parsing issue when the template file contained comments that came before the package declaration.
+  - The comments will not remain at the top of the generated file and will be placed after the package and import declarations.
 
 ## [v0.2.1](https://github.com/stackus/hamlet/compare/v0.2.0...v0.2.1) - 2024-01-19
 
