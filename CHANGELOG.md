@@ -2,7 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [v0.3.0](https://github.com/stackus/hamlet/compare/v0.2.1...v0.3.0) - 2024-02-01
+
+### Added
+- Added a `lsp` command to the Hamlet CLI. See `hamlet help lsp` for more information. This will enable development of extensions and plugins for Hamlet in various editors and IDEs. 
 
 ### Fixed
 - Fixed a parsing issue when there are multiple imports and either all or some of the imports are named.
