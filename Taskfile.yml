@@ -14,3 +14,4 @@ tasks:
     cmds:
       - git tag -a {{ .VERSION }} -m "Release {{ .VERSION }}"
       - git push origin
+      - git push origin --tags
