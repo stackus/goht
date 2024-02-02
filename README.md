@@ -12,6 +12,8 @@ A [Haml](http://haml.info/) template engine for Go.
 - [Supported Haml Syntax & Features](#supported-haml-syntax--features)
   - [Unsupported Haml Features](#unsupported-haml-features)
 - [Hamlet CLI](#hamlet-cli)
+- [IDE Support](#ide-support)
+	- [LSP](#lsp)
 - [Library Installation](#library-installation)
 - [Using Hamlet](#using-hamlet)
   - [Using Hamlet with HTTP handlers](#using-hamlet-with-http-handlers)
