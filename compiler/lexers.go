@@ -76,8 +76,9 @@ func lexImportStart(l *lexer) lexFn {
 	default:
 		l.acceptUntil("\n\r")
 		l.emit(tImport)
+		l.skipRun("\n\r")
+		return lexGoLineStart
 	}
-	return lexGoLineEnd
 }
 
 func lexImports(l *lexer) lexFn {
@@ -85,8 +86,8 @@ func lexImports(l *lexer) lexFn {
 		l.skipRun(" \t\n\r")
 		switch l.peek() {
 		case ')':
-			l.skip()
-			return lexGoLineEnd
+			l.skipRun(")\n\r")
+			return lexGoLineStart
 		case scanner.EOF:
 			return l.errorf("import expected")
 		default:
