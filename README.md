@@ -146,6 +146,20 @@ hamlet generate --force
 ```
 See more options with `hamlet help generate` or `hamlet generate -h`.
 
+## IDE Support
+- VSCode [Extension](https://marketplace.visualstudio.com/items?itemName=stackus.hamlet-go-vscode) and code [repository](https://github.com/stackus/hamlet-go-vscode)
+- [TextMate Bundle](bundle)
+  - You can import this into JetBrains IDEs such as GoLand and IntelliJ. See the [CHANGELOG](CHANGELOG.md) for more information.
+- Others to come soon such as a true JetBrains plugin.
+
+### LSP
+The Hamlet CLI has been updated to include an LSP server.
+See `hamlet help lsp` for more information.
+This will enable development of extensions and plugins for Hamlet in various editors and IDEs.
+
+Contributions are welcome. Please see the [contributing guide](CONTRIBUTING.md) for more information.
+
+
 ## Library Installation
 When you are using Hamlet you will typically be dealing with the generated Go code, and not the Hamlet runtime directly.
 However, if you need to install the Hamlet library, you can do so with:

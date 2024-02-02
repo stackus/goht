@@ -38,6 +38,9 @@ Before you begin, please ensure you have a GitHub account and are familiar with 
 - Help write and improve the documentation.
 - Contribute to the [examples](examples) directory.
 
+## IDE Extensions
+- Contribute to the development of extensions and plugins for Hamlet in various editors and IDEs that will use the built-in Language Server Protocol (LSP) support.
+
 ## Bug Submissions
 
 We welcome bug reports! If you've found a bug in Hamlet, please submit it as an issue in our GitHub repository. Include as much detail as possible, such as:
