@@ -2,12 +2,10 @@
 
 package main
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // You may use ruby style comments to completely remove a line or
 // even a block of nested elements.

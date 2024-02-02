@@ -2,12 +2,10 @@
 
 package main
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // The text from variables are assumed to need HTML escaping. If you
 // want to include raw HTML, or you have already processed the variable
@@ -73,21 +71,21 @@ func UnescapeInterpolation() hamlet.Template {
 		if _, __err = __buf.WriteString("<p>This "); __err != nil {
 			return
 		}
-		var __var3 string
-		if __var3, __err = hamlet.CaptureErrors(hamlet.EscapeString(html)); __err != nil {
+		var __var1 string
+		if __var1, __err = hamlet.CaptureErrors(hamlet.EscapeString(html)); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var3); __err != nil {
+		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(" HTML.</p>\n<p>This "); __err != nil {
 			return
 		}
-		var __var4 string
-		if __var4, __err = hamlet.CaptureErrors(html); __err != nil {
+		var __var2 string
+		if __var2, __err = hamlet.CaptureErrors(html); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var4); __err != nil {
+		if _, __err = __buf.WriteString(__var2); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(" HTML.</p>\n"); __err != nil {

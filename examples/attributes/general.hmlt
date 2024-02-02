@@ -42,7 +42,7 @@ var myDynamicValue = "foo"
 
 // The dynamic attribute values may also include formatting rules just like
 // the interpolated values. The attribute values are always evaluated as
-// strings and are always rendered inside of double quotes in the final HTML.
+// strings and are always rendered inside double quotes in the final HTML.
 
 var intVar = 10
 

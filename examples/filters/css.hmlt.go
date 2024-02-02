@@ -2,12 +2,10 @@
 
 package main
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // You can include CSS into your templates using the `css` filter. Inside
 // this filter you may include interpolated values.

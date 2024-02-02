@@ -2,12 +2,10 @@
 
 package main
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // For most attribute names you can include the name in the list
 // of attributes just as you expect it to appear in the HTML. Names

@@ -2,12 +2,10 @@
 
 package main
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // Adds a doctype to the top of the page
 // HTML5 doctype is the default

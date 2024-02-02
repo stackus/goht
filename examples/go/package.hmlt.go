@@ -2,12 +2,10 @@
 
 package example
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // Just like in a Go file, you may include a package statement at the
 // top of your file. This is optional, but if you do include it, it

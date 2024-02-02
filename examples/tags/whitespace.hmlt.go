@@ -2,12 +2,10 @@
 
 package tags
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // Whitespace will be added between tags and between tags and text
 // if that text is on a new line after the tag.

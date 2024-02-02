@@ -2,12 +2,12 @@
 
 package example
 
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 import (
-	"bytes"
-	"context"
 	fmt "fmt"
-	"github.com/stackus/hamlet"
-	"io"
 	"strings"
 )
 

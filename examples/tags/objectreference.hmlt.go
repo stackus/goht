@@ -2,12 +2,10 @@
 
 package tags
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // In HAML it is possible to include an object in the tag
 // declaration to make the addition of classes and ids easier.
@@ -86,33 +84,33 @@ func PrefixedObjectRefs(obj Foo) hamlet.Template {
 		if _, __err = __buf.WriteString("<article"); __err != nil {
 			return
 		}
-		if __var3 := hamlet.ObjectID(obj, "prefix"); __var3 != "" {
-			if _, __err = __buf.WriteString(" id=\"" + __var3 + "\""); __err != nil {
+		if __var1 := hamlet.ObjectID(obj, "prefix"); __var1 != "" {
+			if _, __err = __buf.WriteString(" id=\"" + __var1 + "\""); __err != nil {
 				return
 			}
 		}
-		var __var4 string
-		__var4, __err = hamlet.BuildClassList(hamlet.ObjectClass(obj, "prefix"))
+		var __var2 string
+		__var2, __err = hamlet.BuildClassList(hamlet.ObjectClass(obj, "prefix"))
 		if __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" class=\"" + __var4 + "\""); __err != nil {
+		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(">Foo article with id \"prefix_foo_bar\" and class \"prefix_foo\"</article>\n<article"); __err != nil {
 			return
 		}
-		if __var5 := hamlet.ObjectID(obj, prefixVar); __var5 != "" {
-			if _, __err = __buf.WriteString(" id=\"" + __var5 + "\""); __err != nil {
+		if __var3 := hamlet.ObjectID(obj, prefixVar); __var3 != "" {
+			if _, __err = __buf.WriteString(" id=\"" + __var3 + "\""); __err != nil {
 				return
 			}
 		}
-		var __var6 string
-		__var6, __err = hamlet.BuildClassList(hamlet.ObjectClass(obj, prefixVar))
+		var __var4 string
+		__var4, __err = hamlet.BuildClassList(hamlet.ObjectClass(obj, prefixVar))
 		if __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" class=\"" + __var6 + "\""); __err != nil {
+		if _, __err = __buf.WriteString(" class=\"" + __var4 + "\""); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(">Foo article with id \"article_foo_bar\" and class \"article_foo\"</article>\n"); __err != nil {

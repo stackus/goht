@@ -2,12 +2,10 @@
 
 package main
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // You include other templates using the `@render` command. It takes
 // the name of the template to render.
@@ -68,7 +66,7 @@ func RenderWithChildrenExample() hamlet.Template {
 		if _, __err = __buf.WriteString("<p>The other template will be rendered below.</p>\n"); __err != nil {
 			return
 		}
-		__var2 := hamlet.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__var1 := hamlet.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
 			__buf, __isBuf := __w.(*bytes.Buffer)
 			if !__isBuf {
 				__buf = hamlet.GetBuffer()
@@ -82,7 +80,7 @@ func RenderWithChildrenExample() hamlet.Template {
 			}
 			return
 		})
-		if __err = ChildrenExample().Render(hamlet.PushChildren(ctx, __var2), __buf); __err != nil {
+		if __err = ChildrenExample().Render(hamlet.PushChildren(ctx, __var1), __buf); __err != nil {
 			return
 		}
 		if !__isBuf {

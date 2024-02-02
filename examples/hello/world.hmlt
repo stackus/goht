@@ -4,7 +4,8 @@ package hello
 var terms = []string{"foo", "bar", "baz", "fizz", "buzz", "quux"}
 
 @hmlt termsWrapper(term string) {
-	%div=@children
+	%p=@children
+	%p And it was passed in as well #{term}
 }
 
 @hmlt World() {
@@ -25,7 +26,7 @@ var terms = []string{"foo", "bar", "baz", "fizz", "buzz", "quux"}
 			}
 	%body
 		%h1 Hello World
-		%p the following will use a slice of strings and will each string into a child template
+		%p the following will loop a slice of strings and will pass each string into a child template
 		- for _, term := range terms
 			=@render termsWrapper(term)
 				%p.term= term

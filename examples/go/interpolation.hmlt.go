@@ -2,12 +2,10 @@
 
 package example
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // Variables and calls to functions that return values can be interpolated
 // into the Hamlet templates.
@@ -58,21 +56,21 @@ func NoInterpolation() hamlet.Template {
 		if _, __err = __buf.WriteString("<p>Do the following; No interpolation is necessary.</p>\n<p>"); __err != nil {
 			return
 		}
-		var __var2 string
-		if __var2, __err = hamlet.CaptureErrors(hamlet.EscapeString(someVar + ", World!")); __err != nil {
+		var __var1 string
+		if __var1, __err = hamlet.CaptureErrors(hamlet.EscapeString(someVar + ", World!")); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var2); __err != nil {
+		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString("</p>\n<p>"); __err != nil {
 			return
 		}
-		var __var3 string
-		if __var3, __err = hamlet.CaptureErrors(hamlet.EscapeString("No interpolation is #{performed} here.")); __err != nil {
+		var __var2 string
+		if __var2, __err = hamlet.CaptureErrors(hamlet.EscapeString("No interpolation is #{performed} here.")); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var3); __err != nil {
+		if _, __err = __buf.WriteString(__var2); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
@@ -101,21 +99,21 @@ func EscapeInterpolation() hamlet.Template {
 		var __children hamlet.Template
 		ctx, __children = hamlet.PopChildren(ctx)
 		_ = __children
-		var __var4 string
-		if __var4, __err = hamlet.CaptureErrors(hamlet.EscapeString(someVar)); __err != nil {
+		var __var1 string
+		if __var1, __err = hamlet.CaptureErrors(hamlet.EscapeString(someVar)); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var4); __err != nil {
+		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(", World!\n<p>"); __err != nil {
 			return
 		}
-		var __var5 string
-		if __var5, __err = hamlet.CaptureErrors(hamlet.EscapeString(someVar)); __err != nil {
+		var __var2 string
+		if __var2, __err = hamlet.CaptureErrors(hamlet.EscapeString(someVar)); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var5); __err != nil {
+		if _, __err = __buf.WriteString(__var2); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(", World!</p>\n"); __err != nil {
@@ -138,6 +136,9 @@ func EscapeInterpolation() hamlet.Template {
 // kind of special character.
 // This is also how you would escape a tag, id, or class character at the
 // start of a line.
+//
+// All three of the following uses of "someVar" are not interpolated, and
+// will render as "#{someVar}" in the final HTML.
 
 func IgnoreInterpolation() hamlet.Template {
 	return hamlet.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {

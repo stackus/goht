@@ -2,12 +2,10 @@
 
 package tags
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // You may specify the type of tag that you want created with `%`.
 

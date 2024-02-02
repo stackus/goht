@@ -2,12 +2,10 @@
 
 package formatting
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // Normally, only strings are allowed as the value printed using the
 // interpolated value in the template. However, if you provide a format
@@ -117,61 +115,61 @@ func FloatExample() hamlet.Template {
 		if _, __err = __buf.WriteString("<p>The float is ("); __err != nil {
 			return
 		}
-		var __var7 string
-		if __var7, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%f", floatVar))); __err != nil {
+		var __var1 string
+		if __var1, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%f", floatVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var7); __err != nil {
+		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(").</p>\n<p>The float is ("); __err != nil {
 			return
 		}
-		var __var8 string
-		if __var8, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%e", floatVar))); __err != nil {
+		var __var2 string
+		if __var2, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%e", floatVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var8); __err != nil {
+		if _, __err = __buf.WriteString(__var2); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(") in scientific notation.</p>\n<p>The float is ("); __err != nil {
 			return
 		}
-		var __var9 string
-		if __var9, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%.2f", floatVar))); __err != nil {
+		var __var3 string
+		if __var3, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%.2f", floatVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var9); __err != nil {
+		if _, __err = __buf.WriteString(__var3); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(") with 2 decimal places.</p>\n<p>The float is ("); __err != nil {
 			return
 		}
-		var __var10 string
-		if __var10, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%9.2f", floatVar))); __err != nil {
+		var __var4 string
+		if __var4, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%9.2f", floatVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var10); __err != nil {
+		if _, __err = __buf.WriteString(__var4); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(") with 2 decimal places and padded to 9 characters.</p>\n<p>The float is ("); __err != nil {
 			return
 		}
-		var __var11 string
-		if __var11, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%-9.2f", floatVar))); __err != nil {
+		var __var5 string
+		if __var5, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%-9.2f", floatVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var11); __err != nil {
+		if _, __err = __buf.WriteString(__var5); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(") with 2 decimal places and padded to 9 characters and left aligned.</p>\n<p>The float is ("); __err != nil {
 			return
 		}
-		var __var12 string
-		if __var12, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%09.2f", floatVar))); __err != nil {
+		var __var6 string
+		if __var6, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%09.2f", floatVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var12); __err != nil {
+		if _, __err = __buf.WriteString(__var6); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(") with 2 decimal places and padded to 9 characters with 0s.</p>\n"); __err != nil {
@@ -197,11 +195,11 @@ func BoolExample() hamlet.Template {
 		if _, __err = __buf.WriteString("<p>The bool is ("); __err != nil {
 			return
 		}
-		var __var13 string
-		if __var13, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%t", boolVar))); __err != nil {
+		var __var1 string
+		if __var1, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%t", boolVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var13); __err != nil {
+		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(").</p>\n"); __err != nil {
@@ -227,91 +225,91 @@ func StringExample() hamlet.Template {
 		if _, __err = __buf.WriteString("<p>The string is ("); __err != nil {
 			return
 		}
-		var __var14 string
-		if __var14, __err = hamlet.CaptureErrors(hamlet.EscapeString(stringVar)); __err != nil {
+		var __var1 string
+		if __var1, __err = hamlet.CaptureErrors(hamlet.EscapeString(stringVar)); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var14); __err != nil {
+		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString("). Strings do not require any additional formatting.</p>\n<p>The string is ("); __err != nil {
 			return
 		}
-		var __var15 string
-		if __var15, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%q", stringVar))); __err != nil {
+		var __var2 string
+		if __var2, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%q", stringVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var15); __err != nil {
+		if _, __err = __buf.WriteString(__var2); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(") quoted.</p>\n<p>The string is ("); __err != nil {
 			return
 		}
-		var __var16 string
-		if __var16, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%x", stringVar))); __err != nil {
+		var __var3 string
+		if __var3, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%x", stringVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var16); __err != nil {
+		if _, __err = __buf.WriteString(__var3); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(") as hex.</p>\n<p>The string is ("); __err != nil {
 			return
 		}
-		var __var17 string
-		if __var17, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%X", stringVar))); __err != nil {
+		var __var4 string
+		if __var4, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%X", stringVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var17); __err != nil {
+		if _, __err = __buf.WriteString(__var4); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(") as hex with uppercase.</p>\n<p>The string is ("); __err != nil {
 			return
 		}
-		var __var18 string
-		if __var18, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%s", stringVar))); __err != nil {
+		var __var5 string
+		if __var5, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%s", stringVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var18); __err != nil {
+		if _, __err = __buf.WriteString(__var5); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(") as is.</p>\n<p>The string is ("); __err != nil {
 			return
 		}
-		var __var19 string
-		if __var19, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%.4s", stringVar))); __err != nil {
+		var __var6 string
+		if __var6, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%.4s", stringVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var19); __err != nil {
+		if _, __err = __buf.WriteString(__var6); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString("), truncated to 4 characters.</p>\n<p>The string is ("); __err != nil {
 			return
 		}
-		var __var20 string
-		if __var20, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%6s", stringVar))); __err != nil {
+		var __var7 string
+		if __var7, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%6s", stringVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var20); __err != nil {
+		if _, __err = __buf.WriteString(__var7); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString("), padded to 6 characters.</p>\n<p>The string is ("); __err != nil {
 			return
 		}
-		var __var21 string
-		if __var21, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%6.4s", stringVar))); __err != nil {
+		var __var8 string
+		if __var8, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%6.4s", stringVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var21); __err != nil {
+		if _, __err = __buf.WriteString(__var8); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString("), truncated to 4 characters and padded to 6 characters.</p>\n<p>The string is ("); __err != nil {
 			return
 		}
-		var __var22 string
-		if __var22, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%6.4q", stringVar))); __err != nil {
+		var __var9 string
+		if __var9, __err = hamlet.CaptureErrors(hamlet.EscapeString(hamlet.FormatString("%6.4q", stringVar))); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var22); __err != nil {
+		if _, __err = __buf.WriteString(__var9); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString("), truncated to 4 characters and padded to 6 characters and quoted.</p>\n"); __err != nil {

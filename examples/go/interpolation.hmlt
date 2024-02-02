@@ -37,6 +37,9 @@ var someVar = "Hello"
 // kind of special character.
 // This is also how you would escape a tag, id, or class character at the
 // start of a line.
+//
+// All three of the following uses of "someVar" are not interpolated, and
+// will render as "#{someVar}" in the final HTML.
 
 @hmlt IgnoreInterpolation() {
 	\\#{someVar}, World!

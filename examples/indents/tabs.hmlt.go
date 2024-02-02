@@ -2,12 +2,10 @@
 
 package indents
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // You may use tabs to indent the Haml templates.
 // Hamlet does not change how indenting works in Haml. If you want

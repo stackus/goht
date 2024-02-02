@@ -2,12 +2,10 @@
 
 package example
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // Package example is an examples package for the Hamlet language.
 

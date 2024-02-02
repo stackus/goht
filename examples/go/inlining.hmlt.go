@@ -2,12 +2,10 @@
 
 package example
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // You can include Go code to handle conditional and loop statements
 // in your Hamlet templates.

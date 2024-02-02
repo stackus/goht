@@ -2,12 +2,10 @@
 
 package example
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // You may include any Go code outside the Hamlet templates. It will
 // be included in the generated file as-is.
@@ -62,11 +60,11 @@ func RenderCode() hamlet.Template {
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
-		var __var2 string
-		if __var2, __err = hamlet.CaptureErrors(hamlet.EscapeString(sayHello())); __err != nil {
+		var __var1 string
+		if __var1, __err = hamlet.CaptureErrors(hamlet.EscapeString(sayHello())); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(__var2); __err != nil {
+		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString("</p>\n"); __err != nil {

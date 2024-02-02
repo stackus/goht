@@ -2,12 +2,10 @@
 
 package tags
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // There are several tags that are self closing, meaning they
 // don't have or require a closing tag. For example, the <img> tag

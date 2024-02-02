@@ -2,12 +2,10 @@
 
 package main
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // Hamlet supports the Ruby 1.9 hash style of attributes. The other styles
 // such as HTML style, or Ruby rocket style are not supported. This should
@@ -90,12 +88,12 @@ func MultiLineAttrs() hamlet.Template {
 		if _, __err = __buf.WriteString("<p"); __err != nil {
 			return
 		}
-		var __var2 string
-		__var2, __err = hamlet.BuildClassList(myDynamicValue)
+		var __var1 string
+		__var1, __err = hamlet.BuildClassList(myDynamicValue)
 		if __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
@@ -124,6 +122,28 @@ func WhitespaceAttrs() hamlet.Template {
 		if _, __err = __buf.WriteString("<p"); __err != nil {
 			return
 		}
+		var __var1 string
+		__var1, __err = hamlet.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
+			return
+		}
+		var __var2 string
+		__var2, __err = hamlet.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
+			return
+		}
 		var __var3 string
 		__var3, __err = hamlet.BuildClassList(myDynamicValue)
 		if __err != nil {
@@ -143,28 +163,6 @@ func WhitespaceAttrs() hamlet.Template {
 		if _, __err = __buf.WriteString(" class=\"" + __var4 + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
-			return
-		}
-		var __var5 string
-		__var5, __err = hamlet.BuildClassList(myDynamicValue)
-		if __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" class=\"" + __var5 + "\""); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
-			return
-		}
-		var __var6 string
-		__var6, __err = hamlet.BuildClassList(myDynamicValue)
-		if __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" class=\"" + __var6 + "\""); __err != nil {
-			return
-		}
 		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
 			return
 		}
@@ -177,7 +175,7 @@ func WhitespaceAttrs() hamlet.Template {
 
 // The dynamic attribute values may also include formatting rules just like
 // the interpolated values. The attribute values are always evaluated as
-// strings and are always rendered inside of double quotes in the final HTML.
+// strings and are always rendered inside double quotes in the final HTML.
 
 var intVar = 10
 

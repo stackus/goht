@@ -2,12 +2,10 @@
 
 package hello
 
-import (
-	"bytes"
-	"context"
-	"github.com/stackus/hamlet"
-	"io"
-)
+import "bytes"
+import "context"
+import "io"
+import "github.com/stackus/hamlet"
 
 // An example of several Haml features supported by Hamlet.
 
@@ -23,13 +21,23 @@ func termsWrapper(term string) hamlet.Template {
 		var __children hamlet.Template
 		ctx, __children = hamlet.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<div>"); __err != nil {
+		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
 		if __err = __children.Render(ctx, __buf); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</p>\n<p>And it was passed in as well "); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = hamlet.CaptureErrors(hamlet.EscapeString(term)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -49,7 +57,7 @@ func World() hamlet.Template {
 		var __children hamlet.Template
 		ctx, __children = hamlet.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>body {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will use a slice of strings and will each string into a child template</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>body {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
 			return
 		}
 		for _, term := range terms {
