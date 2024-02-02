@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 
 	"github.com/stackus/hamlet"
@@ -27,6 +28,7 @@ func Execute() {
 }
 
 func init() {
+	log.SetReportTimestamp(false)
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")

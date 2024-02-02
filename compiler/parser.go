@@ -83,7 +83,7 @@ func (p *parser) next() token {
 func (p *parser) backToType(typ nodeType) error {
 	for p.nodes.peek().Type() != typ {
 		if p.nodes.peek().Type() == nRoot {
-			return fmt.Errorf("unexpected: node has no parent %d", p.nodes.peek().Type())
+			return fmt.Errorf("unexpected: node has no parent of type %s", typ)
 		}
 		p.nodes.pop()
 	}
@@ -94,7 +94,7 @@ func (p *parser) backToType(typ nodeType) error {
 func (p *parser) backToIndent(indent int) error {
 	for {
 		if p.nodes.peek().Type() == nRoot {
-			return fmt.Errorf("unexpected: node has no parent %d", p.nodes.peek().Type())
+			return fmt.Errorf("unexpected: node has no parent with indent %d", indent)
 		}
 		if p.nodes.peek().Indent() <= indent {
 			break

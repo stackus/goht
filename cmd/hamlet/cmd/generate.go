@@ -57,7 +57,6 @@ var generateCmd = &cobra.Command{
 }
 
 func init() {
-	log.SetReportTimestamp(false)
 	rootCmd.AddCommand(generateCmd)
 
 	generateCmd.Flags().StringVar(&generateOptions.path, "path", ".", "The path to the templates directory.")
@@ -209,18 +208,16 @@ func walkDir(ctx context.Context, queue chan<- string, files *fileInfos) (change
 		if err != nil {
 			return err
 		}
-		// fmt.Println(fileName, info.ModTime(), files.get(fileName).lastModified)
+
 		// skip if the file hasn't been modified since the last time we processed it
-		if info.ModTime().Before(files.get(fileName).lastModified) {
+		if !info.ModTime().After(files.get(fileName).lastModified) {
 			return nil
 		}
 
-		if info.ModTime().After(files.get(fileName).lastModified) {
-			files.setModified(fileName, info.ModTime())
+		files.setModified(fileName, info.ModTime())
 
-			queue <- fileName
-			changes++
-		}
+		queue <- fileName
+		changes++
 		return nil
 	})
 }
@@ -235,7 +232,7 @@ func processFile(path, fileName string, lastHash [sha256.Size]byte) (fileHash [s
 
 	buf := new(bytes.Buffer)
 
-	if err = t.Compose(buf); err != nil {
+	if err = t.Generate(buf); err != nil {
 		return
 	}
 

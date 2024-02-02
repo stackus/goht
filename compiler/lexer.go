@@ -166,6 +166,5 @@ func (l *lexer) position() (int, int) {
 	newLinesInString := strings.Count(l.s, "\n")
 	line := len(l.pos) - newLinesInString
 	column := 1 + (l.pos[line-1]) - len(l.s)
-
 	return line, column
 }
