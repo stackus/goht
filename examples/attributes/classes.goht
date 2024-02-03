@@ -1,0 +1,27 @@
+
+// The class attribute is a bit special. You will often find yourself
+// working with not one, but several classes. This is why repeating
+// use of the class `.` operator is allowed. You may also run into
+// situations where you want to add a class conditionally or want to
+// assign a number of classes all at once.
+// If you provide a dynamic value to the class attribute, it will be
+// interpreted as a parameter list.
+// The types of parameters that are allowed are:
+// - `string` - will be added as a class if it is not blank
+// - `[]string` - each non-blank string will be added as a class
+// - `map[string]bool` - each key with a true value will be added
+// If you have any dynamic sources for a class, from an object
+// reference, or from the class attribute, they will be merged and
+// deduplicated.
+// If you have all static values for your classes, then they are
+// rendered as-is avoiding any extra processing.
+
+var myClassList = []string{"foo", "bar"}
+var myOptionalClasses = map[string]bool{
+		"baz": true,
+		"qux": false,
+}
+
+@goht Classes() {
+	%p.fizz.buzz{class: #{myClassList, myOptionalClasses}}
+}

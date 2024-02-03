@@ -1,26 +1,26 @@
-# Hamlet
-A [Haml](http://haml.info/) template engine for Go.
+# GoHT (Go Haml Templates)
+A [Haml](http://haml.info/) template engine and file generation tool for Go.
 
-![hamlet_header.png](docs/hamlet_header.png)
+![GoHT](docs/goht_header.png)
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/stackus/hamlet)](https://goreportcard.com/report/github.com/stackus/hamlet)
-[![](https://godoc.org/github.com/stackus/hamlet?status.svg)](https://pkg.go.dev/github.com/stackus/hamlet)
+[![Go Report Card](https://goreportcard.com/badge/github.com/stackus/goht)](https://goreportcard.com/report/github.com/stackus/goht)
+[![](https://godoc.org/github.com/stackus/goht?status.svg)](https://pkg.go.dev/github.com/stackus/goht)
 
 ## Table of Contents
 - [Features](#features)
 - [Quick Start](#quick-start)
 - [Supported Haml Syntax & Features](#supported-haml-syntax--features)
   - [Unsupported Haml Features](#unsupported-haml-features)
-- [Hamlet CLI](#hamlet-cli)
+- [GoHT CLI](#goht-cli)
 - [IDE Support](#ide-support)
 	- [LSP](#lsp)
 - [Library Installation](#library-installation)
-- [Using Hamlet](#using-hamlet)
-  - [Using Hamlet with HTTP handlers](#using-hamlet-with-http-handlers)
+- [Using GoHT](#using-goht)
+  - [Using GoHT with HTTP handlers](#using-goht-with-http-handlers)
   - [A big nod to Templ](#a-big-nod-to-templ)
-- [The Hamlet template](#the-hamlet-template)
+- [The GoHT template](#the-goht-template)
 - [Haml Syntax](#haml-syntax)
-  - [Hamlet and Haml differences](#hamlet-and-haml-differences)
+  - [GoHT and Haml differences](#goht-and-haml-differences)
     - [Go package and imports](#go-package-and-imports)
     - [Multiple templates per file](#multiple-templates-per-file)
     - [Doctypes](#doctypes)
@@ -42,13 +42,13 @@ A [Haml](http://haml.info/) template engine for Go.
 - Easy nesting of templates
 
 ## Quick Start
-First create a Hamlet file, a file which mixes Go and Haml with a `.hmlt` extension:
+First create a GoHT file, a file which mixes Go and Haml with a `.goht` extension:
 ```haml
 package main
 
-var siteTitle = "Hamlet"
+var siteTitle = "GoHT"
 
-@hmlt SiteLayout(pageTitle string) {
+@goht SiteLayout(pageTitle string) {
   !!!
   %html{lang:"en"}
     %head
@@ -59,15 +59,15 @@ var siteTitle = "Hamlet"
       = @children
 }
 
-@hmlt HomePage() {
+@goht HomePage() {
   = @render SiteLayout("Home Page")
-    %p This is the home page for Hamlet.
+    %p This is the home page for GoHT.
 }
 ```
 
-Your next step will be to process the Hamlet file to parse the Haml and generate the Go code using the Hamlet [CLI](#hamlet-cli) tool:
+Your next step will be to process the GoHT file to parse the Haml and generate the Go code using the GoHT [CLI](#goht-cli) tool:
 ```sh
-hamlet generate
+goht generate
 ```
 
 Use the generated Go code to render HTML in your application:
@@ -96,12 +96,12 @@ Which would serve the following HTML:
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Hamlet</title>
+    <title>GoHT</title>
   </head>
   <body>
     <h1>Home Page</h1>
     <p>A type-safe Haml template engine for Go.</p>
-    <p>This is the home page for Hamlet.</p>
+    <p>This is the home page for GoHT.</p>
   </body>
 </html>
 ```
@@ -123,66 +123,66 @@ Which would serve the following HTML:
 ### Unsupported Haml Features
 - [ ] Probably something I've missed, please raise an issue if you find something missing.
 
-## Hamlet CLI
+## GoHT CLI
 
 ### Installation
 ```sh
-go install github.com/stackus/hamlet/cmd/hamlet@latest
+go install github.com/stackus/goht/cmd/goht@latest
 ```
 
 ### Usage
-Use `generate` to generate Go code from Hamlet template files,
+Use `generate` to generate Go code from GoHT template files,
 that are new or newer than the generated Go files, in the current directory and subdirectories:
 ```sh
-hamlet generate
+goht generate
 ```
 Use the `--path` flag to specify a path to generate code for:
 ```sh
-hamlet generate --path=./templates
+goht generate --path=./templates
 ```
 In both examples, the generated code will be placed in the same directory as the template files.
 
-Use the `--force` to generate code for all Hamlet template files, even if they are older than the generated Go files:
+Use the `--force` to generate code for all GoHT template files, even if they are older than the generated Go files:
 ```sh
-hamlet generate --force
+goht generate --force
 ```
-See more options with `hamlet help generate` or `hamlet generate -h`.
+See more options with `goht help generate` or `goht generate -h`.
 
 ## IDE Support
 ![vscode_ide_example.png](docs/vscode_ide_example.png)
-- VSCode [Extension](https://marketplace.visualstudio.com/items?itemName=stackus.hamlet-go-vscode) and code [repository](https://github.com/stackus/hamlet-go-vscode)
+- VSCode [Extension](https://marketplace.visualstudio.com/items?itemName=stackus.goht-vscode) and code [repository](https://github.com/stackus/goht-vscode)
 - [TextMate Bundle](bundle)
   - You can import this into JetBrains IDEs such as GoLand and IntelliJ. See the [CHANGELOG](CHANGELOG.md) for more information.
 - Others to come soon such as a true JetBrains plugin.
 
 ### LSP
-The Hamlet CLI has been updated to include an LSP server.
-See `hamlet help lsp` for more information.
-This will enable development of extensions and plugins for Hamlet in various editors and IDEs.
+The GoHT CLI has been updated to include an LSP server.
+See `goht help lsp` for more information.
+This will enable development of extensions and plugins for GoHT in various editors and IDEs.
 
 Contributions are welcome. Please see the [contributing guide](CONTRIBUTING.md) for more information.
 
 
 ## Library Installation
-When you are using Hamlet you will typically be dealing with the generated Go code, and not the Hamlet runtime directly.
-However, if you need to install the Hamlet library, you can do so with:
+When you are using GoHT you will typically be dealing with the generated Go code, and not the GoHT runtime directly.
+However, if you need to install the GoHT library, you can do so with:
 ```sh
-go get github.com/stackus/hamlet
+go get github.com/stackus/goht
 ```
 
-## Using Hamlet
-To start using Hamlet, the first step is to create a Hamlet file with one or more Haml templates.
-If you need guidance, the section [The Hamlet template](#the-hamlet-template) has all the information you need.
+## Using GoHT
+To start using GoHT, the first step is to create a GoHT file with one or more Haml templates.
+If you need guidance, the section [The GoHT template](#the-goht-template) has all the information you need.
 
-With your Hamlet files written, the next step involves generating Go code from them.
-The [CLI](#hamlet-cli) tool handles this generation step.
-It's a straightforward process that converts your Hamlet files and templates into ready to run Go files.
+With your GoHT files written, the next step involves generating Go code from them.
+The [CLI](#goht-cli) tool handles this generation step.
+It's a straightforward process that converts your GoHT files and templates into ready to run Go files.
 
 Each generated Go file will include a function corresponding to each of your templates.
 The names of the functions are not altered at all,
 if you want them to be exported in Go then you need to use an uppercase letter for the first character of the template name.
 
-When this function is executed, it yields a `*hamlet.Template`.
+When this function is executed, it yields a `*goht.Template`.
 This is what you'll use to render your templates in the application.
 
 ```go
@@ -192,7 +192,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/stackus/hamlet/examples/tags"
+	"github.com/stackus/goht/examples/tags"
 )
 
 func main() {
@@ -216,8 +216,8 @@ Finally, the tag has no whitespace between it and the outer tag.</p></p>
 The second parameter passed into the `Render` method can be anything that implements the `io.Writer` interface,
 such as a file or a buffer, or the `http.ResponseWriter` that you get from an HTTP handler.
 
-### Using Hamlet with HTTP handlers
-Using the Hamlet templates is made very easy.
+### Using GoHT with HTTP handlers
+Using the GoHT templates is made very easy.
 ```go
 package main
 
@@ -226,7 +226,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/stackus/hamlet/examples/hello"
+	"github.com/stackus/goht/examples/hello"
 )
 
 func main() {
@@ -240,27 +240,27 @@ func main() {
 	}
 }
 ```
-There are a number of examples showing various Haml and Hamlet features in the [examples](examples) directory.
+There are a number of examples showing various Haml and GoHT features in the [examples](examples) directory.
 
 ### A big nod to Templ
-The way that you use Hamlet is very similar to how you would use [Templ](https://templ.guide). This is no accident as I am a big fan of the work being done with that engine.
+The way that you use GoHT is very similar to how you would use [Templ](https://templ.guide). This is no accident as I am a big fan of the work being done with that engine.
 
 After getting the Haml properly lexed, and parsed, I did not want to reinvent the wheel and come up with a whole new rendering API.
-The API that Templ presents is nice and easy to use, so I decided to replicate it in Hamlet.
+The API that Templ presents is nice and easy to use, so I decided to replicate it in GoHT.
 
-## The Hamlet template
-Hamlet templates are files with the extension `.hmlt` that when processed will produce a matching Go file with the extension `.hmlt.go`.
+## The GoHT template
+GoHT templates are files with the extension `.goht` that when processed will produce a matching Go file with the extension `.goht.go`.
 
-In these files you are free to write any Go code that you wish, and then drop into Haml mode using the `@hmlt` directive.
+In these files you are free to write any Go code that you wish, and then drop into Haml mode using the `@goht` directive.
 
 The following starts the creation of a SiteLayout template:
 ```haml
-@hmlt SiteLayout() {
+@goht SiteLayout() {
 ```
 
-Hamlet templates are closed like Go functions, with a closing brace `}`. So a complete but empty example is this:
+GoHT templates are closed like Go functions, with a closing brace `}`. So a complete but empty example is this:
 ```haml
-@hmlt SiteLayout() {
+@goht SiteLayout() {
 }
 ```
 Inside the template you can use any Haml features, such as tags, attributes, classes,
@@ -270,11 +270,11 @@ IDs, text, comments, interpolation, code inlining, code rendering, and filters.
 The Haml syntax is documented at the [Haml](http://haml.info/) website.
 Please see that site or the [Haml Reference](https://haml.info/docs/yardoc/file.REFERENCE.html) for more information.
 
-Hamlet has implemented the Haml syntax very closely.
+GoHT has implemented the Haml syntax very closely.
 So, if you are already familiar with Haml then you should be able to jump right in.
 There are some minor differences that I will document in the next section.
 
-### Hamlet and Haml differences
+### GoHT and Haml differences
 
 Important differences are:
 - [Go package and imports](#go-package-and-imports): You can declare a package and imports for your templates.
@@ -289,24 +289,24 @@ Important differences are:
 - [Template nesting](#template-nesting): Templates can be nested, and content can be passed into them.
 
 ### Go package and imports
-You can provide a package name at the top of your Hamlet template file. If you do not provide one then `main` will be used.
+You can provide a package name at the top of your GoHT template file. If you do not provide one then `main` will be used.
 
-You may also import any packages that you need to use in your template. The imports you use and the ones brought in by Hamlet will be combined and deduplicated.
+You may also import any packages that you need to use in your template. The imports you use and the ones brought in by GoHT will be combined and deduplicated.
 
 ### Multiple templates per file
 You can declare as many templates in a file as you wish. Each template must have a unique name in the module they will be output into.
 ```haml
-@hmlt SiteLayout() {
+@goht SiteLayout() {
 }
 
-@hmlt HomePage() {
+@goht HomePage() {
 }
 ```
 
 The templates are converted into Go functions, so they must be valid Go function names.
 This also means that you can declare them with parameters and can use those parameters in the template.
 ```haml
-@hmlt SiteLayout(title string) {
+@goht SiteLayout(title string) {
   !!!
   %html{lang:"en"}
     %head
@@ -319,16 +319,16 @@ This also means that you can declare them with parameters and can use those para
 ### Doctypes
 Only the HTML 5 doctype is supported, and is written using `!!!`.
 ```haml
-@hmlt SiteLayout() {
+@goht SiteLayout() {
   !!!
 }
 ```
 
-> Note about indenting. It does not matter if you indent or do not indent. Haml normally complains if a doctype is not at the start of the line, but Hamlet does not. I just recommend choosing to indent or not indent, and sticking to it. 
+> Note about indenting. It does not matter if you indent or do not indent. Haml normally complains if a doctype is not at the start of the line, but GoHT does not. I just recommend choosing to indent or not indent, and sticking to it. 
 
 ### Inlined code
 You won't be using Ruby here, you'll be using Go.
-In most situations where we would need to include opening and closing braces in Go, we can omit them in Hamlet.
+In most situations where we would need to include opening and closing braces in Go, we can omit them in GoHT.
 This makes it a lot closer to the Ruby-based Haml, and makes the templates easier to read.
 Go will still require we have a full statement, no shorthands for boolean conditionals.
 So instead of this with Ruby:
@@ -376,18 +376,18 @@ Only the Ruby 1.9 style of attributes is supported.
 This syntax is closest to the Go syntax, and is the most readable.
 Between the attribute name, operator, and value you can include or leave out as much whitespace as you like.
 ```haml
-%a{href: "https://github.com/stackus/hamlet", target: "_blank"} Hamlet
+%a{href: "https://github.com/stackus/goht", target: "_blank"} GoHT
 ```
 You can supply a value to an attribute using the text interpolation syntax.
 ```haml
-%a{href:#{url}} Hamlet
+%a{href:#{url}} GoHT
 ```
 Attributes can be written over multiple lines, and the closing brace can be on a new line.
 ```haml
 %a{
   href: "...",
   target: "_blank",
-} Hamlet
+} GoHT
 ```
 Attributes which you want to render conditionally use the `?` operator instead of the `:` operator.
 For conditional attributes the attribute value is required to be an interpolated value which will be used as the condition in a Go `if` statement.
@@ -422,7 +422,7 @@ This directive takes a list of arguments which comes in two forms:
 } Click me
 ```
 ### Classes
-Hamlet supports the `.` operator for classes and also will accept the `class` attribute such as `class:"foo bar"`.
+GoHT supports the `.` operator for classes and also will accept the `class` attribute such as `class:"foo bar"`.
 However, if the class attribute is given an interpolated value, it will need to be a comma separated list of values.
 These values can be the following types:
 - `string`
@@ -442,7 +442,7 @@ All sources of classes will be combined and deduplicated into a single class att
 
 ### Object References
 Haml supports using a Ruby object to supply the id and class for a tag using the `[]` object reference syntax.
-This is supported but is rather limited in Hamlet.
+This is supported but is rather limited in GoHT.
 The type that you use within the brackets will be expected to implement at least one or both of the following interfaces:
 ```go
 type ObjectIDer interface {
@@ -465,28 +465,28 @@ Only the following Haml filters are supported:
 - `:css`
 
 ### Template nesting
-The biggest departure from Haml is how templates can be combined. When working Haml you could use `= render :partial_name` or `= haml :partial_name` to render a partial. The `render` and `haml` functions are not available in Hamlet, instead you can use the `@render` directive.
+The biggest departure from Haml is how templates can be combined. When working Haml you could use `= render :partial_name` or `= haml :partial_name` to render a partial. The `render` and `haml` functions are not available in GoHT, instead you can use the `@render` directive.
 ```haml
-@hmlt HomePage() {
+@goht HomePage() {
   = @render SiteLayout()
 }
 ```
 The above would render the `SiteLayout` template, and you would call it with any parameters that it needs. You can also call it and provide it with a block of content to render where it chooses.
 ```haml
-@hmlt HomePage() {
+@goht HomePage() {
   = @render SiteLayout()
-    %p This is the home page for Hamlet.
+    %p This is the home page for GoHT.
 }
 ```
 Any content nested under the `@render` directive will be passed into the template that it can render where it wants using the `@children` directive.
 ```haml
-@hmlt SiteLayout() {
+@goht SiteLayout() {
   !!!
   %html{lang:"en"}
     %head
-      %title Hamlet
+      %title GoHT
     %body
-      %h1 Hamlet
+      %h1 GoHT
       %p A HAML-like template engine for Go.
       = @children
 }

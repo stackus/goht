@@ -1,8 +1,23 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this extension will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 
 ## Unreleased
+
+## [v0.4.0](https://github.com/stackus/goht/compare/v0.3.1...v0.4.0) - 2024-02-03
+
+![GoHT](docs/goht_header.png)
+
+### Changed
+- **Project Rename**: Renamed the project from `Hamlet` to `GoHT`. This was done to give the project a unique name and to avoid any potential confusion with other projects named Hamlet. Renaming the project while it's still early means that the impact of the change is minimal. The CLI and package names have been updated to reflect this change.
+  - The major version number will not be bumped for this change because we are still in a development release. [Semver Rule #4](https://semver.org/#spec-item-4)
+  - The fallout of this renaming will be if it evers gets traction with others they'll be left wondering if the project is pronounced like "goat" or "got". My answer is it's like "goat".
+- The VSCode extension has been updated to reflect the new project name and logo.
+  - The latest version will be using the GoHT CLI
 
 ## [v0.3.0](https://github.com/stackus/hamlet/compare/v0.2.1...v0.3.0) - 2024-02-01
 

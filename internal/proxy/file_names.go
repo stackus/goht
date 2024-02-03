@@ -3,33 +3,33 @@ package proxy
 import (
 	"strings"
 
-	"github.com/stackus/hamlet/internal/protocol"
+	"github.com/stackus/goht/internal/protocol"
 )
 
-// toHamletURI converts a Hamlet Go URI to a Hamlet URI.
+// toGohtURI converts a Goht Go URI to a Goht URI.
 //
-// (e.g. "file:///path/to/file.hmlt.go" -> "file:///path/to/file.hmlt")
-func toHamletURI(uri protocol.DocumentURI) (bool, protocol.DocumentURI) {
-	if !isHamletGoURI(uri) {
+// (e.g. "file:///path/to/file.goht.go" -> "file:///path/to/file.goht")
+func toGohtURI(uri protocol.DocumentURI) (bool, protocol.DocumentURI) {
+	if !isGohtGoURI(uri) {
 		return false, ""
 	}
 	return true, uri[:len(uri)-3]
 }
 
-// toHamletGoURI converts a Hamlet URI to a Hamlet Go URI.
+// toGohtGoURI converts a Goht URI to a Goht Go URI.
 //
-// (e.g. "file:///path/to/file.hmlt" -> "file:///path/to/file.hmlt.go")
-func toHamletGoURI(uri protocol.DocumentURI) (bool, protocol.DocumentURI) {
-	if !isHamletURI(uri) {
+// (e.g. "file:///path/to/file.goht" -> "file:///path/to/file.goht.go")
+func toGohtGoURI(uri protocol.DocumentURI) (bool, protocol.DocumentURI) {
+	if !isGohtURI(uri) {
 		return false, ""
 	}
 	return true, uri + ".go"
 }
 
-func isHamletURI(uri protocol.DocumentURI) bool {
-	return strings.HasSuffix(string(uri), ".hmlt")
+func isGohtURI(uri protocol.DocumentURI) bool {
+	return strings.HasSuffix(string(uri), ".goht")
 }
 
-func isHamletGoURI(uri protocol.DocumentURI) bool {
-	return strings.HasSuffix(string(uri), ".hmlt.go")
+func isGohtGoURI(uri protocol.DocumentURI) bool {
+	return strings.HasSuffix(string(uri), ".goht.go")
 }

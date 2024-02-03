@@ -1,6 +1,8 @@
-# Contributing to Hamlet
+# Contributing to GoHT
 
-We are thrilled that you are interested in contributing to Hamlet! Hamlet is a Haml engine for Go, focused on compiling Haml into type-safe Go code. This document provides guidelines for contributing to various parts of the project, including the CLI, compiler, and runtime.
+We are thrilled that you are interested in contributing to GoHT!
+GoHT is a Haml engine for Go, focused on compiling Haml into type-safe Go code.
+This document provides guidelines for contributing to various parts of the project, including the CLI, compiler, and runtime.
 
 ## Table of Contents
 
@@ -39,11 +41,11 @@ Before you begin, please ensure you have a GitHub account and are familiar with 
 - Contribute to the [examples](examples) directory.
 
 ## IDE Extensions
-- Contribute to the development of extensions and plugins for Hamlet in various editors and IDEs that will use the built-in Language Server Protocol (LSP) support.
+- Contribute to the development of extensions and plugins for GoHT in various editors and IDEs that will use the built-in Language Server Protocol (LSP) support.
 
 ## Bug Submissions
 
-We welcome bug reports! If you've found a bug in Hamlet, please submit it as an issue in our GitHub repository. Include as much detail as possible, such as:
+We welcome bug reports! If you've found a bug in GoHT, please submit it as an issue in our GitHub repository. Include as much detail as possible, such as:
 
 - A clear and concise description of the bug.
 - Steps to reproduce the bug.
@@ -61,7 +63,7 @@ Contributions to fix bugs or add features are made through pull requests (PRs). 
 
 ## Adhering to the Haml Spec
 
-It is crucial for Hamlet to stick as closely as possible to the Haml specification. However, due to differences in syntax and structure between Go and Ruby, some deviations are inevitable. When contributing, consider the following:
+It is crucial for GoHT to stick as closely as possible to the Haml specification. However, due to differences in syntax and structure between Go and Ruby, some deviations are inevitable. When contributing, consider the following:
 
 - Strive for consistency with the Haml spec.
 - Document any necessary deviations due to language differences.
@@ -72,4 +74,4 @@ It is crucial for Hamlet to stick as closely as possible to the Haml specificati
 - Follow Go's standard coding conventions.
 - Include tests for new features or bug fixes.
 
-Thank you for contributing to Hamlet! Your efforts help make this project better for everyone.
+Thank you for contributing to GoHT! Your efforts help make this project better for everyone.

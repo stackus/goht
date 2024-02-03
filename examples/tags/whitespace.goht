@@ -1,0 +1,32 @@
+package tags
+// Whitespace will be added between tags and between tags and text
+// if that text is on a new line after the tag.
+// Whitespace can have subtle effects on the final output of the
+// rendered HTML, so it is important to understand how it works.
+
+@goht Whitespace() {
+	%p This text has no whitespace between it and the tag.
+	%p
+		This text has whitespace between it and the tag.
+		%p This tag has whitespace between it and the tag above.
+}
+
+// You can control the whitespace that will be rendered between tags
+// in the final output by using the `>` and <` operators.
+// The `>` operator will remove all whitespace outside the tag, and
+// the `<` operator will remove all whitespace inside the tag.
+// These operators must be placed at the end of the tag but before
+// either the `!` or `=` operators.
+// You can use either or both of these operators on a tag, when using
+// both, the order does not matter.
+
+@goht RemoveWhitespace() {
+	%p<
+		This text has no whitespace between it and the parent tag.
+	%p
+		There is whitespace between this text and the parent tag.
+		%p><
+			This text has no whitespace between it and the parent tag.
+			There is also no whitespace between this tag and the sibling text above it.
+			Finally, the tag has no whitespace between it and the outer tag.
+}

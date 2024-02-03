@@ -3,7 +3,7 @@ package proxy
 import (
 	"sync"
 
-	"github.com/stackus/hamlet/compiler"
+	"github.com/stackus/goht/compiler"
 )
 
 type SourceMapCache struct {

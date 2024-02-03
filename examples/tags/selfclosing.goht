@@ -1,0 +1,29 @@
+package tags
+// There are several tags that are self closing, meaning they
+// don't have or require a closing tag. For example, the <img> tag
+// is used to embed an image in an HTML document. It is self closing
+// and has no closing tag.
+// Self closing tags may not have any content nested inside them.
+// Nesting content inside a self closing tag will cause the parser
+// to display an error.
+
+@goht SelfClosing() {
+	%img{src: "logo.png", alt: "logo"}
+	%p
+		A paragraph is not self closing.
+		%img{src: "logo.png", alt: "logo"}
+}
+
+// You may also use the self closing tag syntax to create a tag
+// that is not self closing. This is useful for creating tags
+// that are not known by the parser.
+// This is done by adding a forward slash to the end of the tag.
+// Known tags:
+// 	"area", "base", "basefont", "br", "col",
+//  "embed", "frame", "hr", "img", "input",
+// 	"isindex", "keygen", "link", "menuitem",
+// 	"meta", "param", "source", "track", "wbr",
+
+@goht AlsoSelfClosing() {
+	%isNowSelfClosing/
+}

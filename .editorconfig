@@ -12,9 +12,9 @@ trim_trailing_whitespace = true
 [*.md]
 trim_trailing_whitespace = false
 
-# Disabling indent rules for .hmlt files so that examples can be
+# Disabling indent rules for .goht files so that examples can be
 # written showing both styles. I would recommend choosing a single
 # style and sticking with it in your own code.
-[*.hmlt]
+[*.goht]
 indent_style = null
 indent_size = null

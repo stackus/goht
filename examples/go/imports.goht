@@ -1,0 +1,17 @@
+package example
+
+import "strings"
+
+import (
+  fmt "fmt"
+)
+
+// Just like in Go files you can specify imports that are needed
+// by your Go code or Go code inlined into the Goht template.
+// Any imports that you specify here will be combined with the
+// imports used by the Goht compiler itself. Duplicate imports
+// will be removed.
+
+@goht ImportExample() {
+	%p= fmt.Sprintf("Hello, %s!", strings.TrimSuffix("World!", "!"))
+}

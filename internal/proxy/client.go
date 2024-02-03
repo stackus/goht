@@ -7,8 +7,8 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/stackus/hamlet/compiler"
-	"github.com/stackus/hamlet/internal/protocol"
+	"github.com/stackus/goht/compiler"
+	"github.com/stackus/goht/internal/protocol"
 )
 
 type Client struct {
@@ -37,15 +37,15 @@ func (c *Client) PublishDiagnostics(ctx context.Context, params *protocol.Publis
 
 	logger.Debug().Msg("SERVER -> CLIENT: PublishDiagnostics")
 
-	_, hamletURI := toHamletURI(params.URI)
-	sm, ok := c.smc.Get(string(hamletURI))
+	_, gohtURI := toGohtURI(params.URI)
+	sm, ok := c.smc.Get(string(gohtURI))
 	if !ok {
-		c.logger.Warn().Msgf("unable to complete because the sourcemap for %q doesn't exist in the cache, has the didOpen notification been sent yet", hamletURI)
-		return fmt.Errorf("unable to complete because the sourcemap for %q doesn't exist in the cache, has the didOpen notification been sent yet", hamletURI)
+		c.logger.Warn().Msgf("unable to complete because the sourcemap for %q doesn't exist in the cache, has the didOpen notification been sent yet", gohtURI)
+		return fmt.Errorf("unable to complete because the sourcemap for %q doesn't exist in the cache, has the didOpen notification been sent yet", gohtURI)
 	}
 
 	// update the uri to the original
-	params.URI = hamletURI
+	params.URI = gohtURI
 	for i, diagnostic := range params.Diagnostics {
 		var start, end compiler.Position
 		start, ok = sm.SourcePositionFromTarget(int(diagnostic.Range.Start.Line), int(diagnostic.Range.Start.Character))
@@ -76,7 +76,7 @@ func (c *Client) PublishDiagnostics(ctx context.Context, params *protocol.Publis
 		diagnostic.Range.End.Character = uint32(end.Col)
 		params.Diagnostics[i] = diagnostic
 	}
-	params.Diagnostics = c.dc.WithHamletDiagnostics(string(hamletURI), params.Diagnostics)
+	params.Diagnostics = c.dc.WithGohtDiagnostics(string(gohtURI), params.Diagnostics)
 	return c.Client.PublishDiagnostics(ctx, params)
 }
 

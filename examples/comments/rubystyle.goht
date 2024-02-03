@@ -1,0 +1,16 @@
+// You may use ruby style comments to completely remove a line or
+// even a block of nested elements.
+// This is accomplished by using the `-#` syntax.
+// This is useful for removing elements that are only used for
+// documentation purposes.
+// The nested elements commented out with this syntax will be
+// not the parsed by the compiler and will not be included in the
+// output.
+
+@goht RubyStyle() {
+	%p This is the only paragraph in the output.
+	-# This comment is removed from the output.
+	-#
+		%p This paragraph is also removed.
+		%%% broken syntax is no problem
+}

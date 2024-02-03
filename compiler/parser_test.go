@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_HmltParsing(t *testing.T) {
+func Test_GohtParsing(t *testing.T) {
 	tests := map[string]struct {
 		input   string
 		want    string
@@ -16,7 +16,7 @@ func Test_HmltParsing(t *testing.T) {
 
 var foo = "bar"
 
-@hmlt test(title string, err error) {
+@goht test(title string, err error) {
 !!! 5
 %html
 	%head
@@ -32,7 +32,7 @@ var foo = "bar"
 `,
 			want: `Root
 	GoCode
-	Hmlt
+	Goht
 		Doctype
 		NewLine
 		Element html()
@@ -90,9 +90,9 @@ func Test_RootNode(t *testing.T) {
 			input: "package simple\n\nvar simple = \"simple\"\n",
 			want:  "Root\n\tGoCode\n",
 		},
-		"simple hmlt": {
-			input: "package main\n@hmlt test() {\n}",
-			want:  "Root\n\tGoCode\n\tHmlt\n",
+		"simple goht": {
+			input: "package main\n@goht test() {\n}",
+			want:  "Root\n\tGoCode\n\tGoht\n",
 		},
 	}
 
@@ -113,20 +113,20 @@ func Test_RootNode(t *testing.T) {
 	}
 }
 
-func Test_HmltNode(t *testing.T) {
+func Test_GohtNode(t *testing.T) {
 	tests := map[string]struct {
 		input   string
 		want    string
 		wantErr bool
 	}{
 		"empty": {
-			input:   "@hmlt empty() {\n",
-			want:    "Root\n\tHmlt\n",
+			input:   "@goht empty() {\n",
+			want:    "Root\n\tGoht\n",
 			wantErr: true,
 		},
 		"simple": {
-			input: "@hmlt test() {\nFoo\n}",
-			want:  "Root\n\tHmlt\n\t\tText(S)\n\t\tNewLine\n",
+			input: "@goht test() {\nFoo\n}",
+			want:  "Root\n\tGoht\n\t\tText(S)\n\t\tNewLine\n",
 		},
 	}
 	for name, test := range tests {
@@ -153,12 +153,12 @@ func Test_TextNode(t *testing.T) {
 		wantErr bool
 	}{
 		"simple": {
-			input: "@hmlt test() {\nFoo\n}",
-			want:  "Root\n\tHmlt\n\t\tText(S)\n\t\tNewLine\n",
+			input: "@goht test() {\nFoo\n}",
+			want:  "Root\n\tGoht\n\t\tText(S)\n\t\tNewLine\n",
 		},
 		"with dynamic text": {
-			input: "@hmlt test() {\nFoo #{foo}\n}",
-			want:  "Root\n\tHmlt\n\t\tText(S)\n\t\tText(D)\n\t\tNewLine\n",
+			input: "@goht test() {\nFoo #{foo}\n}",
+			want:  "Root\n\tGoht\n\t\tText(S)\n\t\tText(D)\n\t\tNewLine\n",
 		},
 	}
 	for name, test := range tests {
@@ -185,39 +185,39 @@ func Test_UnescapeNode(t *testing.T) {
 		wantErr bool
 	}{
 		"empty": {
-			input: "@hmlt test() {\n!\n}",
+			input: "@goht test() {\n!\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Unescape
 		NewLine
 `,
 		},
 		"simple": {
-			input: `@hmlt test() {
+			input: `@goht test() {
 ! Foo
 }`,
 			want: `Root
-	Hmlt
+	Goht
 		Unescape
 			Text(S)
 		NewLine
 `,
 		},
 		"dynamic text": {
-			input: "@hmlt test() {\n! #{foo}\n}",
-			want:  "Root\n\tHmlt\n\t\tUnescape\n\t\t\tText(D)\n\t\tNewLine\n",
+			input: "@goht test() {\n! #{foo}\n}",
+			want:  "Root\n\tGoht\n\t\tUnescape\n\t\t\tText(D)\n\t\tNewLine\n",
 		},
 		"static and dynamic text": {
-			input: "@hmlt test() {\n! Foo #{foo}\n}",
-			want:  "Root\n\tHmlt\n\t\tUnescape\n\t\t\tText(S)\n\t\t\tText(D)\n\t\tNewLine\n",
+			input: "@goht test() {\n! Foo #{foo}\n}",
+			want:  "Root\n\tGoht\n\t\tUnescape\n\t\t\tText(S)\n\t\t\tText(D)\n\t\tNewLine\n",
 		},
 		"illegal nesting": {
-			input: `@hmlt test() {
+			input: `@goht test() {
 %p! foo
 	bar
 }`,
 			want: `Root
-	Hmlt
+	Goht
 		Element p()
 			Unescape
 				Text(S)
@@ -225,13 +225,13 @@ func Test_UnescapeNode(t *testing.T) {
 			wantErr: true,
 		},
 		"mixed with tags": {
-			input: `@hmlt test() {
+			input: `@goht test() {
 	- var html = "<em>is</em>"
 	%p This #{html} HTML.
 	%p! This #{html} HTML.
 }`,
 			want: `Root
-	Hmlt
+	Goht
 		SilentScript
 		Element p()
 			Text(S)
@@ -269,34 +269,34 @@ func Test_ElementNode(t *testing.T) {
 		wantErr bool
 	}{
 		"simple": {
-			input: "@hmlt test() {\n%p\n}",
-			want:  "Root\n\tHmlt\n\t\tElement p()\n\t\t\tNewLine\n",
+			input: "@goht test() {\n%p\n}",
+			want:  "Root\n\tGoht\n\t\tElement p()\n\t\t\tNewLine\n",
 		},
 		"illegal nesting": {
-			input: "@hmlt test() {\n%p foo\n\t%p bar\n}",
+			input: "@goht test() {\n%p foo\n\t%p bar\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p()
 			Text(S)
 `,
 			wantErr: true,
 		},
 		"unescaped text": {
-			input: "@hmlt test() {\n%p! foo\n}",
+			input: "@goht test() {\n%p! foo\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p()
 			Unescape
 				Text(S)
 `,
 		},
 		"unescaped text before new tag": {
-			input: `@hmlt test() {
+			input: `@goht test() {
 %p! foo
 %p bar
 }`,
 			want: `Root
-	Hmlt
+	Goht
 		Element p()
 			Unescape
 				Text(S)
@@ -305,14 +305,14 @@ func Test_ElementNode(t *testing.T) {
 `,
 		},
 		"tags before and after void tag": {
-			input: `@hmlt test() {
+			input: `@goht test() {
 	%p#fizz.foo text
 	%img{src: "foo.png"}
 	%p#fizz.foo text
 	%img{src: "foo.png"}
 }`,
 			want: `Root
-	Hmlt
+	Goht
 		Element p()
 			Text(S)
 		Element img(src="foo.png")
@@ -324,14 +324,14 @@ func Test_ElementNode(t *testing.T) {
 `,
 		},
 		"tags before and after void tag character": {
-			input: `@hmlt test() {
+			input: `@goht test() {
 	%p#fizz.foo text
 	%closed/
 	%p#fizz.foo text
 	%closed/
 }`,
 			want: `Root
-	Hmlt
+	Goht
 		Element p()
 			Text(S)
 		Element closed()
@@ -343,8 +343,8 @@ func Test_ElementNode(t *testing.T) {
 `,
 		},
 		"with object ref": {
-			input: "@hmlt test() {\n%p[foo]\n}",
-			want:  "Root\n\tHmlt\n\t\tElement p()\n\t\t\tNewLine\n",
+			input: "@goht test() {\n%p[foo]\n}",
+			want:  "Root\n\tGoht\n\t\tElement p()\n\t\t\tNewLine\n",
 		},
 	}
 	for name, test := range tests {
@@ -371,57 +371,57 @@ func Test_ElementAttributes(t *testing.T) {
 		wantErr bool
 	}{
 		"simple": {
-			input: "@hmlt test() {\n%p{foo:\"bar\"}\n}",
+			input: "@goht test() {\n%p{foo:\"bar\"}\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p(foo="bar")
 			NewLine
 `,
 		},
 		"dynamic attribute": {
-			input: "@hmlt test() {\n%p{foo:#{bar}}\n}",
+			input: "@goht test() {\n%p{foo:#{bar}}\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p(foo={bar})
 			NewLine
 `,
 		},
 		"quoted attribute names": {
-			input: "@hmlt test() {\n%p{\"x:foo\":#{bar}, `@fizz`:`b\"uzz`}\n}",
+			input: "@goht test() {\n%p{\"x:foo\":#{bar}, `@fizz`:`b\"uzz`}\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p(x:foo={bar},@fizz="b\"uzz")
 			NewLine
 `,
 		},
 		"attributes command": {
-			input: "@hmlt test() {\n%p{foo:#{bar}, @attributes:#{list}}\n}",
+			input: "@goht test() {\n%p{foo:#{bar}, @attributes:#{list}}\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p(foo={bar},@attrs={list...})
 			NewLine
 `,
 		},
 		"multiline attributes": {
-			input: `@hmlt test() {
+			input: `@goht test() {
 %p{
 	foo:#{bar},
 	@attributes:#{list}
 }
 }`,
 			want: `Root
-	Hmlt
+	Goht
 		Element p(foo={bar},@attrs={list...})
 			NewLine
 `,
 		},
 		"indented elements": {
-			input: `@hmlt test() {
+			input: `@goht test() {
   %p foo
   %p bar
 }`,
 			want: `Root
-	Hmlt
+	Goht
 		Element p()
 			Text(S)
 		Element p()
@@ -453,25 +453,25 @@ func Test_SilentScriptNode(t *testing.T) {
 		wantErr bool
 	}{
 		"simple": {
-			input: "@hmlt test() {\n- var foo = \"bar\"\n}",
+			input: "@goht test() {\n- var foo = \"bar\"\n}",
 			want: `Root
-	Hmlt
+	Goht
 		SilentScript
 `,
 		},
 		"nested content": {
-			input: "@hmlt test() {\n- var foo = \"bar\"\n\t%p= foo\n}",
+			input: "@goht test() {\n- var foo = \"bar\"\n\t%p= foo\n}",
 			want: `Root
-	Hmlt
+	Goht
 		SilentScript
 			Element p()
 				Script
 `,
 		},
 		"mixed indents": {
-			input: "@hmlt test() {\n%p1 one\n- if foo {\n\t%p bar\n- }\n%p2 two\n}",
+			input: "@goht test() {\n%p1 one\n- if foo {\n\t%p bar\n- }\n%p2 two\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p1()
 			Text(S)
 		SilentScript
@@ -483,9 +483,9 @@ func Test_SilentScriptNode(t *testing.T) {
 `,
 		},
 		"shorter indent": {
-			input: "@hmlt test() {\n%p1\n\t- if foo\n%p2 two\n}",
+			input: "@goht test() {\n%p1\n\t- if foo\n%p2 two\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p1()
 			NewLine
 			SilentScript
@@ -494,9 +494,9 @@ func Test_SilentScriptNode(t *testing.T) {
 `,
 		},
 		"ruby style comment": {
-			input: "@hmlt test() {\n-# foo\n%p bar\n}",
+			input: "@goht test() {\n-# foo\n%p bar\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p()
 			Text(S)
 `,
@@ -526,17 +526,17 @@ func Test_CommentNode(t *testing.T) {
 		wantErr bool
 	}{
 		"same line": {
-			input: "@hmlt test() {\n/ foo\n}",
+			input: "@goht test() {\n/ foo\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Comment
 			NewLine
 `,
 		},
 		"nested content": {
-			input: "@hmlt test() {\n/\n\t%p bar\n}",
+			input: "@goht test() {\n/\n\t%p bar\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Comment
 			NewLine
 			Element p()
@@ -568,25 +568,25 @@ func Test_ScriptNode(t *testing.T) {
 		wantErr bool
 	}{
 		"simple": {
-			input: "@hmlt test() {\n= foo\n}",
+			input: "@goht test() {\n= foo\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Script
 		NewLine
 `,
 		},
 		"after element": {
-			input: "@hmlt test() {\n%p= foo\n}",
+			input: "@goht test() {\n%p= foo\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p()
 			Script
 `,
 		},
 		"before content": {
-			input: "@hmlt test() {\n= foo\n%p bar\n}",
+			input: "@goht test() {\n= foo\n%p bar\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Script
 		NewLine
 		Element p()
@@ -594,9 +594,9 @@ func Test_ScriptNode(t *testing.T) {
 `,
 		},
 		"mixed indents": {
-			input: "@hmlt test() {\n%p1\n\t%p2= foo\n%p3 bar\n}",
+			input: "@goht test() {\n%p1\n\t%p2= foo\n%p3 bar\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p1()
 			NewLine
 			Element p2()
@@ -630,25 +630,25 @@ func Test_RenderNode(t *testing.T) {
 		wantErr bool
 	}{
 		"simple": {
-			input: "@hmlt test() {\n= @render foo()\n}",
+			input: "@goht test() {\n= @render foo()\n}",
 			want: `Root
-	Hmlt
+	Goht
 		RenderCommand
 `,
 		},
 		"with children": {
-			input: "@hmlt test() {\n= @render foo()\n\t%p bar\n}",
+			input: "@goht test() {\n= @render foo()\n\t%p bar\n}",
 			want: `Root
-	Hmlt
+	Goht
 		RenderCommand
 			Element p()
 				Text(S)
 `,
 		},
 		"mixed indents": {
-			input: "@hmlt test() {\n%p1 one\n= @render foo()\n\t%p bar\n%p2 two\n}",
+			input: "@goht test() {\n%p1 one\n= @render foo()\n\t%p bar\n%p2 two\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p1()
 			Text(S)
 		RenderCommand
@@ -683,17 +683,17 @@ func Test_ChildrenCommand(t *testing.T) {
 		wantErr bool
 	}{
 		"simple": {
-			input: "@hmlt test() {\n= @children\n}",
+			input: "@goht test() {\n= @children\n}",
 			want: `Root
-	Hmlt
+	Goht
 		ChildrenCommand
 		NewLine
 `,
 		},
 		"mixed indents": {
-			input: "@hmlt test() {\n%p1 one\n%parent\n\t= @children\n%p2 two\n}",
+			input: "@goht test() {\n%p1 one\n%parent\n\t= @children\n%p2 two\n}",
 			want: `Root
-	Hmlt
+	Goht
 		Element p1()
 			Text(S)
 		Element parent()

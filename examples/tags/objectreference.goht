@@ -1,0 +1,37 @@
+package tags
+// In HAML it is possible to include an object in the tag
+// declaration to make the addition of classes and ids easier.
+// This is done by using a pair of square brackets after the
+// tag, id, or class declaration.
+//
+// The object used will need to implement one or both of the
+// following methods:
+// - ObjectID() string
+// - ObjectClass() string
+
+type Foo struct {
+	id		string
+}
+
+func (f *Foo) ObjectID() string {
+	return f.id
+}
+
+func (f *Foo) ObjectClass() string {
+	return "foo"
+}
+
+// if obj below has the id "bar" then the output will be:
+// <article id="foo_bar" class="foo">Foo article</article>
+
+@goht ObjectRefs(obj Foo) {
+	%article[obj] Foo article
+}
+
+// You may include a prefix to be used with the id and class.
+var prefixVar = "article"
+
+@goht PrefixedObjectRefs(obj Foo) {
+	%article[obj, "prefix"] Foo article with id "prefix_foo_bar" and class "prefix_foo"
+	%article[obj, prefixVar] Foo article with id "article_foo_bar" and class "article_foo"
+}

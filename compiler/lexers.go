@@ -111,129 +111,129 @@ func lexGoCode(l *lexer) lexFn {
 func lexTemplate(l *lexer) lexFn {
 	l.acceptUntil(" ")
 	switch l.current() {
-	case "@hmlt":
-		return lexHmltStart
+	case "@goht":
+		return lexGohtStart
 	}
 	return nil
 }
 
-func lexHmltStart(l *lexer) lexFn {
+func lexGohtStart(l *lexer) lexFn {
 	l.ignore()
 	l.skipRun(" ")
 	l.acceptUntil(")")
 	l.next()
-	l.emit(tHmltStart)
+	l.emit(tGohtStart)
 	l.skipRun(" {")
 	l.skipRun("\n\r")
 
-	return lexHmltLineStart
+	return lexGohtLineStart
 }
 
-func lexHmltLineStart(l *lexer) lexFn {
+func lexGohtLineStart(l *lexer) lexFn {
 	switch l.peek() {
 	case '}':
-		l.emit(tHmltEnd)
+		l.emit(tGohtEnd)
 		l.skip()
 		return lexGoLineStart
 	case scanner.EOF:
 		l.emit(tEOF)
 		return nil
 	case '\n', '\r':
-		return lexHmltLineEnd
+		return lexGohtLineEnd
 	default:
-		return lexHmltIndent
+		return lexGohtIndent
 	}
 }
 
-func lexHmltIndent(l *lexer) lexFn {
+func lexGohtIndent(l *lexer) lexFn {
 	l.acceptRun(" \t")
 	l.indent = len(l.current()) // useful for parsing filters
 	l.emit(tIndent)
-	return lexHmltContentStart
+	return lexGohtContentStart
 }
 
-func lexHmltContentStart(l *lexer) lexFn {
+func lexGohtContentStart(l *lexer) lexFn {
 	switch l.peek() {
 	case '%':
-		return lexHmltTag
+		return lexGohtTag
 	case '#':
-		return lexHmltId
+		return lexGohtId
 	case '.':
-		return lexHmltClass
+		return lexGohtClass
 	case '\\':
 		l.skip()
-		return lexHmltTextStart
+		return lexGohtTextStart
 	case '!':
 		if s, err := l.peekAhead(3); err != nil {
 			return l.errorf("unexpected error: %s", err)
 		} else if s == "!!!" {
 			// TODO return an error if we're nesting doctypes
-			return lexHmltDoctype
+			return lexGohtDoctype
 		}
-		return lexHmltUnescaped
+		return lexGohtUnescaped
 	case '-':
-		return lexHmltSilentScript
+		return lexGohtSilentScript
 	case '=':
-		return lexHmltOutputCode
+		return lexGohtOutputCode
 	case '/':
 		return lexComment
 	case ':':
 		return lexFilterStart
 	case scanner.EOF, '\n', '\r':
-		return lexHmltLineEnd
+		return lexGohtLineEnd
 	default:
-		return lexHmltTextStart
+		return lexGohtTextStart
 	}
 }
 
-func lexHmltContent(l *lexer) lexFn {
+func lexGohtContent(l *lexer) lexFn {
 	switch l.peek() {
 	case '#':
-		return lexHmltId
+		return lexGohtId
 	case '.':
-		return lexHmltClass
+		return lexGohtClass
 	case '[':
 		return lexObjectReference
 	case '{':
-		return lexHmltAttributesStart
+		return lexGohtAttributesStart
 	case '!':
-		return lexHmltUnescaped
+		return lexGohtUnescaped
 	case '-':
-		return lexHmltSilentScript
+		return lexGohtSilentScript
 	case '=':
-		return lexHmltOutputCode
+		return lexGohtOutputCode
 	case '/':
 		return lexVoidTag
 	case '>', '<':
 		return lexWhitespaceRemoval
 	case scanner.EOF, '\n', '\r':
-		return lexHmltLineEnd
+		return lexGohtLineEnd
 	default:
-		return lexHmltTextStart
+		return lexGohtTextStart
 	}
 }
 
-func lexHmltContentEnd(l *lexer) lexFn {
+func lexGohtContentEnd(l *lexer) lexFn {
 	switch l.peek() {
 	case '=':
-		return lexHmltOutputCode
+		return lexGohtOutputCode
 	case '/':
 		return lexVoidTag
 	case '>', '<':
 		return lexWhitespaceRemoval
 	case scanner.EOF, '\n', '\r':
-		return lexHmltLineEnd
+		return lexGohtLineEnd
 	default:
-		return lexHmltTextStart
+		return lexGohtTextStart
 	}
 }
 
-func lexHmltLineEnd(l *lexer) lexFn {
+func lexGohtLineEnd(l *lexer) lexFn {
 	l.skipRun(" \t")
 
 	switch l.peek() {
 	case '\n', '\r':
-		return lexHmltNewLine
+		return lexGohtNewLine
 	case scanner.EOF:
 		l.emit(tEOF)
 		return nil
@@ -242,10 +242,10 @@ func lexHmltLineEnd(l *lexer) lexFn {
 	}
 }
 
-func lexHmltNewLine(l *lexer) lexFn {
+func lexGohtNewLine(l *lexer) lexFn {
 	l.acceptRun("\n\r")
 	l.emit(tNewLine)
-	return lexHmltLineStart
+	return lexGohtLineStart
 }
 
 func hamlIdentifier(typ tokenType, l *lexer) lexFn {
@@ -259,18 +259,18 @@ func hamlIdentifier(typ tokenType, l *lexer) lexFn {
 		return l.errorf("%s identifier expected", typ)
 	}
 	l.emit(typ)
-	return lexHmltContent
+	return lexGohtContent
 }
 
-func lexHmltTag(l *lexer) lexFn {
+func lexGohtTag(l *lexer) lexFn {
 	return hamlIdentifier(tTag, l)
 }
 
-func lexHmltId(l *lexer) lexFn {
+func lexGohtId(l *lexer) lexFn {
 	return hamlIdentifier(tId, l)
 }
 
-func lexHmltClass(l *lexer) lexFn {
+func lexGohtClass(l *lexer) lexFn {
 	return hamlIdentifier(tClass, l)
 }
 
@@ -283,20 +283,20 @@ func lexObjectReference(l *lexer) lexFn {
 	l.backup()
 	l.emit(tObjectRef)
 	l.skip() // skip closing bracket
-	return lexHmltContent
+	return lexGohtContent
 }
 
-func lexHmltAttributesStart(l *lexer) lexFn {
+func lexGohtAttributesStart(l *lexer) lexFn {
 	l.skip()
-	return lexHmltAttribute
+	return lexGohtAttribute
 }
 
-func lexHmltAttributesEnd(l *lexer) lexFn {
+func lexGohtAttributesEnd(l *lexer) lexFn {
 	l.skip()
-	return lexHmltContent
+	return lexGohtContent
 }
 
-func lexHmltAttribute(l *lexer) lexFn {
+func lexGohtAttribute(l *lexer) lexFn {
 	// supported attributes
 	// key
 	// key:value
@@ -307,15 +307,15 @@ func lexHmltAttribute(l *lexer) lexFn {
 
 	switch l.peek() {
 	case '}':
-		return lexHmltAttributesEnd
+		return lexGohtAttributesEnd
 	case '@':
 		return lexAttributeCommandStart
 	default:
-		return lexHmltAttributeName
+		return lexGohtAttributeName
 	}
 }
 
-func lexHmltAttributeName(l *lexer) lexFn {
+func lexGohtAttributeName(l *lexer) lexFn {
 	if l.peek() == '"' || l.peek() == '`' {
 		r := continueToMatchingQuote(l, tAttrName, false)
 		if r == scanner.EOF {
@@ -334,48 +334,48 @@ func lexHmltAttributeName(l *lexer) lexFn {
 	l.skipRun(" \t\n\r")
 	switch l.peek() {
 	case '?', ':':
-		return lexHmltAttributeOperator
+		return lexGohtAttributeOperator
 	case ',', '}':
-		return lexHmltAttributeEnd
+		return lexGohtAttributeEnd
 	default:
 		return l.errorf("unexpected character: %q", l.peek())
 	}
 }
 
-func lexHmltAttributeOperator(l *lexer) lexFn {
+func lexGohtAttributeOperator(l *lexer) lexFn {
 	l.skipRun(" \t\n\r")
 	switch l.peek() {
 	case '?', ':':
 		l.next()
 		l.emit(tAttrOperator)
-		return lexHmltAttributeValue
+		return lexGohtAttributeValue
 	}
 	return l.errorf("unexpected character: %q", l.peek())
 }
 
-func lexHmltAttributeValue(l *lexer) lexFn {
+func lexGohtAttributeValue(l *lexer) lexFn {
 	l.skipRun(" \t\n\r")
 
 	switch l.peek() {
 	case '"', '`':
-		return lexHmltAttributeStaticValue
+		return lexGohtAttributeStaticValue
 	case '#':
-		return lexHmltAttributeDynamicValue
+		return lexGohtAttributeDynamicValue
 	}
 	return l.errorf("unexpected character: %q", l.peek())
 }
 
-func lexHmltAttributeStaticValue(l *lexer) lexFn {
+func lexGohtAttributeStaticValue(l *lexer) lexFn {
 	r := continueToMatchingQuote(l, tAttrEscapedValue, true)
 	if r == scanner.EOF {
 		return l.errorf("attribute value not closed: eof")
 	} else if r != '"' && r != '`' {
 		return l.errorf("unexpected character: %q", r)
 	}
-	return lexHmltAttributeEnd
+	return lexGohtAttributeEnd
 }
 
-func lexHmltAttributeDynamicValue(l *lexer) lexFn {
+func lexGohtAttributeDynamicValue(l *lexer) lexFn {
 	l.skip() // skip hash
 	if l.peek() != '{' {
 		return l.errorf("unexpected character: %q", l.peek())
@@ -388,7 +388,7 @@ func lexHmltAttributeDynamicValue(l *lexer) lexFn {
 	l.backup()
 	l.emit(tAttrDynamicValue)
 	l.skip() // skip closing brace
-	return lexHmltAttributeEnd
+	return lexGohtAttributeEnd
 }
 
 func lexAttributeCommandStart(l *lexer) lexFn {
@@ -399,13 +399,13 @@ func lexAttributeCommandStart(l *lexer) lexFn {
 	}
 	switch l.current() {
 	case "attributes":
-		return lexHmltAttributeCommand(tAttributesCommand)
+		return lexGohtAttributeCommand(tAttributesCommand)
 	default:
 		return l.errorf("unknown attribute command: %s", l.current())
 	}
 }
 
-func lexHmltAttributeCommand(command tokenType) lexFn {
+func lexGohtAttributeCommand(command tokenType) lexFn {
 	return func(l *lexer) lexFn {
 		l.ignore()
 		l.skipUntil(":")
@@ -419,18 +419,18 @@ func lexHmltAttributeCommand(command tokenType) lexFn {
 		l.emit(command)
 		l.skip() // skip closing brace
 
-		return lexHmltAttributeEnd
+		return lexGohtAttributeEnd
 	}
 }
 
-func lexHmltAttributeEnd(l *lexer) lexFn {
+func lexGohtAttributeEnd(l *lexer) lexFn {
 	l.skipRun(" \t\n\r")
 	switch l.peek() {
 	case ',':
 		l.skip()
-		return lexHmltAttribute
+		return lexGohtAttribute
 	case '}':
-		return lexHmltAttributesEnd
+		return lexGohtAttributesEnd
 	default:
 		return l.errorf("unexpected character: %c", l.peek())
 	}
@@ -446,15 +446,15 @@ func lexWhitespaceRemoval(l *lexer) lexFn {
 	default:
 		return l.errorf("unexpected character: %q", direction)
 	}
-	return lexHmltContentEnd
+	return lexGohtContentEnd
 }
 
-func lexHmltTextStart(l *lexer) lexFn {
+func lexGohtTextStart(l *lexer) lexFn {
 	l.skipRun(" \t")
-	return lexHmltTextContent
+	return lexGohtTextContent
 }
 
-func lexHmltTextContent(l *lexer) lexFn {
+func lexGohtTextContent(l *lexer) lexFn {
 	l.acceptUntil("\\#\n\r")
 	switch l.peek() {
 	case '\\':
@@ -471,23 +471,23 @@ func lexHmltTextContent(l *lexer) lexFn {
 		} else {
 			l.next()
 		}
-		return lexHmltTextContent
+		return lexGohtTextContent
 	case '#':
-		return lexHmltDynamicText
+		return lexGohtDynamicText
 	default:
 		if l.current() != "" {
 			l.emit(tPlainText)
 		}
-		return lexHmltLineEnd
+		return lexGohtLineEnd
 	}
 }
 
-func lexHmltDynamicText(l *lexer) lexFn {
+func lexGohtDynamicText(l *lexer) lexFn {
 	if s, err := l.peekAhead(2); err != nil {
 		return l.errorf("unexpected error: %s", err)
 	} else if s != "#{" {
 		l.next()
-		return lexHmltTextContent
+		return lexGohtTextContent
 	}
 	if l.current() != "" {
 		l.emit(tPlainText)
@@ -500,29 +500,29 @@ func lexHmltDynamicText(l *lexer) lexFn {
 	l.backup()
 	l.emit(tDynamicText)
 	l.skip() // skip closing brace
-	return lexHmltTextContent
+	return lexGohtTextContent
 }
 
-func lexHmltDoctype(l *lexer) lexFn {
+func lexGohtDoctype(l *lexer) lexFn {
 	l.skipRun("! ")
 	l.acceptUntil("\n\r")
 	l.emit(tDoctype)
-	return lexHmltLineEnd
+	return lexGohtLineEnd
 }
 
-func lexHmltUnescaped(l *lexer) lexFn {
+func lexGohtUnescaped(l *lexer) lexFn {
 	l.skip()
 	l.ignore()
 	l.emit(tUnescaped)
 	switch l.peek() {
 	case '=':
-		return lexHmltOutputCode
+		return lexGohtOutputCode
 	default:
-		return lexHmltTextStart
+		return lexGohtTextStart
 	}
 }
 
-func lexHmltSilentScript(l *lexer) lexFn {
+func lexGohtSilentScript(l *lexer) lexFn {
 	l.skip() // eat dash
 
 	// ruby style comment
@@ -536,7 +536,7 @@ func lexHmltSilentScript(l *lexer) lexFn {
 	l.skipRun(" \t")
 	l.acceptUntil("\n\r")
 	l.emit(tSilentScript)
-	return lexHmltLineEnd
+	return lexGohtLineEnd
 }
 
 func ignoreIndentedLines(indent int) lexFn {
@@ -551,7 +551,7 @@ func ignoreIndentedLines(indent int) lexFn {
 				return l.errorf("unexpected error while evaluating indents: %s", err)
 			}
 			if len(strings.TrimSpace(priorIndents)) != 0 {
-				return lexHmltLineStart
+				return lexGohtLineStart
 			}
 			l.skipUntil("\n\r")
 			return ignoreIndentedLines(indent)
@@ -559,20 +559,20 @@ func ignoreIndentedLines(indent int) lexFn {
 			l.emit(tEOF)
 			return nil
 		default:
-			return lexHmltLineStart
+			return lexGohtLineStart
 		}
 	}
 }
 
-func lexHmltOutputCode(l *lexer) lexFn {
+func lexGohtOutputCode(l *lexer) lexFn {
 	l.skipRun("= \t")
 	switch l.peek() {
 	case '@':
-		return lexHmltCommandCode
+		return lexGohtCommandCode
 	default:
 		l.acceptUntil("\n\r")
 		l.emit(tScript)
-		return lexHmltLineEnd
+		return lexGohtLineEnd
 	}
 }
 
@@ -580,7 +580,7 @@ func lexComment(l *lexer) lexFn {
 	l.skipRun("/ \t")
 	l.acceptUntil("\n\r")
 	l.emit(tComment)
-	return lexHmltLineEnd
+	return lexGohtLineEnd
 }
 
 func lexVoidTag(l *lexer) lexFn {
@@ -591,10 +591,10 @@ func lexVoidTag(l *lexer) lexFn {
 		return l.errorf("self-closing tags can't have content")
 	}
 	l.emit(tVoidTag)
-	return lexHmltLineEnd
+	return lexGohtLineEnd
 }
 
-func lexHmltCommandCode(l *lexer) lexFn {
+func lexGohtCommandCode(l *lexer) lexFn {
 	l.skipRun("@")
 	l.acceptUntil("() \t\n\r")
 	if l.current() == "" {
@@ -618,7 +618,7 @@ func lexHmltCommandCode(l *lexer) lexFn {
 		}
 		l.emit(tChildrenCommand)
 	}
-	return lexHmltLineEnd
+	return lexGohtLineEnd
 }
 
 var filters = []string{"javascript", "css", "plain", "escaped", "preserve"}
@@ -647,7 +647,7 @@ func lexFilterStart(l *lexer) lexFn {
 	case "preserve":
 		return lexFilterFirstIndent(l.indent, tPreserveText, lexFilterContent)
 	}
-	return lexHmltLineEnd
+	return lexGohtLineEnd
 }
 
 func lexFilterFirstIndent(indent int, textType tokenType, next filterFn) lexFn {
@@ -657,11 +657,11 @@ func lexFilterFirstIndent(indent int, textType tokenType, next filterFn) lexFn {
 			return l.errorf("unexpected error while evaluating filter indents: %s", err)
 		}
 		if len(strings.TrimSpace(priorIndents)) != 0 {
-			return lexHmltLineStart
+			return lexGohtLineStart
 		}
 		l.acceptRun(" \t")
 		if len(l.current()) <= indent {
-			return lexHmltLineStart
+			return lexGohtLineStart
 		}
 		indent = len(l.current())
 		l.ignore()
@@ -684,13 +684,13 @@ func lexFilterLineStart(indent int, textType tokenType) lexFn {
 				return lexFilterContent(indent, textType)
 			}
 			l.emit(tFilterEnd)
-			return lexHmltLineStart
+			return lexGohtLineStart
 		case scanner.EOF:
 			l.emit(tEOF)
 			return nil
 		default:
 			l.emit(tFilterEnd)
-			return lexHmltLineStart
+			return lexGohtLineStart
 		}
 	}
 }

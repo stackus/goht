@@ -1,6 +1,0 @@
-// Package example is an examples package for the Hamlet language.
-package example
-
-@hmlt Doc() {
-  .doc An example of package documentation.
-}

@@ -1,0 +1,11 @@
+// Adds a doctype to the top of the page
+// HTML5 doctype is the default
+@goht Doctype1() {
+!!!
+}
+
+// Indenting the Goht code is optional; however, if you do or
+// don't keep it consistent throughout the project
+@goht DoctypeIndented() {
+	!!!
+}

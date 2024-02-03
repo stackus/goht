@@ -1,4 +1,4 @@
-package hamlet
+package goht
 
 import (
 	"bytes"
@@ -117,7 +117,7 @@ func BuildClassList(classes ...any) (string, error) {
 				}
 			}
 		default:
-			return "", errors.New("hamlet: invalid class type")
+			return "", errors.New("goht: invalid class type")
 		}
 	}
 	return strings.Join(classList, ` `), nil
@@ -138,7 +138,7 @@ func BuildAttributeList(attributes ...any) (string, error) {
 				attributeList.WriteString(` ` + html.EscapeString(key) + `=\"` + html.EscapeString(value) + `\"`)
 			}
 		default:
-			return "", errors.New("hamlet: invalid attribute type")
+			return "", errors.New("goht: invalid attribute type")
 		}
 	}
 	return attributeList.String(), nil

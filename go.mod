@@ -1,4 +1,4 @@
-module github.com/stackus/hamlet
+module github.com/stackus/goht
 
 go 1.21.4
 

@@ -1,4 +1,4 @@
-package hamlet
+package goht
 
 import (
 	_ "embed"

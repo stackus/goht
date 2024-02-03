@@ -3,33 +3,33 @@ package proxy
 import (
 	"sync"
 
-	"github.com/stackus/hamlet/internal/protocol"
+	"github.com/stackus/goht/internal/protocol"
 )
 
 type DiagnosticsCache struct {
-	hamletDiagnostics map[string][]protocol.Diagnostic
-	goDiagnostics     map[string][]protocol.Diagnostic
-	mu                sync.Mutex
+	gohtDiagnostics map[string][]protocol.Diagnostic
+	goDiagnostics   map[string][]protocol.Diagnostic
+	mu              sync.Mutex
 }
 
 func NewDiagnosticsCache() *DiagnosticsCache {
 	return &DiagnosticsCache{
-		hamletDiagnostics: make(map[string][]protocol.Diagnostic),
-		goDiagnostics:     make(map[string][]protocol.Diagnostic),
+		gohtDiagnostics: make(map[string][]protocol.Diagnostic),
+		goDiagnostics:   make(map[string][]protocol.Diagnostic),
 	}
 }
 
-func (dc *DiagnosticsCache) WithHamletDiagnostics(uri string, diagnostics []protocol.Diagnostic) []protocol.Diagnostic {
+func (dc *DiagnosticsCache) WithGohtDiagnostics(uri string, diagnostics []protocol.Diagnostic) []protocol.Diagnostic {
 	if diagnostics == nil {
 		diagnostics = make([]protocol.Diagnostic, 0)
 	}
 	dc.mu.Lock()
 	defer dc.mu.Unlock()
 	dc.goDiagnostics[uri] = diagnostics
-	if dc.hamletDiagnostics[uri] == nil {
-		dc.hamletDiagnostics[uri] = make([]protocol.Diagnostic, 0)
+	if dc.gohtDiagnostics[uri] == nil {
+		dc.gohtDiagnostics[uri] = make([]protocol.Diagnostic, 0)
 	}
-	return append(dc.hamletDiagnostics[uri], diagnostics...)
+	return append(dc.gohtDiagnostics[uri], diagnostics...)
 }
 
 func (dc *DiagnosticsCache) WithGoDiagnostics(uri string, diagnostics []protocol.Diagnostic) []protocol.Diagnostic {
@@ -38,15 +38,15 @@ func (dc *DiagnosticsCache) WithGoDiagnostics(uri string, diagnostics []protocol
 	}
 	dc.mu.Lock()
 	defer dc.mu.Unlock()
-	dc.hamletDiagnostics[uri] = diagnostics
+	dc.gohtDiagnostics[uri] = diagnostics
 	if dc.goDiagnostics[uri] == nil {
 		dc.goDiagnostics[uri] = make([]protocol.Diagnostic, 0)
 	}
 	return append(dc.goDiagnostics[uri], diagnostics...)
 }
 
-func (dc *DiagnosticsCache) ClearHamletDiagnostics(uri string) {
+func (dc *DiagnosticsCache) ClearGohtDiagnostics(uri string) {
 	dc.mu.Lock()
 	defer dc.mu.Unlock()
-	dc.hamletDiagnostics[uri] = make([]protocol.Diagnostic, 0)
+	dc.gohtDiagnostics[uri] = make([]protocol.Diagnostic, 0)
 }

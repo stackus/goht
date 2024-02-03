@@ -1,0 +1,6 @@
+// Package example is an examples package for the Goht language.
+package example
+
+@goht Doc() {
+  .doc An example of package documentation.
+}

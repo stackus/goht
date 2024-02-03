@@ -20,11 +20,11 @@ type SourceMap struct {
 	TargetLinesToSource map[int]map[int]Position
 }
 
-// Add will create a new source map entry from the Hamlet template to the generated Go code.
+// Add will create a new source map entry from the Goht template to the generated Go code.
 //
 // The IDEs will be using zero-based line and column numbers, so we need to convert them
 // from the one-based line and column numbers that we've generated during the parsing of the
-// Hamlet template.
+// Goht template.
 //
 // When we parse the length of a line we will create mappings for the entire len() because
 // the IDEs and LSPs will use the character AFTER the last character in the range as the

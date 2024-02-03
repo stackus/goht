@@ -10,9 +10,9 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/stackus/hamlet"
-	"github.com/stackus/hamlet/compiler"
-	"github.com/stackus/hamlet/internal/protocol"
+	"github.com/stackus/goht"
+	"github.com/stackus/goht/compiler"
+	"github.com/stackus/goht/internal/protocol"
 )
 
 type Server struct {
@@ -73,8 +73,8 @@ func (s *Server) Initialize(ctx context.Context, params *protocol.ParamInitializ
 		},
 	}
 
-	resp.ServerInfo.Name = "hamlet-lsp"
-	resp.ServerInfo.Version = hamlet.Version()
+	resp.ServerInfo.Name = "goht-lsp"
+	resp.ServerInfo.Version = goht.Version()
 
 	return resp, err
 }
@@ -86,12 +86,12 @@ func (s *Server) CodeAction(ctx context.Context, params *protocol.CodeActionPara
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI)
-	if !isHamletFile {
-		logger.Warn().Msg("not a hamlet file")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
+		logger.Warn().Msg("not a goht file")
 		return s.Server.CodeAction(ctx, params)
 	}
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	params.TextDocument.URI = goURI
 
 	resp, err := s.Server.CodeAction(ctx, params)
@@ -102,7 +102,7 @@ func (s *Server) CodeAction(ctx context.Context, params *protocol.CodeActionPara
 
 	for i, codeAction := range resp {
 		for j, diagnostic := range codeAction.Diagnostics {
-			diagnostic.Range = s.goRangeToHamletRange(hamletURI, diagnostic.Range)
+			diagnostic.Range = s.goRangeToGohtRange(gohtURI, diagnostic.Range)
 			codeAction.Diagnostics[j] = diagnostic
 		}
 
@@ -117,11 +117,11 @@ func (s *Server) CodeAction(ctx context.Context, params *protocol.CodeActionPara
 				if te, ok = textEdit.Value.(protocol.TextEdit); !ok {
 					continue
 				}
-				te.Range = s.goRangeToHamletRange(hamletURI, te.Range)
+				te.Range = s.goRangeToGohtRange(gohtURI, te.Range)
 				textEdit.Value = te
 				changes.TextDocumentEdit.Edits[k] = textEdit
 			}
-			changes.TextDocumentEdit.TextDocument.URI = hamletURI
+			changes.TextDocumentEdit.TextDocument.URI = gohtURI
 			codeAction.Edit.DocumentChanges[j] = changes
 		}
 		resp[i] = codeAction
@@ -137,11 +137,11 @@ func (s *Server) CodeLens(ctx context.Context, params *protocol.CodeLensParams) 
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI)
-	if !isHamletFile {
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
 		return s.Server.CodeLens(ctx, params)
 	}
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	params.TextDocument.URI = goURI
 
 	resp, err := s.Server.CodeLens(ctx, params)
@@ -154,7 +154,7 @@ func (s *Server) CodeLens(ctx context.Context, params *protocol.CodeLensParams) 
 	}
 
 	for i, codeLens := range resp {
-		codeLens.Range = s.goRangeToHamletRange(hamletURI, codeLens.Range)
+		codeLens.Range = s.goRangeToGohtRange(gohtURI, codeLens.Range)
 		resp[i] = codeLens
 	}
 
@@ -168,11 +168,11 @@ func (s *Server) ColorPresentation(ctx context.Context, params *protocol.ColorPr
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI)
-	if !isHamletFile {
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
 		return s.Server.ColorPresentation(ctx, params)
 	}
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	params.TextDocument.URI = goURI
 
 	resp, err := s.Server.ColorPresentation(ctx, params)
@@ -185,7 +185,7 @@ func (s *Server) ColorPresentation(ctx context.Context, params *protocol.ColorPr
 	}
 
 	for i, colorPresentation := range resp {
-		colorPresentation.TextEdit.Range = s.goRangeToHamletRange(hamletURI, colorPresentation.TextEdit.Range)
+		colorPresentation.TextEdit.Range = s.goRangeToGohtRange(gohtURI, colorPresentation.TextEdit.Range)
 		resp[i] = colorPresentation
 	}
 
@@ -199,9 +199,9 @@ func (s *Server) Completion(ctx context.Context, params *protocol.CompletionPara
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(hamletURI, params.Position)
+	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to update position")
 		return nil, nil
@@ -216,10 +216,10 @@ func (s *Server) Completion(ctx context.Context, params *protocol.CompletionPara
 	}
 	for i, completionItem := range resp.Items {
 		if completionItem.TextEdit != nil {
-			completionItem.TextEdit.Range = s.goRangeToHamletRange(hamletURI, completionItem.TextEdit.Range)
+			completionItem.TextEdit.Range = s.goRangeToGohtRange(gohtURI, completionItem.TextEdit.Range)
 		}
 		if len(completionItem.AdditionalTextEdits) > 0 {
-			doc, ok := s.srcs.Get(string(hamletURI))
+			doc, ok := s.srcs.Get(string(gohtURI))
 			if !ok {
 				continue
 			}
@@ -253,9 +253,9 @@ func (s *Server) Declaration(ctx context.Context, params *protocol.DeclarationPa
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(hamletURI, params.Position)
+	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to update position")
 		return &protocol.Or_textDocument_declaration{
@@ -270,9 +270,9 @@ func (s *Server) Declaration(ctx context.Context, params *protocol.DeclarationPa
 	}
 	if decls, ok := resp.Value.([]protocol.DeclarationLink); ok {
 		for i, decl := range decls {
-			if isHamletGoFile, goURI := toHamletURI(decl.TargetURI); isHamletGoFile {
+			if isGohtGoFile, goURI := toGohtURI(decl.TargetURI); isGohtGoFile {
 				decl.TargetURI = goURI
-				decl.TargetRange = s.goRangeToHamletRange(decl.TargetURI, decl.TargetRange)
+				decl.TargetRange = s.goRangeToGohtRange(decl.TargetURI, decl.TargetRange)
 				decls[i] = decl
 			}
 		}
@@ -289,9 +289,9 @@ func (s *Server) Definition(ctx context.Context, params *protocol.DefinitionPara
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(hamletURI, params.Position)
+	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to update position")
 		return []protocol.Location{}, nil
@@ -302,9 +302,9 @@ func (s *Server) Definition(ctx context.Context, params *protocol.DefinitionPara
 		return resp, err
 	}
 	for i, location := range resp {
-		if isHamletGoFile, goURI := toHamletURI(location.URI); isHamletGoFile {
+		if isGohtGoFile, goURI := toGohtURI(location.URI); isGohtGoFile {
 			location.URI = goURI
-			location.Range = s.goRangeToHamletRange(location.URI, location.Range)
+			location.Range = s.goRangeToGohtRange(location.URI, location.Range)
 			resp[i] = location
 		}
 	}
@@ -317,9 +317,9 @@ func (s *Server) DidChange(ctx context.Context, params *protocol.DidChangeTextDo
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI)
-	if !isHamletFile {
-		logger.Warn().Msg("not a hamlet file")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
+		logger.Warn().Msg("not a goht file")
 		return nil
 	}
 
@@ -357,9 +357,9 @@ func (s *Server) DidClose(ctx context.Context, params *protocol.DidCloseTextDocu
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI)
-	if !isHamletFile {
-		logger.Warn().Msg("not a hamlet file")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
+		logger.Warn().Msg("not a goht file")
 		return s.Server.DidClose(ctx, params)
 	}
 	s.srcs.Delete(string(params.TextDocument.URI))
@@ -378,9 +378,9 @@ func (s *Server) DidOpen(ctx context.Context, params *protocol.DidOpenTextDocume
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI)
-	if !isHamletFile {
-		logger.Warn().Msg("not a hamlet file")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
+		logger.Warn().Msg("not a goht file")
 		return s.Server.DidOpen(ctx, params)
 	}
 	s.srcs.Set(string(params.TextDocument.URI), NewDocument(params.TextDocument.Text))
@@ -415,7 +415,7 @@ func (s *Server) DidSave(ctx context.Context, params *protocol.DidSaveTextDocume
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	if isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI); isHamletFile {
+	if isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI); isGohtFile {
 		params.TextDocument.URI = goURI
 	}
 	err := s.Server.DidSave(ctx, params)
@@ -431,12 +431,12 @@ func (s *Server) DocumentColor(ctx context.Context, params *protocol.DocumentCol
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI)
-	if !isHamletFile {
-		logger.Warn().Msg("not a hamlet file")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
+		logger.Warn().Msg("not a goht file")
 		return s.Server.DocumentColor(ctx, params)
 	}
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	params.TextDocument.URI = goURI
 	resp, err := s.Server.DocumentColor(ctx, params)
 	if err != nil {
@@ -444,7 +444,7 @@ func (s *Server) DocumentColor(ctx context.Context, params *protocol.DocumentCol
 		return resp, err
 	}
 	for i, colorInfo := range resp {
-		colorInfo.Range = s.goRangeToHamletRange(hamletURI, colorInfo.Range)
+		colorInfo.Range = s.goRangeToGohtRange(gohtURI, colorInfo.Range)
 		resp[i] = colorInfo
 	}
 	return resp, nil
@@ -464,14 +464,14 @@ func (s *Server) ResolveDocumentLink(ctx context.Context, params *protocol.Docum
 		Str("uri", *params.Target).
 		Logger()
 
-	hamletURI := *params.Target
-	isHamletFile, goURI := toHamletGoURI(protocol.DocumentURI(hamletURI))
-	if !isHamletFile {
-		logger.Warn().Msg("not a hamlet file")
+	gohtURI := *params.Target
+	isGohtFile, goURI := toGohtGoURI(protocol.DocumentURI(gohtURI))
+	if !isGohtFile {
+		logger.Warn().Msg("not a goht file")
 		return s.Server.ResolveDocumentLink(ctx, params)
 	}
 	params.Target = (*protocol.URI)(&goURI)
-	params.Range = s.hamletRangeToGoRange(protocol.DocumentURI(hamletURI), params.Range)
+	params.Range = s.gohtRangeToGoRange(protocol.DocumentURI(gohtURI), params.Range)
 	resp, err := s.Server.ResolveDocumentLink(ctx, params)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to resolve document link")
@@ -480,8 +480,8 @@ func (s *Server) ResolveDocumentLink(ctx context.Context, params *protocol.Docum
 	if resp == nil {
 		return resp, nil
 	}
-	resp.Target = &hamletURI
-	resp.Range = s.goRangeToHamletRange(protocol.DocumentURI(hamletURI), resp.Range)
+	resp.Target = &gohtURI
+	resp.Range = s.goRangeToGohtRange(protocol.DocumentURI(gohtURI), resp.Range)
 	return resp, nil
 }
 
@@ -504,9 +504,9 @@ func (s *Server) Hover(ctx context.Context, params *protocol.HoverParams) (*prot
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(hamletURI, params.Position)
+	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to update position")
 		return nil, nil
@@ -520,7 +520,7 @@ func (s *Server) Hover(ctx context.Context, params *protocol.HoverParams) (*prot
 		logger.Warn().Msg("no hover response")
 		return resp, nil
 	}
-	resp.Range = s.goRangeToHamletRange(hamletURI, resp.Range)
+	resp.Range = s.goRangeToGohtRange(gohtURI, resp.Range)
 	return resp, nil
 }
 
@@ -530,9 +530,9 @@ func (s *Server) Implementation(ctx context.Context, params *protocol.Implementa
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(hamletURI, params.Position)
+	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to update position")
 		return []protocol.Location{}, nil
@@ -545,8 +545,8 @@ func (s *Server) Implementation(ctx context.Context, params *protocol.Implementa
 		return resp, err
 	}
 	for i, location := range resp {
-		location.URI = hamletURI
-		location.Range = s.goRangeToHamletRange(hamletURI, location.Range)
+		location.URI = gohtURI
+		location.Range = s.goRangeToGohtRange(gohtURI, location.Range)
 		resp[i] = location
 	}
 	return resp, nil
@@ -558,9 +558,9 @@ func (s *Server) OnTypeFormatting(ctx context.Context, params *protocol.Document
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(hamletURI, params.Position)
+	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to update position")
 		return nil, nil
@@ -573,7 +573,7 @@ func (s *Server) OnTypeFormatting(ctx context.Context, params *protocol.Document
 		return resp, err
 	}
 	for i, textEdit := range resp {
-		textEdit.Range = s.goRangeToHamletRange(hamletURI, textEdit.Range)
+		textEdit.Range = s.goRangeToGohtRange(gohtURI, textEdit.Range)
 		resp[i] = textEdit
 	}
 	return resp, nil
@@ -585,9 +585,9 @@ func (s *Server) PrepareRename(ctx context.Context, params *protocol.PrepareRena
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(hamletURI, params.Position)
+	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to update position")
 		return nil, nil
@@ -599,7 +599,7 @@ func (s *Server) PrepareRename(ctx context.Context, params *protocol.PrepareRena
 		}
 		return resp, err
 	}
-	resp.Range = s.goRangeToHamletRange(hamletURI, resp.Range)
+	resp.Range = s.goRangeToGohtRange(gohtURI, resp.Range)
 	return resp, nil
 }
 
@@ -609,11 +609,11 @@ func (s *Server) RangeFormatting(ctx context.Context, params *protocol.DocumentR
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	hamletURI := params.TextDocument.URI
-	var isHamletURI bool
-	isHamletURI, params.TextDocument.URI = toHamletGoURI(params.TextDocument.URI)
-	if !isHamletURI {
-		logger.Warn().Msg("not a hamlet file")
+	gohtURI := params.TextDocument.URI
+	var isGohtURI bool
+	isGohtURI, params.TextDocument.URI = toGohtGoURI(params.TextDocument.URI)
+	if !isGohtURI {
+		logger.Warn().Msg("not a goht file")
 		return []protocol.TextEdit{}, nil
 	}
 	resp, err := s.Server.RangeFormatting(ctx, params)
@@ -624,7 +624,7 @@ func (s *Server) RangeFormatting(ctx context.Context, params *protocol.DocumentR
 		return resp, err
 	}
 	for i, textEdit := range resp {
-		textEdit.Range = s.goRangeToHamletRange(hamletURI, textEdit.Range)
+		textEdit.Range = s.goRangeToGohtRange(gohtURI, textEdit.Range)
 		resp[i] = textEdit
 	}
 	return resp, nil
@@ -636,12 +636,12 @@ func (s *Server) References(ctx context.Context, params *protocol.ReferenceParam
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	hamletURI := params.TextDocument.URI
-	var isHamletURI bool
-	isHamletURI, params.TextDocument.URI = toHamletGoURI(params.TextDocument.URI)
-	if !isHamletURI {
-		logger.Warn().Msg("not a hamlet file")
-		return []protocol.Location{}, fmt.Errorf("not a hamlet file")
+	gohtURI := params.TextDocument.URI
+	var isGohtURI bool
+	isGohtURI, params.TextDocument.URI = toGohtGoURI(params.TextDocument.URI)
+	if !isGohtURI {
+		logger.Warn().Msg("not a goht file")
+		return []protocol.Location{}, fmt.Errorf("not a goht file")
 	}
 	resp, err := s.Server.References(ctx, params)
 	if err != nil || resp == nil {
@@ -651,8 +651,8 @@ func (s *Server) References(ctx context.Context, params *protocol.ReferenceParam
 		return resp, err
 	}
 	for i, location := range resp {
-		location.URI = hamletURI
-		location.Range = s.goRangeToHamletRange(hamletURI, location.Range)
+		location.URI = gohtURI
+		location.Range = s.goRangeToGohtRange(gohtURI, location.Range)
 		resp[i] = location
 	}
 	return resp, nil
@@ -702,11 +702,11 @@ func (s *Server) WillSave(ctx context.Context, params *protocol.WillSaveTextDocu
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	if isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI); isHamletFile {
+	if isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI); isGohtFile {
 		params.TextDocument.URI = goURI
 		return s.Server.WillSave(ctx, params)
 	}
-	logger.Warn().Msg("not a hamlet file")
+	logger.Warn().Msg("not a goht file")
 	return nil
 }
 
@@ -716,9 +716,9 @@ func (s *Server) SemanticTokensFull(ctx context.Context, params *protocol.Semant
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI)
-	if !isHamletFile {
-		logger.Warn().Msg("not a hamlet file")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
+		logger.Warn().Msg("not a goht file")
 		return nil, nil
 	}
 	params.TextDocument.URI = goURI
@@ -735,9 +735,9 @@ func (s *Server) SemanticTokensFullDelta(ctx context.Context, params *protocol.S
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI)
-	if !isHamletFile {
-		logger.Warn().Msg("not a hamlet file")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
+		logger.Warn().Msg("not a goht file")
 		return nil, nil
 	}
 	params.TextDocument.URI = goURI
@@ -754,9 +754,9 @@ func (s *Server) SemanticTokensRange(ctx context.Context, params *protocol.Seman
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	isHamletFile, goURI := toHamletGoURI(params.TextDocument.URI)
-	if !isHamletFile {
-		logger.Warn().Msg("not a hamlet file")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
+		logger.Warn().Msg("not a goht file")
 		return nil, nil
 	}
 	params.TextDocument.URI = goURI
@@ -773,9 +773,9 @@ func (s *Server) Moniker(ctx context.Context, params *protocol.MonikerParams) ([
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	hamletURI := params.TextDocument.URI
+	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(hamletURI, params.Position)
+	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to update position")
 		return []protocol.Moniker{}, nil
@@ -792,43 +792,43 @@ func (s *Server) InlayHint(_ context.Context, _ *protocol.InlayHintParams) ([]pr
 	return []protocol.InlayHint{}, nil
 }
 
-func (s *Server) goRangeToHamletRange(uri protocol.DocumentURI, goRange protocol.Range) protocol.Range {
-	hmltRange := goRange
+func (s *Server) goRangeToGohtRange(uri protocol.DocumentURI, goRange protocol.Range) protocol.Range {
+	gohtRange := goRange
 	sm, ok := s.smc.Get(string(uri))
 	if !ok {
-		return hmltRange
+		return gohtRange
 	}
 
 	if start, ok := sm.SourcePositionFromTarget(int(goRange.Start.Line), int(goRange.Start.Character)); ok {
-		s.logger.Info().Msgf("goRangeToHamletRange: %s: START [%d,%d] -> [%d,%d]", uri, goRange.Start.Line, goRange.Start.Character, start.Line, start.Col)
-		hmltRange.Start.Line = uint32(start.Line)
-		hmltRange.Start.Character = uint32(start.Col)
+		s.logger.Info().Msgf("goRangeToGohtRange: %s: START [%d,%d] -> [%d,%d]", uri, goRange.Start.Line, goRange.Start.Character, start.Line, start.Col)
+		gohtRange.Start.Line = uint32(start.Line)
+		gohtRange.Start.Character = uint32(start.Col)
 	}
 
 	if end, ok := sm.SourcePositionFromTarget(int(goRange.End.Line), int(goRange.End.Character)); ok {
-		s.logger.Info().Msgf("goRangeToHamletRange: %s: END [%d,%d] -> [%d,%d]", uri, goRange.End.Line, goRange.End.Character, end.Line, end.Col)
-		hmltRange.End.Line = uint32(end.Line)
-		hmltRange.End.Character = uint32(end.Col)
+		s.logger.Info().Msgf("goRangeToGohtRange: %s: END [%d,%d] -> [%d,%d]", uri, goRange.End.Line, goRange.End.Character, end.Line, end.Col)
+		gohtRange.End.Line = uint32(end.Line)
+		gohtRange.End.Character = uint32(end.Col)
 	}
 
-	return hmltRange
+	return gohtRange
 }
 
-func (s *Server) hamletRangeToGoRange(uri protocol.DocumentURI, hamletRange protocol.Range) protocol.Range {
-	goRange := hamletRange
+func (s *Server) gohtRangeToGoRange(uri protocol.DocumentURI, gohtRange protocol.Range) protocol.Range {
+	goRange := gohtRange
 	sm, ok := s.smc.Get(string(uri))
 	if !ok {
 		return goRange
 	}
 
-	if start, ok := sm.TargetPositionFromSource(int(hamletRange.Start.Line), int(hamletRange.Start.Character)); ok {
-		s.logger.Info().Msgf("hamletRangeToGoRange: %s: START [%d,%d] -> [%d,%d]", uri, hamletRange.Start.Line, hamletRange.Start.Character, start.Line, start.Col)
+	if start, ok := sm.TargetPositionFromSource(int(gohtRange.Start.Line), int(gohtRange.Start.Character)); ok {
+		s.logger.Info().Msgf("gohtRangeToGoRange: %s: START [%d,%d] -> [%d,%d]", uri, gohtRange.Start.Line, gohtRange.Start.Character, start.Line, start.Col)
 		goRange.Start.Line = uint32(start.Line)
 		goRange.Start.Character = uint32(start.Col)
 	}
 
-	if end, ok := sm.TargetPositionFromSource(int(hamletRange.End.Line), int(hamletRange.End.Character)); ok {
-		s.logger.Info().Msgf("hamletRangeToGoRange: %s: END [%d,%d] -> [%d,%d]", uri, hamletRange.End.Line, hamletRange.End.Character, end.Line, end.Col)
+	if end, ok := sm.TargetPositionFromSource(int(gohtRange.End.Line), int(gohtRange.End.Character)); ok {
+		s.logger.Info().Msgf("gohtRangeToGoRange: %s: END [%d,%d] -> [%d,%d]", uri, gohtRange.End.Line, gohtRange.End.Character, end.Line, end.Col)
 		goRange.End.Line = uint32(end.Line)
 		goRange.End.Character = uint32(end.Col)
 	}
@@ -843,9 +843,9 @@ func (s *Server) updatePosition(uri protocol.DocumentURI, pos protocol.Position)
 		Uint32("originalColumn", pos.Character).
 		Logger()
 
-	isHamletFile, goURI := toHamletGoURI(uri)
-	if !isHamletFile {
-		return uri, pos, fmt.Errorf("not a hamlet file")
+	isGohtFile, goURI := toGohtGoURI(uri)
+	if !isGohtFile {
+		return uri, pos, fmt.Errorf("not a goht file")
 	}
 	sm, ok := s.smc.Get(string(uri))
 	if !ok {
@@ -875,7 +875,7 @@ func (s *Server) parseTemplate(ctx context.Context, uri protocol.DocumentURI, co
 	if err != nil {
 		diagnostic := protocol.Diagnostic{
 			Severity: protocol.SeverityError,
-			Source:   "hamlet",
+			Source:   "goht",
 			Message:  err.Error(),
 		}
 		var posErr compiler.PositionalError
@@ -904,7 +904,7 @@ func (s *Server) parseTemplate(ctx context.Context, uri protocol.DocumentURI, co
 		}
 		return template, err
 	}
-	s.dc.ClearHamletDiagnostics(string(uri))
+	s.dc.ClearGohtDiagnostics(string(uri))
 	err = s.c.PublishDiagnostics(ctx, &protocol.PublishDiagnosticsParams{
 		URI:         uri,
 		Diagnostics: []protocol.Diagnostic{},
@@ -924,7 +924,7 @@ func getPackageFromItemDetail(pkg string) string {
 	return pkg
 }
 
-var nonImportKeywordRegexp = regexp.MustCompile(`^(?:hmlt|func|var|const|type)\s`)
+var nonImportKeywordRegexp = regexp.MustCompile(`^(?:goht|func|var|const|type)\s`)
 
 type importInsert struct {
 	line int

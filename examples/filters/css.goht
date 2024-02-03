@@ -1,0 +1,12 @@
+
+// You can include CSS into your templates using the `css` filter. Inside
+// this filter you may include interpolated values.
+
+var color = "red"
+
+@goht Css() {
+	:css
+		.color {
+			color: #{color};
+		}
+}
