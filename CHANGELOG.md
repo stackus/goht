@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.4.1](https://github.com/stackus/goht/compare/v0.4.0...v0.4.1) - 2024-02-04
+
+### Fixed
+- Fixed rendering issues with the three text filters, `:plain`, `:escaped`, and `:preserve`.
+  - The `:plain` filter will now correctly unescape the interpolated content.
+  - The `:escaped` filter will now correctly escape all content.
+  - The `:preserve` filter will now correctly unescape the interpolated content and preserve the newlines.
+
 ## [v0.4.0](https://github.com/stackus/goht/compare/v0.3.0...v0.4.0) - 2024-02-03
 
 ![GoHT](docs/goht_header.png)
