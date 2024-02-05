@@ -24,7 +24,7 @@ func JavaScript() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<script>console.log(\"Hello \" + "); __err != nil {
+		if _, __err = __buf.WriteString("<script>\nconsole.log(\"Hello "); __err != nil {
 			return
 		}
 		var __var1 string
@@ -34,7 +34,7 @@ func JavaScript() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" + \"!\");\n</script>"); __err != nil {
+		if _, __err = __buf.WriteString("!\");\n</script>"); __err != nil {
 			return
 		}
 		if !__isBuf {

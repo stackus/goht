@@ -5,11 +5,22 @@
 // Variable interpolation is still performed.
 
 @goht PlainExample() {
+%p
 	:plain
-		## Header ##
-		... important? ...
-		This is plain text.
-		It will be displayed exactly as it is written,
-		newlines and all.
-		#{"This will \"be\" interpolated"}
+		This is plain text. It <pre>will</pre> be displayed as HTML.
+		#{"This <pre>\"will\"</pre> be interpolated with HTML intact."}
+}
+
+@goht EscapedExample() {
+%p
+  :escaped
+    This is escaped text. It <pre>will not</pre> be displayed as HTML.
+    #{"This <pre>\"will not\"</pre> be interpolated with HTML intact."}
+}
+
+@goht PreserveExample() {
+%p
+  :preserve
+    This is preserved text. It <pre>will</pre> be displayed as HTML.
+    #{"This <pre>\"will\"</pre> be interpolated with HTML intact."}
 }

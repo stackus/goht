@@ -23,7 +23,7 @@ func Css() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<style>.color {\n\tcolor: "); __err != nil {
+		if _, __err = __buf.WriteString("<style>\n.color {\n\tcolor: "); __err != nil {
 			return
 		}
 		var __var1 string

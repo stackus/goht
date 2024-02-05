@@ -1044,18 +1044,22 @@ func (n *TextNode) Source(tw *templateWriter) error {
 		return nil
 	}
 
-	if n.isPlain || tw.isUnescaped {
-		s := strconv.Quote(n.text)
-		_, err := tw.WriteStringLiteral(s[1 : len(s)-1])
+	s := n.text
+	s = strconv.Quote(n.text)
+	s = s[1 : len(s)-1]
+
+	if n.isPreserve {
+		start := len(s)
+		s = strings.TrimSuffix(s, "\\n")
+		s += strings.Repeat("&#x000A;", (start-len(s))/2)
+	}
+
+	if n.isPlain || n.isPreserve || tw.isUnescaped {
+		_, err := tw.WriteStringLiteral(s)
 		return err
 	}
 
-	if tw.isUnescaped {
-		_, err := tw.WriteStringLiteral(n.text)
-		return err
-	}
-
-	_, err := tw.WriteStringLiteral(html.EscapeString(n.text))
+	_, err := tw.WriteStringLiteral(html.EscapeString(s))
 	return err
 }
 
@@ -1346,7 +1350,7 @@ func NewJavaScriptFilterNode(t token, indent int) *JavaScriptFilterNode {
 }
 
 func (n *JavaScriptFilterNode) Source(tw *templateWriter) error {
-	if _, err := tw.WriteStringLiteral("<script>"); err != nil {
+	if _, err := tw.WriteStringLiteral("<script>\\n"); err != nil {
 		return err
 	}
 	for _, c := range n.children {
@@ -1384,7 +1388,7 @@ func NewCssFilterNode(t token, indent int) *CssFilterNode {
 }
 
 func (n *CssFilterNode) Source(tw *templateWriter) error {
-	if _, err := tw.WriteStringLiteral("<style>"); err != nil {
+	if _, err := tw.WriteStringLiteral("<style>\\n"); err != nil {
 		return err
 	}
 	for _, c := range n.children {
@@ -1413,15 +1417,23 @@ func (n *CssFilterNode) parse(p *parser) error {
 
 type TextFilterNode struct {
 	node
+	isUnescaped bool
 }
 
 func NewTextFilterNode(t token, indent int) *TextFilterNode {
 	return &TextFilterNode{
-		node: newNode(nFilter, indent, t),
+		node:        newNode(nFilter, indent, t),
+		isUnescaped: t.lit == "plain" || t.lit == "preserve",
 	}
 }
 
 func (n *TextFilterNode) Source(tw *templateWriter) error {
+	if n.isUnescaped {
+		tw.isUnescaped = true
+		defer func() {
+			tw.isUnescaped = false
+		}()
+	}
 	for _, c := range n.children {
 		if err := c.Source(tw); err != nil {
 			return err

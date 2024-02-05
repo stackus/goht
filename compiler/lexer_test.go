@@ -2093,6 +2093,27 @@ func Test_HamlFilters(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"filter following filter": {
+			input: `@goht test() {
+	:javascript
+		console.log("Hello");
+	:css
+		.color { color: red; }
+}`,
+			want: []token{
+				{typ: tGohtStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tFilterStart, lit: "javascript"},
+				{typ: tPlainText, lit: "console.log(\"Hello\");\n"},
+				{typ: tFilterEnd, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tFilterStart, lit: "css"},
+				{typ: tPlainText, lit: ".color { color: red; }\n"},
+				{typ: tFilterEnd, lit: ""},
+				{typ: tGohtEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {

@@ -703,7 +703,7 @@ func lexFilterContent(indent int, textType tokenType) lexFn {
 		}
 		l.acceptRun("\n\r")
 		if l.current() != "" {
-			l.emit(tPlainText)
+			l.emit(textType)
 		}
 		return lexFilterLineStart(indent, textType)
 	}
