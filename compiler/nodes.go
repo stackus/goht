@@ -923,7 +923,7 @@ func NewCommentNode(t token, indent int) *CommentNode {
 
 func (n *CommentNode) Source(tw *templateWriter) error {
 	if n.text != "" {
-		_, err := tw.WriteStringLiteral("<!--" + html.EscapeString(n.text) + "-->")
+		_, err := tw.WriteStringLiteral("<!--" + html.EscapeString(n.text) + "-->\\n")
 		return err
 	}
 	if _, err := tw.WriteStringLiteral("<!--"); err != nil {
@@ -934,7 +934,7 @@ func (n *CommentNode) Source(tw *templateWriter) error {
 			return err
 		}
 	}
-	_, err := tw.WriteStringLiteral("-->")
+	_, err := tw.WriteStringLiteral("-->\\n")
 	return err
 }
 
