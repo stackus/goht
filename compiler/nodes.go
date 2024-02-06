@@ -817,11 +817,6 @@ func (n *ElementNode) parseAttributes(p *parser) error {
 
 		name := p.next().lit
 		switch p.peek().Type() {
-		case tAttrName:
-			n.attributes.Set(name, attribute{
-				name: name,
-			})
-			continue
 		case tAttrOperator:
 			op := p.next().lit
 			switch op {
@@ -831,6 +826,11 @@ func (n *ElementNode) parseAttributes(p *parser) error {
 					return n.errorf("expected dynamic value: %s", p.peek())
 				}
 			}
+		default:
+			n.attributes.Set(name, attribute{
+				name: name,
+			})
+			continue
 		}
 		if p.peek().Type() != tAttrDynamicValue && p.peek().Type() != tAttrEscapedValue {
 			return n.errorf("expected attribute value: %s", p.peek())
