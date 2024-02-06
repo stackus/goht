@@ -686,7 +686,18 @@ func Test_HamlTag(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
-		"tag and unescaped text": {
+		"tag and text and close": {
+			input: "@goht test() {\n%foo bar\n}",
+			want: []token{
+				{typ: tGohtStart, lit: "test()"},
+				{typ: tIndent, lit: ""},
+				{typ: tTag, lit: "foo"},
+				{typ: tPlainText, lit: "bar"},
+				{typ: tNewLine, lit: "\n"},
+				{typ: tGohtEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		}, "tag and unescaped text": {
 			input: "@goht test() {\n%foo! bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},

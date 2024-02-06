@@ -519,9 +519,12 @@ func (n *ElementNode) Source(tw *templateWriter) error {
 		}
 	}
 
-	for _, c := range n.children {
-		if err := c.Source(tw); err != nil {
-			return err
+	// ignore children if there is only a newline
+	if !(len(n.children) == 1 && n.children[0].Type() == nNewLine) {
+		for _, c := range n.children {
+			if err := c.Source(tw); err != nil {
+				return err
+			}
 		}
 	}
 
