@@ -1442,6 +1442,11 @@ func (n *TextFilterNode) Source(tw *templateWriter) error {
 			return err
 		}
 	}
+	if n.origin.lit == "preserve" {
+		_, err := tw.WriteStringLiteral("\\n")
+		return err
+	}
+
 	return nil
 }
 
