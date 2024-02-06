@@ -135,7 +135,7 @@ func BuildAttributeList(attributes ...any) (string, error) {
 			}
 		case map[string]string:
 			for key, value := range attribute {
-				attributeList.WriteString(` ` + html.EscapeString(key) + `=\"` + html.EscapeString(value) + `\"`)
+				attributeList.WriteString(` ` + html.EscapeString(key) + `="` + html.EscapeString(value) + `"`)
 			}
 		default:
 			return "", errors.New("goht: invalid attribute type")
