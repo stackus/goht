@@ -229,7 +229,6 @@ func NewRootNode() *RootNode {
 		node: newNode(nRoot, 0, token{typ: tRoot, line: 0, col: 0}),
 		pkg:  token{typ: tPackage, line: 0, col: 0, lit: "main"},
 		imports: []string{
-			"\"bytes\"",
 			"\"context\"",
 			"\"io\"",
 			"\"github.com/stackus/goht\"",
@@ -380,7 +379,7 @@ func NewGohtNode(t token) *GohtNode {
 func (n *GohtNode) Source(tw *templateWriter) error {
 	entry := ` goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
-		__buf, __isBuf := __w.(*bytes.Buffer)
+		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
@@ -390,7 +389,7 @@ func (n *GohtNode) Source(tw *templateWriter) error {
 		_ = __children
 `
 	exit := `		if !__isBuf {
-			_, __err = __w.Write(goht.NukeWhitespace(__buf.Bytes()))
+			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
 	})
@@ -1269,7 +1268,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 	itw := tw.Indent(1)
 
 	lines := []string{
-		"__buf, __isBuf := __w.(*bytes.Buffer)\n",
+		"__buf, __isBuf := __w.(goht.Buffer)\n",
 		"if !__isBuf {\n",
 		"	__buf = goht.GetBuffer()\n",
 		"	defer goht.ReleaseBuffer(__buf)\n",
