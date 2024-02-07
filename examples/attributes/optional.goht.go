@@ -3,7 +3,6 @@
 
 package main
 
-import "bytes"
 import "context"
 import "io"
 import "github.com/stackus/goht"
@@ -24,7 +23,7 @@ var foo = "bar"
 
 func ConditionalAttrs() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
-		__buf, __isBuf := __w.(*bytes.Buffer)
+		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
@@ -52,7 +51,7 @@ func ConditionalAttrs() goht.Template {
 			return
 		}
 		if !__isBuf {
-			_, __err = __w.Write(goht.NukeWhitespace(__buf.Bytes()))
+			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
 	})

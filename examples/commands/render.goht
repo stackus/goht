@@ -4,8 +4,8 @@
 // code syntax `=`.
 
 @goht RenderExample() {
-	%p= @render ChildrenExample()
-	%p the other template was rendered above.
+%p= @render ChildrenExample()
+%p the other template was rendered above.
 }
 
 // You may also include nested content to be rendered by the template.
@@ -13,7 +13,7 @@
 // are passing content on to be rendered by another template.
 
 @goht RenderWithChildrenExample() {
-	%p The other template will be rendered below.
-	= @render ChildrenExample()
-		%p this content will be rendered by the other template.
+%p The other template will be rendered below.
+= @render ChildrenExample()
+  %p this content will be rendered by the other template.
 }

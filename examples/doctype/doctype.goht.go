@@ -3,7 +3,6 @@
 
 package main
 
-import "bytes"
 import "context"
 import "io"
 import "github.com/stackus/goht"
@@ -12,7 +11,7 @@ import "github.com/stackus/goht"
 // HTML5 doctype is the default
 func Doctype1() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
-		__buf, __isBuf := __w.(*bytes.Buffer)
+		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
@@ -24,29 +23,7 @@ func Doctype1() goht.Template {
 			return
 		}
 		if !__isBuf {
-			_, __err = __w.Write(goht.NukeWhitespace(__buf.Bytes()))
-		}
-		return
-	})
-}
-
-// Indenting the Goht code is optional; however, if you do or
-// don't keep it consistent throughout the project
-func DoctypeIndented() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
-		__buf, __isBuf := __w.(*bytes.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<!DOCTYPE html>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(goht.NukeWhitespace(__buf.Bytes()))
+			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
 	})

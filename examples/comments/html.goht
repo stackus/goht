@@ -4,8 +4,8 @@
 // of the line
 
 @goht HtmlComments() {
-	%p This is a paragraph
-	/ This is a HTML comment
+%p This is a paragraph
+/ This is a HTML comment
 }
 
 // You may also use them to comment out nested elements. This does
@@ -13,7 +13,7 @@
 // displayed.
 
 @goht HtmlCommentsNested() {
-	%p This is a paragraph
-	/
-		%p This is a paragraph that is commented out
+%p This is a paragraph
+/
+  %p This is a paragraph that is commented out
 }

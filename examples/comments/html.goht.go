@@ -3,7 +3,6 @@
 
 package main
 
-import "bytes"
 import "context"
 import "io"
 import "github.com/stackus/goht"
@@ -15,7 +14,7 @@ import "github.com/stackus/goht"
 
 func HtmlComments() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
-		__buf, __isBuf := __w.(*bytes.Buffer)
+		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
@@ -23,11 +22,11 @@ func HtmlComments() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>This is a paragraph</p>\n<!--This is a HTML comment-->"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This is a paragraph</p>\n<!--This is a HTML comment-->\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
-			_, __err = __w.Write(goht.NukeWhitespace(__buf.Bytes()))
+			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
 	})
@@ -39,7 +38,7 @@ func HtmlComments() goht.Template {
 
 func HtmlCommentsNested() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
-		__buf, __isBuf := __w.(*bytes.Buffer)
+		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
@@ -47,11 +46,11 @@ func HtmlCommentsNested() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>This is a paragraph</p>\n<!--\n<p>This is a paragraph that is commented out</p>\n-->"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This is a paragraph</p>\n<!--\n<p>This is a paragraph that is commented out</p>\n-->\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
-			_, __err = __w.Write(goht.NukeWhitespace(__buf.Bytes()))
+			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
 	})

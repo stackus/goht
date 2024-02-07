@@ -6,14 +6,14 @@ package example
 var isAdmin = true
 
 @goht Conditional() {
-	.actions
-		- if isAdmin {
-			%button<
-				Edit content
-		- } else {
-			%button Login
-		- }
-		%button View content
+.actions
+  - if isAdmin {
+    %button<
+      Edit content
+  - } else {
+    %button Login
+  - }
+  %button View content
 }
 
 // However, we are using Haml and so we're into shortcuts. We can
@@ -25,13 +25,13 @@ var isAdmin = true
 // for, if, else, else if, switch
 
 @goht ShorthandConditional() {
-  .actions
-    - if isAdmin
-      %button<
-        Edit content
-    - else
-      %button Login
-    %button View content
+.actions
+  - if isAdmin
+    %button<
+      Edit content
+  - else
+    %button Login
+  %button View content
 }
 
 // With a switch statement, we can use the case and default keywords
@@ -39,12 +39,12 @@ var isAdmin = true
 // shorthand syntax. (win some, lose some)
 
 @goht ShorthandSwitch() {
-  .actions
-    - switch isAdmin
-      - case true:
-        %button<
-          Edit content
-      - case false:
-        %button Login
-    %button View content
+.actions
+  - switch isAdmin
+    - case true:
+      %button<
+        Edit content
+    - case false:
+      %button Login
+  %button View content
 }

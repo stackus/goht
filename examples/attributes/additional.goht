@@ -16,7 +16,7 @@ var strAttrs = map[string]string{
 }
 
 @goht AttributesCmd() {
-	%input{
-		@attributes: #{boolAttrs, strAttrs},
-	}
+%input{
+  @attributes: #{boolAttrs, strAttrs},
+}
 }

@@ -4,8 +4,8 @@ package hello
 var terms = []string{"foo", "bar", "baz", "fizz", "buzz", "quux"}
 
 @goht termsWrapper(term string) {
-	%p=@children
-	%p And it was passed in as well #{term}
+%p=@children
+%p And it was passed in as well #{term}
 }
 
 @goht World() {

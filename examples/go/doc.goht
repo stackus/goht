@@ -2,5 +2,5 @@
 package example
 
 @goht Doc() {
-  .doc An example of package documentation.
+.doc An example of package documentation.
 }

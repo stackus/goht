@@ -8,9 +8,9 @@
 // output.
 
 @goht RubyStyle() {
-	%p This is the only paragraph in the output.
-	-# This comment is removed from the output.
-	-#
-		%p This paragraph is also removed.
-		%%% broken syntax is no problem
+%p This is the only paragraph in the output.
+-# This comment is removed from the output.
+-#
+  %p This paragraph is also removed.
+  %%% broken syntax is no problem
 }

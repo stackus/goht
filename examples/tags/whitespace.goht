@@ -5,10 +5,10 @@ package tags
 // rendered HTML, so it is important to understand how it works.
 
 @goht Whitespace() {
-	%p This text has no whitespace between it and the tag.
-	%p
-		This text has whitespace between it and the tag.
-		%p This tag has whitespace between it and the tag above.
+%p This text has no whitespace between it and the tag.
+%p
+  This text has whitespace between it and the tag.
+  %p This tag has whitespace between it and the tag above.
 }
 
 // You can control the whitespace that will be rendered between tags
@@ -21,12 +21,12 @@ package tags
 // both, the order does not matter.
 
 @goht RemoveWhitespace() {
-	%p<
-		This text has no whitespace between it and the parent tag.
-	%p
-		There is whitespace between this text and the parent tag.
-		%p><
-			This text has no whitespace between it and the parent tag.
-			There is also no whitespace between this tag and the sibling text above it.
-			Finally, the tag has no whitespace between it and the outer tag.
+%p<
+  This text has no whitespace between it and the parent tag.
+%p
+  There is whitespace between this text and the parent tag.
+  %p><
+    This text has no whitespace between it and the parent tag.
+    There is also no whitespace between this tag and the sibling text above it.
+    Finally, the tag has no whitespace between it and the outer tag.
 }

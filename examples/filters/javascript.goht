@@ -6,6 +6,6 @@
 var name = "Bob"
 
 @goht JavaScript() {
-  :javascript
-    console.log("Hello #{name}!");
+:javascript
+  console.log("Hello #{name}!");
 }

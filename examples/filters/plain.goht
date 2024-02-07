@@ -13,14 +13,14 @@
 
 @goht EscapedExample() {
 %p
-  :escaped
-    This is escaped text. It <pre>will not</pre> be displayed as HTML.
-    #{"This <pre>\"will not\"</pre> be interpolated with HTML intact."}
+	:escaped
+		This is escaped text. It <pre>will not</pre> be displayed as HTML.
+		#{"This <pre>\"will not\"</pre> be interpolated with HTML intact."}
 }
 
 @goht PreserveExample() {
 %p
-  :preserve
-    This is preserved text. It <pre>will</pre> be displayed as HTML.
-    #{"This <pre>\"will\"</pre> be interpolated with HTML intact."}
+	:preserve
+		This is preserved text. It <pre>will</pre> be displayed as HTML.
+		#{"This <pre>\"will\"</pre> be interpolated with HTML intact."}
 }

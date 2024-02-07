@@ -3,7 +3,6 @@
 
 package hello
 
-import "bytes"
 import "context"
 import "io"
 import "github.com/stackus/goht"
@@ -14,7 +13,7 @@ var terms = []string{"foo", "bar", "baz", "fizz", "buzz", "quux"}
 
 func termsWrapper(term string) goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
-		__buf, __isBuf := __w.(*bytes.Buffer)
+		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
@@ -42,7 +41,7 @@ func termsWrapper(term string) goht.Template {
 			return
 		}
 		if !__isBuf {
-			_, __err = __w.Write(goht.NukeWhitespace(__buf.Bytes()))
+			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
 	})
@@ -50,7 +49,7 @@ func termsWrapper(term string) goht.Template {
 
 func World() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
-		__buf, __isBuf := __w.(*bytes.Buffer)
+		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
@@ -58,12 +57,12 @@ func World() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>body {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
 			return
 		}
 		for _, term := range terms {
 			__var1 := goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
-				__buf, __isBuf := __w.(*bytes.Buffer)
+				__buf, __isBuf := __w.(goht.Buffer)
 				if !__isBuf {
 					__buf = goht.GetBuffer()
 					defer goht.ReleaseBuffer(__buf)
@@ -94,7 +93,7 @@ func World() goht.Template {
 			return
 		}
 		if !__isBuf {
-			_, __err = __w.Write(goht.NukeWhitespace(__buf.Bytes()))
+			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
 	})

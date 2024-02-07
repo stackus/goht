@@ -9,7 +9,7 @@
 // code syntax `=`.
 
 @goht ChildrenExample() {
-	%p
-		The following was passed in from the calling template:
-		= @children
+%p
+  The following was passed in from the calling template:
+  = @children
 }

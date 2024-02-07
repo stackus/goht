@@ -7,16 +7,16 @@
 // you should use the default escaping.
 
 @goht UnescapeCode() {
-	%p= "This is <em>not</em> unescaped HTML."
-	%p!= "This <em>is</em> unescaped HTML."
+%p= "This is <em>not</em> unescaped HTML."
+%p!= "This <em>is</em> unescaped HTML."
 }
 
 // It can also affect the interpolated values.
 
 @goht UnescapeInterpolation() {
-	- var html = "<em>is</em>"
-	%p This #{html} HTML.
-	%p! This #{html} HTML.
+- var html = "<em>is</em>"
+%p This #{html} HTML.
+%p! This #{html} HTML.
 }
 
 // The plain text that you write into your Goht templates will not be
@@ -24,6 +24,6 @@
 // text has already been HTML escaped properly.
 
 @goht UnescapeText() {
-	%p This <em>is</em> HTML.
-	%p! This <em>is</em> HTML.
+%p This <em>is</em> HTML.
+%p! This <em>is</em> HTML.
 }
