@@ -41,17 +41,25 @@ type ctxValue struct {
 	children *Template
 }
 
+type Buffer struct {
+	*bytes.Buffer
+}
+
+func (b *Buffer) Bytes() []byte {
+	return nukeWhitespaceRe.ReplaceAll(b.Buffer.Bytes(), nil)
+}
+
 var bufferPool = sync.Pool{
 	New: func() any {
-		return new(bytes.Buffer)
+		return Buffer{new(bytes.Buffer)}
 	},
 }
 
-func GetBuffer() *bytes.Buffer {
-	return bufferPool.Get().(*bytes.Buffer)
+func GetBuffer() Buffer {
+	return bufferPool.Get().(Buffer)
 }
 
-func ReleaseBuffer(buf *bytes.Buffer) {
+func ReleaseBuffer(buf Buffer) {
 	buf.Reset()
 	bufferPool.Put(buf)
 }
@@ -161,28 +169,34 @@ type ObjectClasser interface {
 }
 
 func ObjectID(obj any, prefix ...string) string {
-	s := ""
+	ref, ok := obj.(ObjectIDer)
+	if !ok {
+		return ""
+	}
+
+	var s []string
 	if len(prefix) > 0 {
-		s = prefix[0]
+		s = append(s, prefix[0])
 	}
 	if v, ok := obj.(ObjectClasser); ok {
-		s = s + "_" + v.ObjectClass()
+		s = append(s, v.ObjectClass())
 	}
-	if v, ok := obj.(ObjectIDer); ok {
-		return s + "_" + v.ObjectID()
-	}
-	return ""
+	s = append(s, ref.ObjectID())
+	return strings.Join(s, "_")
 }
 
 func ObjectClass(obj any, prefix ...string) string {
-	s := ""
+	ref, ok := obj.(ObjectClasser)
+	if !ok {
+		return ""
+	}
+
+	var s []string
 	if len(prefix) > 0 {
-		s = prefix[0]
+		s = append(s, prefix[0])
 	}
-	if v, ok := obj.(ObjectClasser); ok {
-		return s + "_" + v.ObjectClass()
-	}
-	return ""
+	s = append(s, ref.ObjectClass())
+	return strings.Join(s, "_")
 }
 
 // NukeWhitespace removes whitespace between tags.

@@ -11,13 +11,15 @@ import (
 type lexFn func(*lexer) lexFn
 
 type lexer struct {
-	reader *bytes.Reader
-	lex    lexFn
-	tokens chan token
-	s      string
-	width  int
-	pos    []int
-	indent int
+	reader     *bytes.Reader
+	lex        lexFn
+	tokens     chan token
+	s          string
+	width      int
+	pos        []int
+	indentChar rune
+	indentLen  int
+	indent     int
 }
 
 func newLexer(input []byte) *lexer {
@@ -126,6 +128,12 @@ func (l *lexer) acceptUntil(invalid string) {
 	l.backup()
 }
 
+func (l *lexer) acceptAhead(length int) {
+	for i := 0; i < length; i++ {
+		l.next()
+	}
+}
+
 func (l *lexer) skip() rune {
 	r := l.next()
 	l.s = l.s[:len(l.s)-1]
@@ -159,7 +167,7 @@ func (l *lexer) emit(t tokenType) {
 func (l *lexer) errorf(format string, args ...any) lexFn {
 	line, col := l.position()
 	l.tokens <- token{typ: tError, lit: fmt.Sprintf(format, args...), line: line, col: col}
-	return nil
+	return func(l *lexer) lexFn { return nil }
 }
 
 func (l *lexer) position() (int, int) {
@@ -167,4 +175,36 @@ func (l *lexer) position() (int, int) {
 	line := len(l.pos) - newLinesInString
 	column := 1 + (l.pos[line-1]) - len(l.s)
 	return line, column
+}
+
+func (l *lexer) validateIndent(indent string) lexFn {
+	if indent == "" {
+		return nil
+	}
+	// validate the indent against the sequence and char
+	currentLen := len(indent)
+	isTabs := strings.Contains(indent, "\t")
+	isSpaces := strings.Contains(indent, " ")
+	if (isTabs && l.indentChar == ' ') || (isSpaces && l.indentChar == '\t') || (currentLen%l.indentLen != 0) || (currentLen/l.indentLen > l.indent+1) {
+		if depth := currentLen / l.indentLen; !(isTabs && isSpaces) && depth > l.indent+1 {
+			return l.errorf("the line was indented %d levels deeper than the previous line", depth-l.indent)
+		}
+		var used string
+		want := "space(s)"
+		if l.indentChar == '\t' {
+			want = "tab(s)"
+		}
+		wanted := fmt.Sprintf("%d %s", l.indentLen, want)
+		if isTabs && isSpaces {
+			used = fmt.Sprintf("%q", indent)
+		} else {
+			got := "space(s)"
+			if isTabs {
+				got = "tab(s)"
+			}
+			used = fmt.Sprintf("%d %s", currentLen, got)
+		}
+		return l.errorf("inconsistent indentation: %s used for indentation, but the rest of the template was indented using %s", used, wanted)
+	}
+	return nil
 }
