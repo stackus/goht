@@ -5,7 +5,6 @@ import (
 )
 
 type Position struct {
-	//	Index int64
 	Line int
 	Col  int
 }
