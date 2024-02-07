@@ -1,0 +1,10 @@
+package testdata
+
+import (
+  "fmt"
+)
+
+@goht ImportsTest() {
+- s := fmt.Sprintf("Hello, %s!", "world")
+%p= s
+}

@@ -1,0 +1,7 @@
+package testdata
+
+@goht NewlinesTest() {
+.first
+.second Content
+.third
+}

@@ -1,0 +1,17 @@
+package testdata
+
+type ObjRef string
+
+func (ObjRef) ObjectID() string {
+  return "123"
+}
+
+func (ObjRef) ObjectClass() string {
+  return "objref"
+}
+
+@goht ObjectReferencesTest() {
+- o := ObjRef("")
+%p[o] Unprefixed
+%p[o, "prefixed"] Prefixed
+}

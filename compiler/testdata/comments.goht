@@ -1,0 +1,17 @@
+package testdata
+
+@goht CommentsTest() {
+%p before
+/ this is a HTML comment
+%p after
+-# this is a Haml comment
+%p last
+%div ---
+%p before
+/
+  this is a HTML comment
+%p after
+-#
+  this is a Haml comment
+%p last
+}

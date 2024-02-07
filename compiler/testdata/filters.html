@@ -1,0 +1,30 @@
+<p>
+Plain <em>text</em>
+Interpolated <em>text</em>
+</p>
+<p>
+  Indented Plain <em>text</em>
+  Interpolated <em>text</em>
+</p>
+<p>
+Escaped &lt;em&gt;text&lt;/em&gt;
+Interpolated &lt;em&gt;text&lt;/em&gt;
+</p>
+<p>
+Preserved <em>text</em>&#x000A;Interpolated <em>text</em>&#x000A;
+</p>
+<div class="nesting">
+<script>
+console.log("Interpolated &lt;em&gt;text&lt;/em&gt;");
+if (true) {
+  console.log("Interpolated &lt;em&gt;text&lt;/em&gt;");
+}
+</script></div>
+<style>
+.red {
+  color: red;
+}
+.blue {
+  color: blue;
+}
+</style>

@@ -226,9 +226,9 @@ func Test_UnescapeNode(t *testing.T) {
 		},
 		"mixed with tags": {
 			input: `@goht test() {
-	- var html = "<em>is</em>"
-	%p This #{html} HTML.
-	%p! This #{html} HTML.
+- var html = "<em>is</em>"
+%p This #{html} HTML.
+%p! This #{html} HTML.
 }`,
 			want: `Root
 	Goht
@@ -306,10 +306,10 @@ func Test_ElementNode(t *testing.T) {
 		},
 		"tags before and after void tag": {
 			input: `@goht test() {
-	%p#fizz.foo text
-	%img{src: "foo.png"}
-	%p#fizz.foo text
-	%img{src: "foo.png"}
+%p#fizz.foo text
+%img{src: "foo.png"}
+%p#fizz.foo text
+%img{src: "foo.png"}
 }`,
 			want: `Root
 	Goht
@@ -325,10 +325,10 @@ func Test_ElementNode(t *testing.T) {
 		},
 		"tags before and after void tag character": {
 			input: `@goht test() {
-	%p#fizz.foo text
-	%closed/
-	%p#fizz.foo text
-	%closed/
+%p#fizz.foo text
+%closed/
+%p#fizz.foo text
+%closed/
 }`,
 			want: `Root
 	Goht
@@ -417,14 +417,24 @@ func Test_ElementAttributes(t *testing.T) {
 		},
 		"indented elements": {
 			input: `@goht test() {
-  %p foo
-  %p bar
+%p foo
+%p bar
 }`,
 			want: `Root
 	Goht
 		Element p()
 			Text(S)
 		Element p()
+			Text(S)
+`,
+		},
+		"boolean attribute on tag with content": {
+			input: `@goht test() {
+.foo{bar} fizz
+}`,
+			want: `Root
+	Goht
+		Element div(bar)
 			Text(S)
 `,
 		},
