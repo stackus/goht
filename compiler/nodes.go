@@ -1309,7 +1309,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 	} else {
 		tw.Add(n.origin, r)
 	}
-	if _, err := tw.WriteIndent(".Render(goht.PushChildren(ctx, " + vName + "), __buf); __err != nil { return }\n"); err != nil {
+	if _, err := tw.Write(".Render(goht.PushChildren(ctx, " + vName + "), __buf); __err != nil { return }\n"); err != nil {
 		return err
 	}
 
