@@ -49,14 +49,14 @@ package main
 var siteTitle = "GoHT"
 
 @goht SiteLayout(pageTitle string) {
-  !!!
-  %html{lang:"en"}
-    %head
-      %title= siteTitle
-    %body
-      %h1= pageTitle
-      %p A type-safe HAML template engine for Go.
-      = @children
+!!!
+%html{lang:"en"}
+  %head
+    %title= siteTitle
+  %body
+    %h1= pageTitle
+    %p A type-safe HAML template engine for Go.
+    = @children
 }
 
 @goht HomePage() {
@@ -307,12 +307,12 @@ The templates are converted into Go functions, so they must be valid Go function
 This also means that you can declare them with parameters and can use those parameters in the template.
 ```haml
 @goht SiteLayout(title string) {
-  !!!
-  %html{lang:"en"}
-    %head
-      %title= title
-    %body
-      -# ... the rest of the template
+!!!
+%html{lang:"en"}
+  %head
+    %title= title
+  %body
+    -# ... the rest of the template
 }
 ```
 
@@ -320,11 +320,11 @@ This also means that you can declare them with parameters and can use those para
 Only the HTML 5 doctype is supported, and is written using `!!!`.
 ```haml
 @goht SiteLayout() {
-  !!!
+!!!
 }
 ```
 
-> Note about indenting. It does not matter if you indent or do not indent. Haml normally complains if a doctype is not at the start of the line, but GoHT does not. I just recommend choosing to indent or not indent, and sticking to it. 
+> Note about indenting. GoHT follows the same rules as Haml for indenting. The first line of the template must be at the same level as the `@goht` directive. After that, you may use spaces or tabs to indent the content of the template. However, you must be consistent with the use of spaces or tabs. Mixing them will cause an error. As will indenting more than one level at a time.
 
 ### Inlined code
 You won't be using Ruby here, you'll be using Go.
@@ -468,27 +468,27 @@ Only the following Haml filters are supported:
 The biggest departure from Haml is how templates can be combined. When working Haml you could use `= render :partial_name` or `= haml :partial_name` to render a partial. The `render` and `haml` functions are not available in GoHT, instead you can use the `@render` directive.
 ```haml
 @goht HomePage() {
-  = @render SiteLayout()
+= @render SiteLayout()
 }
 ```
 The above would render the `SiteLayout` template, and you would call it with any parameters that it needs. You can also call it and provide it with a block of content to render where it chooses.
 ```haml
 @goht HomePage() {
-  = @render SiteLayout()
-    %p This is the home page for GoHT.
+= @render SiteLayout()
+  %p This is the home page for GoHT.
 }
 ```
 Any content nested under the `@render` directive will be passed into the template that it can render where it wants using the `@children` directive.
 ```haml
 @goht SiteLayout() {
-  !!!
-  %html{lang:"en"}
-    %head
-      %title GoHT
-    %body
-      %h1 GoHT
-      %p A HAML-like template engine for Go.
-      = @children
+!!!
+%html{lang:"en"}
+  %head
+    %title GoHT
+  %body
+    %h1 GoHT
+    %p A HAML-like template engine for Go.
+    = @children
 }
 ```
 

@@ -5,7 +5,8 @@ go 1.21.4
 require (
 	github.com/cenkalti/backoff/v4 v4.2.1
 	github.com/charmbracelet/log v0.3.1
-	github.com/rs/zerolog v1.31.0
+	github.com/rs/zerolog v1.32.0
+	github.com/sergi/go-diff v1.3.1
 	github.com/spf13/cobra v1.8.0
 	github.com/stackus/errors v0.1.5
 	go.lsp.dev/jsonrpc2 v0.10.0
