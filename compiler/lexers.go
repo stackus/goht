@@ -652,7 +652,8 @@ func lexGohtCommandCode(l *lexer) lexFn {
 		}
 		l.emit(tChildrenCommand)
 	}
-	return lexGohtLineEnd
+	l.skipRun("\n\r")
+	return lexGohtLineStart
 }
 
 var filters = []string{"javascript", "css", "plain", "escaped", "preserve"}

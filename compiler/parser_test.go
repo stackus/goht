@@ -697,7 +697,6 @@ func Test_ChildrenCommand(t *testing.T) {
 			want: `Root
 	Goht
 		ChildrenCommand
-		NewLine
 `,
 		},
 		"mixed indents": {
@@ -709,7 +708,6 @@ func Test_ChildrenCommand(t *testing.T) {
 		Element parent()
 			NewLine
 			ChildrenCommand
-			NewLine
 		Element p2()
 			Text(S)
 `,

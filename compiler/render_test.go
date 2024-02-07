@@ -67,6 +67,14 @@ func TestRender(t *testing.T) {
 			template: testdata.WhitespaceTest(),
 			htmlFile: "whitespace",
 		},
+		"render": {
+			template: testdata.RenderTest(),
+			htmlFile: "rendering",
+		},
+		"without children": {
+			template: testdata.ChildrenTest("passed-in"),
+			htmlFile: "without_children",
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {

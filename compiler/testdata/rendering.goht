@@ -1,0 +1,16 @@
+package testdata
+
+@goht ChildrenTest(v string) {
+.passed-in= v
+.children
+  =@children
+.after After children
+}
+
+@goht RenderTest() {
+.parent
+  .local This is local content
+  =@render ChildrenTest("This is passed-in content")
+    .child This is child content
+  .after After parent
+}
