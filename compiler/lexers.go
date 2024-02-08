@@ -658,8 +658,6 @@ func lexGohtCommandCode(l *lexer) lexFn {
 
 var filters = []string{"javascript", "css", "plain", "escaped", "preserve"}
 
-type filterFn func(int, tokenType) lexFn
-
 func lexFilterStart(l *lexer) lexFn {
 	l.skipRun(": \t")
 	l.acceptUntil(" \t\n\r")
