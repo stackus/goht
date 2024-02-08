@@ -33,7 +33,7 @@ func ChildrenExample() goht.Template {
 		if __err = __children.Render(ctx, __buf); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("\n</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

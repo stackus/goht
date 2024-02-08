@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.4.2](https://github.com/stackus/goht/compare/v0.4.1...v0.4.2) - 2024-02-07
+
 ### Breaking Changes
 - GoHT will now require all templates to start at column 1. Previously, a template could start at any column, and that would be considered to be the base indentation level.
   - This change will allow the detection of inconsistent indentation, swapping between tabs and spaces, and indenting more than one level at a time.
@@ -19,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added missing newlines after HTML comments.
 - Added missing newline after :preserve filter output.
 - Additional leading whitespace inside the filters will now be kept
+- Removed an extra newline after the rendered children output
 
 ### Added
 - Template tests to check the correctness of the generated Go code.
