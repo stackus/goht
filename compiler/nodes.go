@@ -1257,6 +1257,21 @@ func NewRenderCommandNode(t token, indent int) *RenderCommandNode {
 }
 
 func (n *RenderCommandNode) Source(tw *templateWriter) error {
+	if len(n.children) == 0 {
+		if _, err := tw.WriteIndent("if __err = "); err != nil {
+			return err
+		}
+		if r, err := tw.Write(n.command); err != nil {
+			return err
+		} else {
+			tw.Add(n.origin, r)
+		}
+		if _, err := tw.Write(".Render(ctx, __buf); __err != nil { return }\n"); err != nil {
+			return err
+		}
+		return nil
+	}
+
 	vName := tw.GetVarName()
 
 	fnLine := vName + " := goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {\n"

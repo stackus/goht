@@ -125,7 +125,7 @@ func BuildClassList(classes ...any) (string, error) {
 				}
 			}
 		default:
-			return "", errors.New("goht: invalid class type")
+			return "", fmt.Errorf("goht: invalid class type: %T", class)
 		}
 	}
 	return strings.Join(classList, ` `), nil
@@ -146,7 +146,7 @@ func BuildAttributeList(attributes ...any) (string, error) {
 				attributeList.WriteString(` ` + html.EscapeString(key) + `="` + html.EscapeString(value) + `"`)
 			}
 		default:
-			return "", errors.New("goht: invalid attribute type")
+			return "", fmt.Errorf("goht: invalid attribute type: %T", attribute)
 		}
 	}
 	return attributeList.String(), nil

@@ -75,6 +75,10 @@ func TestRender(t *testing.T) {
 			template: testdata.ChildrenTest("passed-in"),
 			htmlFile: "without_children",
 		},
+		"nesting": {
+			template: testdata.NestedRenderTest(),
+			htmlFile: "nesting",
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {

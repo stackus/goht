@@ -14,3 +14,19 @@ package testdata
     .child This is child content
   .after After parent
 }
+
+@goht WrapperTest() {
+.wrapper
+  .list
+    =@children
+}
+
+@goht WrappedTest(v string) {
+.item= v
+}
+
+@goht NestedRenderTest() {
+=@render WrapperTest()
+  =@render WrappedTest("first")
+  =@render WrappedTest("second")
+}

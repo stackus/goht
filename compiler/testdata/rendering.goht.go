@@ -82,3 +82,96 @@ func RenderTest() goht.Template {
 		return
 	})
 }
+
+func WrapperTest() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<div class=\"wrapper\">\n<div class=\"list\">\n"); __err != nil {
+			return
+		}
+		if __err = __children.Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</div>\n</div>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func WrappedTest(v string) goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<div class=\"item\">"); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors(goht.EscapeString(v)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</div>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func NestedRenderTest() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		__var1 := goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+			__buf, __isBuf := __w.(goht.Buffer)
+			if !__isBuf {
+				__buf = goht.GetBuffer()
+				defer goht.ReleaseBuffer(__buf)
+			}
+			if __err = WrappedTest("first").Render(ctx, __buf); __err != nil {
+				return
+			}
+			if __err = WrappedTest("second").Render(ctx, __buf); __err != nil {
+				return
+			}
+			if !__isBuf {
+				_, __err = io.Copy(__w, __buf)
+			}
+			return
+		})
+		if __err = WrapperTest().Render(goht.PushChildren(ctx, __var1), __buf); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
