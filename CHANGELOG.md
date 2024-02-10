@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+- Reduced the amount of code generated for a `@render` command that has no children.
+
+### Added
+- Helpers:
+	- `goht.If(condition bool, trueResult, falseResult string) string`
+
+
 ## [v0.4.2](https://github.com/stackus/goht/compare/v0.4.1...v0.4.2) - 2024-02-07
 
 ### Breaking Changes
