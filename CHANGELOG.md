@@ -8,6 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.4.4](https://github.com/stackus/goht/compare/v0.4.3...v0.4.4) - 2024-02-23
+
+### Changed
+- GoHT templates can be defined with receivers
+
+```haml
+@goht (u User) Details() {
+.name Name: #{u.Name}
+.age Age: #{u.Age}
+}
+```
+
+### Added
+- A new example demonstrating the use of receivers with GoHT templates.
+
+## [v0.4.3](https://github.com/stackus/goht/compare/v0.4.2...v0.4.3) - 2024-02-23
+
 ### Changed
 - Reduced the amount of code generated for a `@render` command that has no children.
 
