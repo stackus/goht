@@ -151,9 +151,9 @@ See more options with `goht help generate` or `goht generate -h`.
 ## IDE Support
 ![vscode_ide_example.png](docs/vscode_ide_example.png)
 - VSCode [Extension](https://marketplace.visualstudio.com/items?itemName=stackus.goht-vscode) and code [repository](https://github.com/stackus/goht-vscode)
+- JetBrains (GoLand and others) [Plugin](https://plugins.jetbrains.com/plugin/23783-goht) and code [repository](https://github.com/stackus/goht-jetbrains)
 - [TextMate Bundle](bundle)
-  - You can import this into JetBrains IDEs such as GoLand and IntelliJ. See the [CHANGELOG](CHANGELOG.md) for more information.
-- Others to come soon such as a true JetBrains plugin.
+  - Offers only basic syntax highlighting and is a work in progress.
 
 ### LSP
 The GoHT CLI has been updated to include an LSP server.
