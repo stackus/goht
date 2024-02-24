@@ -43,11 +43,18 @@ func NewServer(s protocol.Server, c protocol.Client, smc *SourceMapCache, dc *Di
 //
 // It returns the capabilities of the server.
 func (s *Server) Initialize(ctx context.Context, params *protocol.ParamInitialize) (*protocol.InitializeResult, error) {
-	logger := s.logger.With().
-		Str("method", "Initialize").
-		Str("clientName", params.ClientInfo.Name).
-		Str("clientVersion", params.ClientInfo.Version).
-		Logger()
+	var logger zerolog.Logger
+	if params.ClientInfo != nil {
+		logger = s.logger.With().
+			Str("method", "Initialize").
+			Str("clientName", params.ClientInfo.Name).
+			Str("clientVersion", params.ClientInfo.Version).
+			Logger()
+	} else {
+		logger = s.logger.With().
+			Str("method", "Initialize").
+			Logger()
+	}
 
 	resp, err := s.Server.Initialize(ctx, params)
 	if err != nil {
