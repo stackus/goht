@@ -1854,7 +1854,7 @@ func Test_HamlExecuteCode(t *testing.T) {
 			},
 		},
 		"nested": {
-			input: `@goht test()
+			input: `@goht test() {
 - if foo != "" {
 	%p Foo exists and is #{foo}.
 - }
