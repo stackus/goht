@@ -120,10 +120,22 @@ func lexTemplate(l *lexer) lexFn {
 func lexGohtStart(l *lexer) lexFn {
 	l.ignore()
 	l.skipRun(" ")
-	// l.acceptUntil(")")
-	// l.next()
-	l.acceptUntil("{")
-	l.backup()
+	l.acceptUntil(")")
+	if strings.HasPrefix(l.current(), "(") {
+		// we've only captured the receiver, so we need to capture the rest of the function signature
+		l.next()
+		for {
+			l.acceptUntil(")")
+			// handle the situation where the function signature contains an `interface{}` type with one or more methods
+			openParens := strings.Count(l.current(), "(")
+			closeParens := strings.Count(l.current(), ")")
+			if openParens == closeParens+1 {
+				break
+			}
+			l.next()
+		}
+	}
+	l.next()
 	l.emit(tGohtStart)
 	l.skipRun(" {")
 	l.skipRun("\n\r")

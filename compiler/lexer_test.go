@@ -1907,6 +1907,24 @@ func Test_HamlExecuteCode(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"with receiver and interface": {
+			input: "@goht (t Tester) test(v interface{}) {\n- t.bar",
+			want: []token{
+				{typ: tGohtStart, lit: "(t Tester) test(v interface{})"},
+				{typ: tIndent, lit: ""},
+				{typ: tSilentScript, lit: "t.bar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"with receiver and interface with methods": {
+			input: "@goht (t Tester) test(v interface{ Foo() string }) {\n- t.bar",
+			want: []token{
+				{typ: tGohtStart, lit: "(t Tester) test(v interface{ Foo() string })"},
+				{typ: tIndent, lit: ""},
+				{typ: tSilentScript, lit: "t.bar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
