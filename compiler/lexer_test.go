@@ -1898,6 +1898,15 @@ func Test_HamlExecuteCode(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"with receiver": {
+			input: "@goht (t Tester) test() {\n- t.bar",
+			want: []token{
+				{typ: tGohtStart, lit: "(t Tester) test()"},
+				{typ: tIndent, lit: ""},
+				{typ: tSilentScript, lit: "t.bar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {

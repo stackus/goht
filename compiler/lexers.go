@@ -120,8 +120,10 @@ func lexTemplate(l *lexer) lexFn {
 func lexGohtStart(l *lexer) lexFn {
 	l.ignore()
 	l.skipRun(" ")
-	l.acceptUntil(")")
-	l.next()
+	// l.acceptUntil(")")
+	// l.next()
+	l.acceptUntil("{")
+	l.backup()
 	l.emit(tGohtStart)
 	l.skipRun(" {")
 	l.skipRun("\n\r")

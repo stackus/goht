@@ -1,0 +1,24 @@
+package example
+
+type User struct {
+  Name string
+  Age  int
+}
+
+// GoHT templates can be created as methods on any type that allows for method definitions
+//
+// The following will create a Details method on the User type. It will be called like so:
+//
+//   user := User{Name: "John", Age: 30}
+//   user.Details().Render(ctx, w))
+//
+// It can also be called on using the `@render` command in a GoHT template:
+//
+//   @render u.Details()
+
+@goht (u User) Details() {
+.name User name: #{u.Name}
+.age
+  User Age:
+  !=%d u.Age
+}
