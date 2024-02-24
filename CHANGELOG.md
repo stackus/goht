@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.4.5](https://github.com/stackus/goht/compare/v0.4.4...v0.4.5) - 2024-02-23
+
+### Fixed
+- Parsing `@goht` directives that had `interface{ Method() }` parameter types would fail to parse the function declaration completely.
+
+
 ## [v0.4.4](https://github.com/stackus/goht/compare/v0.4.3...v0.4.4) - 2024-02-23
 
 ### Changed
