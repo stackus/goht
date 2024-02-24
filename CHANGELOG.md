@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Reduced the amount of code generated for a `@render` command that has no children.
 
+### Fixed
+- Log what is available from the client. JetBrains clients are currently not fully identified in the LSP server.
+
 ### Added
 - Helpers:
 	- `goht.If(condition bool, trueResult, falseResult string) string`
