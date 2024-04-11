@@ -18,11 +18,11 @@ import "github.com/stackus/goht"
 // - ObjectClass() string
 
 type Foo struct {
-	id string
+	ID string
 }
 
 func (f *Foo) ObjectID() string {
-	return f.id
+	return f.ID
 }
 
 func (f *Foo) ObjectClass() string {

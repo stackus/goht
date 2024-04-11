@@ -1,3 +1,5 @@
+package commands
+
 // You include other templates using the `@render` command. It takes
 // the name of the template to render.
 // The `@render` command is used in combination with the rendering
@@ -15,5 +17,5 @@
 @goht RenderWithChildrenExample() {
 %p The other template will be rendered below.
 = @render ChildrenExample()
-  %p this content will be rendered by the other template.
+  %span this content will be rendered by the other template.
 }

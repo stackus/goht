@@ -1,3 +1,5 @@
+package comments
+
 // You may use ruby style comments to completely remove a line or
 // even a block of nested elements.
 // This is accomplished by using the `-#` syntax.
@@ -9,8 +11,15 @@
 
 @goht RubyStyle() {
 %p This is the only paragraph in the output.
--# This comment is removed from the output.
+-# %p This comment is removed from the output.
+
+}
+
+// Ruby style comments can also be nested.
+
+@goht RubyStyleNested() {
+%p This is the only paragraph in the output.
 -#
-  %p This paragraph is also removed.
-  %%% broken syntax is no problem
+  %p This paragraph is removed.
+  %%% broken syntax is no problem.
 }

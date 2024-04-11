@@ -1,3 +1,4 @@
+package attributes
 
 // Attributes may conditionally appear in the output. For example, you may
 // want to add the `disabled` attribute to a button if a variable is true.

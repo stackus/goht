@@ -1,3 +1,4 @@
+package filters
 
 // You can include JavaScript into your templates using the JavaScript
 // filter `:javascript`. You may include interpolation values within

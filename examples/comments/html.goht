@@ -1,3 +1,5 @@
+package comments
+
 // HTML comments can be included and will be added to the rendered
 // output.
 // HTML comments are added using the forward slash at the beginning

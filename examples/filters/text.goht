@@ -1,24 +1,25 @@
+package filters
 
 // The `:plain` filter can be used to display a large amount of text
 // without any parsing. Lines may begin with Haml syntax and it will
 // be ignored.
 // Variable interpolation is still performed.
 
-@goht PlainExample() {
+@goht Plain() {
 %p
 	:plain
 		This is plain text. It <pre>will</pre> be displayed as HTML.
 		#{"This <pre>\"will\"</pre> be interpolated with HTML intact."}
 }
 
-@goht EscapedExample() {
+@goht Escaped() {
 %p
 	:escaped
 		This is escaped text. It <pre>will not</pre> be displayed as HTML.
 		#{"This <pre>\"will not\"</pre> be interpolated with HTML intact."}
 }
 
-@goht PreserveExample() {
+@goht Preserve() {
 %p
 	:preserve
 		This is preserved text. It <pre>will</pre> be displayed as HTML.

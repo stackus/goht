@@ -8,6 +8,7 @@ import (
 	"html"
 	"io"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 )
@@ -132,24 +133,26 @@ func BuildClassList(classes ...any) (string, error) {
 }
 
 func BuildAttributeList(attributes ...any) (string, error) {
-	attributeList := strings.Builder{}
+	var attributeList []string
 	for _, attribute := range attributes {
 		switch attribute := attribute.(type) {
 		case map[string]bool:
 			for key, value := range attribute {
 				if value {
-					attributeList.WriteString(` ` + html.EscapeString(key))
+					attributeList = append(attributeList, html.EscapeString(key))
 				}
 			}
 		case map[string]string:
 			for key, value := range attribute {
-				attributeList.WriteString(` ` + html.EscapeString(key) + `="` + html.EscapeString(value) + `"`)
+				attributeList = append(attributeList, html.EscapeString(key)+`="`+html.EscapeString(value)+`"`)
 			}
 		default:
 			return "", fmt.Errorf("goht: invalid attribute type: %T", attribute)
 		}
 	}
-	return attributeList.String(), nil
+	// for stable ordering of the attributes
+	slices.Sort(attributeList)
+	return strings.Join(attributeList, " "), nil
 }
 
 func EscapeString(s string) string {
@@ -197,11 +200,4 @@ func ObjectClass(obj any, prefix ...string) string {
 	}
 	s = append(s, ref.ObjectClass())
 	return strings.Join(s, "_")
-}
-
-// NukeWhitespace removes whitespace between tags.
-//
-// Puts those little nuke alligators to work.
-func NukeWhitespace(b []byte) []byte {
-	return nukeWhitespaceRe.ReplaceAll(b, nil)
 }

@@ -1,3 +1,4 @@
+package attributes
 
 // The class attribute is a bit special. You will often find yourself
 // working with not one, but several classes. This is why repeating

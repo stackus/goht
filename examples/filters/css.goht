@@ -1,3 +1,4 @@
+package filters
 
 // You can include CSS into your templates using the `css` filter. Inside
 // this filter you may include interpolated values.

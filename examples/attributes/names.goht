@@ -1,3 +1,5 @@
+package attributes
+
 // For most attribute names you can include the name in the list
 // of attributes just as you expect it to appear in the HTML. Names
 // that contain alphanumeric characters, dashes (-), and

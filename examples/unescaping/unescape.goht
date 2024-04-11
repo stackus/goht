@@ -1,3 +1,5 @@
+package unescape
+
 // The text from variables are assumed to need HTML escaping. If you
 // want to include raw HTML, or you have already processed the variable
 // then you will need to unescape the text. This is accomplished with

@@ -1,5 +1,7 @@
+package doctype
+
 // Adds a doctype to the top of the page
 // HTML5 doctype is the default
-@goht Doctype1() {
+@goht Doctype() {
 !!!
 }

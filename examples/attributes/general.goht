@@ -1,3 +1,5 @@
+package attributes
+
 // Goht supports the Ruby 1.9 hash style of attributes. The other styles
 // such as HTML style, or Ruby rocket style are not supported. This should
 // not be a problem as the Ruby 1.9 style is very similar to the style used
@@ -23,7 +25,7 @@ var myDynamicValue = "foo"
 // You may include a comma after the last attribute if you wish but it is
 // not required.
 
-@goht MultiLineAttrs() {
+@goht MultilineAttrs() {
 %p{
   class: #{myDynamicValue},
   id: "bar",

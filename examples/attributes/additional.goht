@@ -1,3 +1,4 @@
+package attributes
 
 // Additional attributes may be added to an element using the `@attributes`
 // command. This command accepts a list of additional attributes in the

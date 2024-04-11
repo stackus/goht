@@ -1,0 +1,31 @@
+name: Test & Coverage
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# a single job to run tests and coverage for a Golang project; report coverage to Coveralls
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.21
+      - name: Install dependencies
+        run: go mod download
+      - name: Run tests
+        run: go test -v -vet=all -coverprofile=profile.cov ./...
+      - name: Install goveralls
+        run: go install github.com/mattn/goveralls@latest
+      - name: Report coverage to Coveralls
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: goveralls -coverprofile=covprofile -service=github
