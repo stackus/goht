@@ -9,6 +9,18 @@ import "github.com/stackus/goht"
 
 // Whitespace will be added between tags and between tags and text
 // if that text is on a new line after the tag.
+//
+// %p Some text
+// The above line will render as:
+// <p>Some text</p>
+//
+// %p
+// 	Some text
+// The above line will render as:
+// <p>
+// 	Some text
+// </p>
+//
 // Whitespace can have subtle effects on the final output of the
 // rendered HTML, so it is important to understand how it works.
 

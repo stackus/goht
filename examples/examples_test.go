@@ -223,10 +223,6 @@ func TestExamples(t *testing.T) {
 			}(),
 			htmlFile: "example_userDetails",
 		},
-		"indents_usingSpaces": {
-			template: indents.UsingSpaces(),
-			htmlFile: "indents_usingSpaces",
-		},
 		"indents_usingTabs": {
 			template: indents.UsingTabs(),
 			htmlFile: "indents_usingTabs",

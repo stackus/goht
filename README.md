@@ -464,6 +464,14 @@ Only the following Haml filters are supported:
 - `:javascript`
 - `:css`
 
+### Whitespace Removal
+GoHT supports the removal of whitespace between tags. This is done by adding a `>` or `<` to the end of the tag.
+
+- `>` will remove all whitespace between the tag and its parent or siblings.
+- `<` will remove all whitespace between the tag and its first and last child.
+
+Both can be used together to remove whitespace both inside and outside a tag; the order they're in does not matter.
+
 ### Template nesting
 The biggest departure from Haml is how templates can be combined. When working Haml you could use `= render :partial_name` or `= haml :partial_name` to render a partial. The `render` and `haml` functions are not available in GoHT, instead you can use the `@render` directive.
 ```haml
