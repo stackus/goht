@@ -9,9 +9,9 @@ package testdata
 %div ---
 %p before
 /
-  this is a HTML comment
+	this is a HTML comment
 %p after
 -#
-  this is a Haml comment
+	this is a Haml comment
 %p last
 }

@@ -140,7 +140,7 @@ func lexGohtStart(l *lexer) lexFn {
 	l.skipRun(" {")
 	l.skipRun("\n\r")
 
-	l.accept(" \t")
+	l.accept("\t")
 	if l.current() != "" {
 		return l.errorf("indenting at the beginning of the template is illegal")
 	}
@@ -165,6 +165,7 @@ func lexGohtLineStart(l *lexer) lexFn {
 }
 
 func lexGohtIndent(l *lexer) lexFn {
+	// only accept tabs indenting
 	l.acceptRun(" \t")
 	indent := l.current()
 
@@ -176,13 +177,7 @@ func lexGohtIndent(l *lexer) lexFn {
 
 	// set indent char and length
 	if l.indentChar == 0 {
-		if strings.Contains(indent, " ") && strings.Contains(indent, "\t") {
-			return l.errorf("indentation cannot contain both spaces and tabs")
-		}
-		l.indentChar = ' '
-		if strings.Contains(indent, "\t") {
-			l.indentChar = '\t'
-		}
+		l.indentChar = '\t'
 		l.indentLen = len(indent)
 	}
 

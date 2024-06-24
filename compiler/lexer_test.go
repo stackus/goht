@@ -601,34 +601,6 @@ func Test_HamlTag(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
-		"two indented": {
-			input: "@goht test() {\n%foo\n  %bar\n}",
-			want: []token{
-				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
-				{typ: tTag, lit: "foo"},
-				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "  "},
-				{typ: tTag, lit: "bar"},
-				{typ: tNewLine, lit: "\n"},
-				{typ: tGohtEnd, lit: ""},
-				{typ: tEOF, lit: ""},
-			},
-		},
-		"indented 2": {
-			input: "@goht test() {\n%foo\n\t\t%bar\n}",
-			want: []token{
-				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
-				{typ: tTag, lit: "foo"},
-				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t\t"},
-				{typ: tTag, lit: "bar"},
-				{typ: tNewLine, lit: "\n"},
-				{typ: tGohtEnd, lit: ""},
-				{typ: tEOF, lit: ""},
-			},
-		},
 		"tag and id": {
 			input: "@goht test() {\n%foo#bar",
 			want: []token{
@@ -1958,18 +1930,14 @@ func Test_HamlIndent(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
-		"multiple indents": {
+		"indented too deep": {
 			input: "@goht test() {\n%foo\n\t\tbar\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
 				{typ: tIndent, lit: ""},
 				{typ: tTag, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t\t"},
-				{typ: tPlainText, lit: "bar"},
-				{typ: tNewLine, lit: "\n"},
-				{typ: tGohtEnd, lit: ""},
-				{typ: tEOF, lit: ""},
+				{typ: tError, lit: "the line was indented 2 levels deeper than the previous line"},
 			},
 		},
 		"different indents": {
@@ -1999,61 +1967,32 @@ func Test_HamlIndent(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
-		"mixed indents": {
+		"indents must be tabs": {
 			input: `@goht test() {
 %p1
-	%span one
-	  %p2
+  %p2
 }`,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
 				{typ: tIndent, lit: ""},
 				{typ: tTag, lit: "p1"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t"},
-				{typ: tTag, lit: "span"},
-				{typ: tPlainText, lit: "one"},
-				{typ: tNewLine, lit: "\n"},
-				{
-					typ: tError,
-					lit: "inconsistent indentation: \"\\t  \" used for indentation, but the rest of the template was indented using 1 tab(s)",
-				},
-				{typ: tEOF, lit: ""},
-			},
-		},
-		"wrong indent": {
-			input: `@goht test() {
-%p1
-	%p2
-  %p3
-}`,
-			want: []token{
-				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
-				{typ: tTag, lit: "p1"},
-				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t"},
-				{typ: tTag, lit: "p2"},
-				{typ: tNewLine, lit: "\n"},
-				{
-					typ: tError,
-					lit: "inconsistent indentation: 2 space(s) used for indentation, but the rest of the template was indented using 1 tab(s)",
-				},
+				{typ: tError, lit: "the line was indented using spaces, templates must be indented using tabs"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"wrong indent size": {
 			input: `@goht test() {
 %p1
-  %p2
-      %p3
+	%p2
+			%p3
 }`,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
 				{typ: tIndent, lit: ""},
 				{typ: tTag, lit: "p1"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "  "},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p2"},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tError, lit: "the line was indented 2 levels deeper than the previous line"},
@@ -2110,32 +2049,6 @@ func Test_HamlFilters(t *testing.T) {
 				{typ: tIndent, lit: ""},
 				{typ: tFilterStart, lit: "javascript"},
 				{typ: tPlainText, lit: "foo\n"},
-				{typ: tFilterEnd, lit: ""},
-				{typ: tGohtEnd, lit: ""},
-				{typ: tEOF, lit: ""},
-			},
-		},
-		"indented many": {
-			input: "@goht test() {\n:javascript\n\t\tfoo\n\t\tbar\n}",
-			want: []token{
-				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
-				{typ: tFilterStart, lit: "javascript"},
-				{typ: tPlainText, lit: "foo\n"},
-				{typ: tPlainText, lit: "bar\n"},
-				{typ: tFilterEnd, lit: ""},
-				{typ: tGohtEnd, lit: ""},
-				{typ: tEOF, lit: ""},
-			},
-		},
-		"indented more": {
-			input: "@goht test() {\n:javascript\n\t\tfoo\n\t\t\tbar\n}",
-			want: []token{
-				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
-				{typ: tFilterStart, lit: "javascript"},
-				{typ: tPlainText, lit: "foo\n"},
-				{typ: tPlainText, lit: "\tbar\n"},
 				{typ: tFilterEnd, lit: ""},
 				{typ: tGohtEnd, lit: ""},
 				{typ: tEOF, lit: ""},
@@ -2216,29 +2129,6 @@ func Test_HamlFilters(t *testing.T) {
 				{typ: tPlainText, lit: ".color { color: red; }\n"},
 				{typ: tFilterEnd, lit: ""},
 				{typ: tGohtEnd, lit: ""},
-				{typ: tEOF, lit: ""},
-			},
-		},
-		"filter indent applies to template": {
-			input: `@goht test() {
-:javascript
-		console.log("Hello");
-%p
-	foo
-}`,
-			want: []token{
-				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
-				{typ: tFilterStart, lit: "javascript"},
-				{typ: tPlainText, lit: "console.log(\"Hello\");\n"},
-				{typ: tFilterEnd, lit: ""},
-				{typ: tIndent, lit: ""},
-				{typ: tTag, lit: "p"},
-				{typ: tNewLine, lit: "\n"},
-				{
-					typ: tError,
-					lit: "inconsistent indentation: 1 tab(s) used for indentation, but the rest of the template was indented using 2 tab(s)",
-				},
 				{typ: tEOF, lit: ""},
 			},
 		},

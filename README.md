@@ -324,13 +324,13 @@ Only the HTML 5 doctype is supported, and is written using `!!!`.
 }
 ```
 
-> Note about indenting. GoHT follows the same rules as Haml for indenting. The first line of the template must be at the same level as the `@goht` directive. After that, you may use spaces or tabs to indent the content of the template. However, you must be consistent with the use of spaces or tabs. Mixing them will cause an error. As will indenting more than one level at a time.
+> Note about indenting. GoHT follows the similar rules as Haml for indenting. The first line of the template must be at the same level as the `@goht` directive. After that, you MUST use tabs to indent the content of the template.
 
 ### Inlined code
 You won't be using Ruby here, you'll be using Go.
 In most situations where we would need to include opening and closing braces in Go, we can omit them in GoHT.
 This makes it a lot closer to the Ruby-based Haml, and makes the templates easier to read.
-Go will still require we have a full statement, no shorthands for boolean conditionals.
+Go will still require that we have a full statement, no shorthands for boolean conditionals.
 So instead of this with Ruby:
 ```haml
 - if user

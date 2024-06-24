@@ -28,7 +28,7 @@ func FiltersTest() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("\n</p>\n<p>\n  Indented Plain <em>text</em>\n  "); __err != nil {
+		if _, __err = __buf.WriteString("\n</p>\n<p>\n\tIndented Plain <em>text</em>\n\t"); __err != nil {
 			return
 		}
 		var __var2 string
@@ -68,7 +68,7 @@ func FiltersTest() goht.Template {
 		if _, __err = __buf.WriteString(__var5); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("\");\nif (true) {\n  console.log(\""); __err != nil {
+		if _, __err = __buf.WriteString("\");\nif (true) {\n\tconsole.log(\""); __err != nil {
 			return
 		}
 		var __var6 string
@@ -82,7 +82,7 @@ func FiltersTest() goht.Template {
 			return
 		}
 		color := "red"
-		if _, __err = __buf.WriteString("<style>\n.red {\n  color: "); __err != nil {
+		if _, __err = __buf.WriteString("<style>\n.red {\n\tcolor: "); __err != nil {
 			return
 		}
 		var __var7 string
@@ -92,7 +92,7 @@ func FiltersTest() goht.Template {
 		if _, __err = __buf.WriteString(__var7); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(";\n}\n.blue {\n  color: blue;\n}\n</style>"); __err != nil {
+		if _, __err = __buf.WriteString(";\n}\n.blue {\n\tcolor: blue;\n}\n</style>"); __err != nil {
 			return
 		}
 		if !__isBuf {

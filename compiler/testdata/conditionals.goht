@@ -3,6 +3,6 @@ package testdata
 @goht ConditionalsTest(v bool) {
 %p before
 - if v
-  %p the condition was true
+	%p the condition was true
 %p after
 }

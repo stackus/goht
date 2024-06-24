@@ -2,18 +2,18 @@ package testdata
 
 @goht WhitespaceTest() {
 %p
-  %span Content
-  %span>
-    Outer
-  %span Content
+	%span Content
+	%span>
+		Outer
+	%span Content
 %p
-  %span Content
-  %span<
-    Inner
-  %span Content
+	%span Content
+	%span<
+		Inner
+	%span Content
 %p
-  %span Content
-  %span<>
-    Both
-  %span Content
+	%span Content
+	%span<>
+		Both
+	%span Content
 }

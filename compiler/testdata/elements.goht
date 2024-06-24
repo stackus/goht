@@ -3,13 +3,13 @@ package testdata
 @goht ElementsTest() {
 !!!
 %html
-  %body
-    #main.wrapper
-      %article
-        %h1 Article Title
-      %p Article content
-      %footer
-        %p Article footer
-    %footer.wrapper
-      %p Footer content
+	%body
+		#main.wrapper
+			%article
+				%h1 Article Title
+			%p Article content
+			%footer
+				%p Article footer
+		%footer.wrapper
+			%p Footer content
 }

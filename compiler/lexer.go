@@ -108,6 +108,7 @@ func (l *lexer) ignore() {
 	l.s = ""
 }
 
+// accept consumes the next rune if it's contained in the valid string.
 func (l *lexer) accept(valid string) bool {
 	if strings.ContainsRune(valid, l.next()) {
 		return true
@@ -116,30 +117,35 @@ func (l *lexer) accept(valid string) bool {
 	return false
 }
 
+// acceptRun consumes a run of runes from the valid string.
 func (l *lexer) acceptRun(valid string) {
 	for strings.ContainsRune(valid, l.next()) {
 	}
 	l.backup()
 }
 
+// acceptUntil consumes runes until it finds a rune in the invalid string.
 func (l *lexer) acceptUntil(invalid string) {
 	for r := l.next(); !strings.ContainsRune(invalid, r) && r != scanner.EOF; r = l.next() {
 	}
 	l.backup()
 }
 
+// acceptAhead consumes the next length runes.
 func (l *lexer) acceptAhead(length int) {
 	for i := 0; i < length; i++ {
 		l.next()
 	}
 }
 
+// skip consumes the next rune and then discards it.
 func (l *lexer) skip() rune {
 	r := l.next()
 	l.s = l.s[:len(l.s)-1]
 	return r
 }
 
+// skipRun consumes a run of runes from the skipList and discards them.
 func (l *lexer) skipRun(skipList string) {
 	for strings.ContainsRune(skipList, l.next()) {
 		l.s = l.s[:len(l.s)-1]
@@ -147,6 +153,7 @@ func (l *lexer) skipRun(skipList string) {
 	l.backup()
 }
 
+// skipUntil consumes and discards runes until it finds a rune in the stopList.
 func (l *lexer) skipUntil(stopList string) {
 	for r := l.next(); !strings.ContainsRune(stopList, r) && r != scanner.EOF; r = l.next() {
 		l.s = l.s[:len(l.s)-1]
@@ -154,22 +161,26 @@ func (l *lexer) skipUntil(stopList string) {
 	l.backup()
 }
 
+// current returns the current string being built by the lexer.
 func (l *lexer) current() string {
 	return l.s
 }
 
+// emit creates a new token with the current string and sends it to the tokens channel.
 func (l *lexer) emit(t tokenType) {
 	line, col := l.position()
 	l.tokens <- token{typ: t, lit: l.s, line: line, col: col}
 	l.s = ""
 }
 
+// errorf creates a new error token with the formatted message and sends it to the tokens channel.
 func (l *lexer) errorf(format string, args ...any) lexFn {
 	line, col := l.position()
 	l.tokens <- token{typ: tError, lit: fmt.Sprintf(format, args...), line: line, col: col}
 	return func(l *lexer) lexFn { return nil }
 }
 
+// position returns the current line and column of the file being lexed.
 func (l *lexer) position() (int, int) {
 	newLinesInString := strings.Count(l.s, "\n")
 	line := len(l.pos) - newLinesInString
@@ -183,28 +194,20 @@ func (l *lexer) validateIndent(indent string) lexFn {
 	}
 	// validate the indent against the sequence and char
 	currentLen := len(indent)
-	isTabs := strings.Contains(indent, "\t")
-	isSpaces := strings.Contains(indent, " ")
-	if (isTabs && l.indentChar == ' ') || (isSpaces && l.indentChar == '\t') || (currentLen%l.indentLen != 0) || (currentLen/l.indentLen > l.indent+1) {
-		if depth := currentLen / l.indentLen; !(isTabs && isSpaces) && depth > l.indent+1 {
-			return l.errorf("the line was indented %d levels deeper than the previous line", depth-l.indent)
-		}
-		var used string
-		want := "space(s)"
-		if l.indentChar == '\t' {
-			want = "tab(s)"
-		}
-		wanted := fmt.Sprintf("%d %s", l.indentLen, want)
-		if isTabs && isSpaces {
-			used = fmt.Sprintf("%q", indent)
-		} else {
-			got := "space(s)"
-			if isTabs {
-				got = "tab(s)"
-			}
-			used = fmt.Sprintf("%d %s", currentLen, got)
-		}
-		return l.errorf("inconsistent indentation: %s used for indentation, but the rest of the template was indented using %s", used, wanted)
+
+	// if the indent is less than or equal to the current indent, return
+	if currentLen <= l.indent {
+		return nil
 	}
+
+	// require tabs for indenting; report the use of spaces as an error
+	if strings.Contains(indent, " ") {
+		return l.errorf("the line was indented using spaces, templates must be indented using tabs")
+	}
+
+	if currentLen > l.indent+1 {
+		return l.errorf("the line was indented %d levels deeper than the previous line", currentLen-l.indent)
+	}
+
 	return nil
 }

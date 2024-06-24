@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+- Require tabs for indentation in GoHT templates. This aligns the indentation style with Go's standard formatting.
+
 ## [v0.4.5](https://github.com/stackus/goht/compare/v0.4.4...v0.4.5) - 2024-02-23
 
 ### Fixed
