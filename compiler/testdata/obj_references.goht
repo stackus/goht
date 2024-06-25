@@ -11,7 +11,7 @@ func (ObjRef) ObjectClass() string {
 }
 
 @goht ObjectReferencesTest() {
-- o := ObjRef("")
-%p[o] Unprefixed
-%p[o, "prefixed"] Prefixed
+	- o := ObjRef("")
+	%p[o] Unprefixed
+	%p[o, "prefixed"] Prefixed
 }

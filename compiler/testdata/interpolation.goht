@@ -3,5 +3,5 @@ package testdata
 var foo = "bar"
 
 @goht InterpolationTest() {
-%p This is #{foo}
+	%p This is #{foo}
 }

@@ -140,11 +140,6 @@ func lexGohtStart(l *lexer) lexFn {
 	l.skipRun(" {")
 	l.skipRun("\n\r")
 
-	l.accept("\t")
-	if l.current() != "" {
-		return l.errorf("indenting at the beginning of the template is illegal")
-	}
-
 	return lexGohtLineStart
 }
 
@@ -165,9 +160,15 @@ func lexGohtLineStart(l *lexer) lexFn {
 }
 
 func lexGohtIndent(l *lexer) lexFn {
-	// only accept tabs indenting
+	// accept spaces and tabs so that we can report about improper indentation
 	l.acceptRun(" \t")
 	indent := l.current()
+
+	// there has not been any indentation yet
+	if l.indent == 0 && len(indent) == 0 {
+		// return an error that indents are required
+		return l.errorf("templates must be indented")
+	}
 
 	if len(indent) == 0 {
 		l.indent = 0
@@ -175,18 +176,12 @@ func lexGohtIndent(l *lexer) lexFn {
 		return lexGohtContentStart
 	}
 
-	// set indent char and length
-	if l.indentChar == 0 {
-		l.indentChar = '\t'
-		l.indentLen = len(indent)
-	}
-
 	// validate the indent against the sequence and char
 	if lexErr := l.validateIndent(indent); lexErr != nil {
 		return lexErr
 	}
 
-	l.indent = len(l.current()) / l.indentLen // useful for parsing filters
+	l.indent = len(l.current()) // useful for parsing filters
 	l.emit(tIndent)
 	return lexGohtContentStart
 }
@@ -585,7 +580,7 @@ func ignoreIndentedLines(indent int) lexFn {
 			l.skip()
 			return ignoreIndentedLines(indent)
 		case ' ', '\t':
-			priorIndents, err := l.peekAhead(indent * l.indentLen)
+			priorIndents, err := l.peekAhead(indent)
 			if err != nil {
 				return l.errorf("unexpected error while evaluating indents: %s", err)
 			}
@@ -711,57 +706,25 @@ func lexFilterIndent(indent int, textType tokenType) lexFn {
 	return func(l *lexer) lexFn {
 		var indents string
 
-		if l.indentLen == 0 {
-			// if the template has not yet been indented, then the first indent
-			// used in the filter becomes the templates indent
-			l.acceptRun(" \t")
-		} else {
-			// only accept the whitespace that belongs to the indent
-			var err error
+		// only accept the whitespace that belongs to the indent
+		var err error
 
-			// peeking first, in case we've reached the end of the filter
-			indents, err = l.peekAhead(indent * l.indentLen)
-			if err != nil {
-				return l.errorf("unexpected error while evaluating filter indents: %s", err)
-			}
-
-			if len(strings.TrimSpace(indents)) != 0 {
-				l.emit(tFilterEnd)
-				return lexGohtLineStart
-			}
-			l.acceptAhead(indent * l.indentLen)
+		// peeking first, in case we've reached the end of the filter
+		indents, err = l.peekAhead(indent)
+		if err != nil {
+			return l.errorf("unexpected error while evaluating filter indents: %s", err)
 		}
-		indents = l.current()
-		// throw away the whitespace
-		l.ignore()
 
-		if len(indents) == 0 {
+		// trim the tabs from what we've peeked into; no longer using TrimSpace as that would trim spaces and newlines
+		if len(strings.Trim(indents, "\t")) != 0 {
 			l.emit(tFilterEnd)
 			return lexGohtLineStart
 		}
 
-		// set indent char and length
-		if l.indentChar == 0 {
-			if strings.Contains(indents, " ") && strings.Contains(indents, "\t") {
-				return l.errorf("indentation cannot contain both spaces and tabs")
-			}
-			l.indentChar = ' '
-			if strings.Contains(indents, "\t") {
-				l.indentChar = '\t'
-			}
-			l.indentLen = len(indents)
-		}
+		l.skipAhead(indent)
 
-		// validate the indent against the sequence and char
-		if lexErr := l.validateIndent(indents); lexErr != nil {
-			return lexErr
-		}
-
-		// l.indent = len(l.current()) / l.indentLen // useful for parsing filters
-		// l.emit(tIndent)
 		return lexFilterContent(indent, textType)
 	}
-
 }
 
 func lexFilterContent(indent int, textType tokenType) lexFn {

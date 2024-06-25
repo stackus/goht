@@ -49,14 +49,14 @@ package main
 var siteTitle = "GoHT"
 
 @goht SiteLayout(pageTitle string) {
-!!!
-%html{lang:"en"}
-  %head
-    %title= siteTitle
-  %body
-    %h1= pageTitle
-    %p A type-safe HAML template engine for Go.
-    = @children
+  !!!
+  %html{lang:"en"}
+    %head
+      %title= siteTitle
+    %body
+      %h1= pageTitle
+      %p A type-safe HAML template engine for Go.
+      = @children
 }
 
 @goht HomePage() {
@@ -280,6 +280,7 @@ Important differences are:
 - [Go package and imports](#go-package-and-imports): You can declare a package and imports for your templates.
 - [Multiple templates per file](#multiple-templates-per-file): You can declare as many templates in a file as you wish.
 - [Doctypes](#doctypes): Limited doctype support.
+- [Indents](#indents): GoHT follows the rules of GoFMT for indents.
 - [Inlined code](#inlined-code): You won't be using Ruby here, you'll be using Go.
 - [Rendering code](#rendering-code): The catch is what is being outputted will need to be a string in all cases.
 - [Attributes](#attributes): Only the Ruby 1.9 style of attributes is supported.
@@ -307,12 +308,12 @@ The templates are converted into Go functions, so they must be valid Go function
 This also means that you can declare them with parameters and can use those parameters in the template.
 ```haml
 @goht SiteLayout(title string) {
-!!!
-%html{lang:"en"}
-  %head
-    %title= title
-  %body
-    -# ... the rest of the template
+  !!!
+  %html{lang:"en"}
+    %head
+      %title= title
+    %body
+      -# ... the rest of the template
 }
 ```
 
@@ -320,11 +321,27 @@ This also means that you can declare them with parameters and can use those para
 Only the HTML 5 doctype is supported, and is written using `!!!`.
 ```haml
 @goht SiteLayout() {
-!!!
+  !!!
 }
 ```
 
 > Note about indenting. GoHT follows the similar rules as Haml for indenting. The first line of the template must be at the same level as the `@goht` directive. After that, you MUST use tabs to indent the content of the template.
+
+### Indents
+GoHT follows the rules of GoFMT for indents, meaning that you should use tabs for indentation.
+
+You must also indent the content of the template, and the closing brace should be at the same level as the `@goht` directive.
+```haml
+@goht SiteLayout() {
+  %html
+    %head
+      %title GoHT
+    %body
+      %h1 GoHT
+}
+```
+
+> Note: Two spaces are being used in this README for display only. Keep that in mind if you copy and paste the examples from this document.
 
 ### Inlined code
 You won't be using Ruby here, you'll be using Go.
@@ -333,41 +350,40 @@ This makes it a lot closer to the Ruby-based Haml, and makes the templates easie
 Go will still require that we have a full statement, no shorthands for boolean conditionals.
 So instead of this with Ruby:
 ```haml
-- if user
-  %strong The user exists
+  - if user
+    %strong The user exists
 ```
 You would write this with Go:
 ```haml
-- if user != nil
-  %strong The user exists
+  - if user != nil
+    %strong The user exists
 ```
 There is minimal processing performed on the Go code you put into the templates, so it needs to be valid Go code sans braces.
 > You may continue to use the braces if you wish. Existing code with braces will continue to work without modifications.
 
-
 ### Rendering code
 Like in Haml, you can output variables and the results of expressions. The `=` script syntax and text interpolation `#{}` are supported.
 ```haml
-%strong= user.Name
-%strong The user's name is #{user.Name}
+  %strong= user.Name
+  %strong The user's name is #{user.Name}
 ```
 
 The catch is what is being outputted will need to be a string in all cases.
 So instead of writing this to output an integer value:
 ```haml
-%strong= user.Age
+  %strong= user.Age
 ```
 You would need to write this:
 ```haml
-%strong= fmt.Sprintf("%d", user.Age)
+  %strong= fmt.Sprintf("%d", user.Age)
 ```
 Which to be honest can be a bit long to write, so a shortcut is provided:
 ```haml
-%strong=%d user.Age
+  %strong=%d user.Age
 ```
 The interpolation also supports the shortcut:
 ```haml
-%strong #{user.Name} is #{%d user.Age} years old.
+  %strong #{user.Name} is #{%d user.Age} years old.
 ```
 When formatting a value into a string `fmt.Sprintf` is used under the hood, so you can use any of the formatting options that it supports.
 
@@ -376,34 +392,34 @@ Only the Ruby 1.9 style of attributes is supported.
 This syntax is closest to the Go syntax, and is the most readable.
 Between the attribute name, operator, and value you can include or leave out as much whitespace as you like.
 ```haml
-%a{href: "https://github.com/stackus/goht", target: "_blank"} GoHT
+  %a{href: "https://github.com/stackus/goht", target: "_blank"} GoHT
 ```
 You can supply a value to an attribute using the text interpolation syntax.
 ```haml
-%a{href:#{url}} GoHT
+  %a{href:#{url}} GoHT
 ```
 Attributes can be written over multiple lines, and the closing brace can be on a new line.
 ```haml
-%a{
-  href: "...",
-  target: "_blank",
-} GoHT
+  %a{
+    href: "...",
+    target: "_blank",
+  } GoHT
 ```
 Attributes which you want to render conditionally use the `?` operator instead of the `:` operator.
 For conditional attributes the attribute value is required to be an interpolated value which will be used as the condition in a Go `if` statement.
 ```haml
-%button{
-  disabled ? #{disabled},
-} Click me
+  %button{
+    disabled ? #{disabled},
+  } Click me
 ```
 > Note: The final comma is not required on the last attribute when they are spread across multiple lines like it would be in Go. Including it is fine and will not cause any issues.
 
 Certain characters in the attribute name will require that the name be escaped.
 ```haml
-%button{
-  "@click": "onClick",
-  ":disabled": "disabled",
-} Click me
+  %button{
+    "@click": "onClick",
+    ":disabled": "disabled",
+  } Click me
 ```
 Keep in mind that attribute names cannot be replaced with an interpolated string; only the value can.
 
@@ -415,11 +431,11 @@ This directive takes a list of arguments which comes in two forms:
 - `map[string]bool`
   - The key is the attribute name, the value is the condition to render the attribute.
 ```haml
-%button{
-  "@click": "onClick",
-  ":disabled": "disabled",
-  @attributes: #{myAttrs},
-} Click me
+  %button{
+    "@click": "onClick",
+    ":disabled": "disabled",
+    @attributes: #{myAttrs},
+  } Click me
 ```
 ### Classes
 GoHT supports the `.` operator for classes and also will accept the `class` attribute such as `class:"foo bar"`.
@@ -434,9 +450,9 @@ These values can be the following types:
 
 Examples:
 ```haml
-%button.foo.bar.baz Click me
-%button.fizz{class:"foo bar baz"} Click me
-%button.foo{class:#{myStrClasses, myBoolClasses}} Click me
+  %button.foo.bar.baz Click me
+  %button.fizz{class:"foo bar baz"} Click me
+  %button.foo{class:#{myStrClasses, myBoolClasses}} Click me
 ```
 All sources of classes will be combined and deduplicated into a single class attribute.
 
@@ -476,27 +492,27 @@ Both can be used together to remove whitespace both inside and outside a tag; th
 The biggest departure from Haml is how templates can be combined. When working Haml you could use `= render :partial_name` or `= haml :partial_name` to render a partial. The `render` and `haml` functions are not available in GoHT, instead you can use the `@render` directive.
 ```haml
 @goht HomePage() {
-= @render SiteLayout()
+  = @render SiteLayout()
 }
 ```
 The above would render the `SiteLayout` template, and you would call it with any parameters that it needs. You can also call it and provide it with a block of content to render where it chooses.
 ```haml
 @goht HomePage() {
-= @render SiteLayout()
-  %p This is the home page for GoHT.
+  = @render SiteLayout()
+    %p This is the home page for GoHT.
 }
 ```
 Any content nested under the `@render` directive will be passed into the template that it can render where it wants using the `@children` directive.
 ```haml
 @goht SiteLayout() {
-!!!
-%html{lang:"en"}
-  %head
-    %title GoHT
-  %body
-    %h1 GoHT
-    %p A HAML-like template engine for Go.
-    = @children
+  !!!
+  %html{lang:"en"}
+    %head
+      %title GoHT
+    %body
+      %h1 GoHT
+      %p A HAML-like template engine for Go.
+      = @children
 }
 ```
 

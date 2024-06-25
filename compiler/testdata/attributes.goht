@@ -1,14 +1,14 @@
 package testdata
 
 @goht AttributesTest() {
-.boolean{disabled} Disabled Content
-- condition := false
-.boolean{disabled? #{condition}} Conditional Content
-- attrs := map[string]string{"a": "b"}
-.attributes{@attributes: @{attrs}}
-- fizz := "buzz"
-.multiline{
-  foo: "bar",
-  fizz: #{fizz},
-}
+	.boolean{disabled} Disabled Content
+	- condition := false
+	.boolean{disabled? #{condition}} Conditional Content
+	- attrs := map[string]string{"a": "b"}
+	.attributes{@attributes: @{attrs}}
+	- fizz := "buzz"
+	.multiline{
+		foo: "bar",
+		fizz: #{fizz},
+	}
 }

@@ -152,7 +152,7 @@ func (t token) Col() int {
 
 func (t token) String() string {
 	if t.typ != tError && len(t.lit) > 30 {
-		return fmt.Sprintf("%s[%d:%d]: %.30q...", t.typ, t.line, t.col, t.lit)
+		return fmt.Sprintf("%s[%d:%d]: %q", t.typ, t.line, t.col, string([]rune(t.lit)[:30])+"...")
 	}
 	return fmt.Sprintf("%s[%d:%d]: %q", t.typ, t.line, t.col, t.lit)
 }

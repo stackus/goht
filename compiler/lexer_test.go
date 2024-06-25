@@ -478,54 +478,54 @@ func Test_HamlText(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\nfoobar",
+			input: "@goht test() {\n\tfoobar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tPlainText, lit: "foobar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"multiple lines": {
-			input: "@goht test() {\nfoobar\nbaz",
+			input: "@goht test() {\n\tfoobar\n\tbaz",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tPlainText, lit: "foobar"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tPlainText, lit: "baz"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with escaped quotes": {
-			input: "@goht test() {\n\"foo\\\"bar\"",
+			input: "@goht test() {\n\t\"foo\\\"bar\"",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tPlainText, lit: "\"foo\\\"bar\""},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"escape control characters": {
-			input: "@goht test() {\n\\#foo\n\\%bar\n\\.baz",
+			input: "@goht test() {\n\t\\#foo\n\t\\%bar\n\t\\.baz",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tPlainText, lit: "#foo"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tPlainText, lit: "%bar"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tPlainText, lit: ".baz"},
 			},
 		},
 		"text with dynamic value": {
-			input: "@goht test() {\nfoo #{bar} baz",
+			input: "@goht test() {\n\tfoo #{bar} baz",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tPlainText, lit: "foo "},
 				{typ: tDynamicText, lit: "bar"},
 				{typ: tPlainText, lit: " baz"},
@@ -533,28 +533,28 @@ func Test_HamlText(t *testing.T) {
 			},
 		},
 		"escape dynamic text at start of line": {
-			input: "@goht test() {\n\\#{foo}",
+			input: "@goht test() {\n\t\\#{foo}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tDynamicText, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"ignore dynamic text in line": {
-			input: "@goht test() {\nfoo \\#{bar} \\{f} baz",
+			input: "@goht test() {\n\tfoo \\#{bar} \\{f} baz",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tPlainText, lit: "foo #{bar} \\{f} baz"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"error in dynamic syntax": {
-			input: "@goht test() {\nfoo #{bar baz",
+			input: "@goht test() {\n\tfoo #{bar baz",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tPlainText, lit: "foo "},
 				{typ: tError, lit: "dynamic text value was not closed: eof"},
 				{typ: tEOF, lit: ""},
@@ -580,52 +580,52 @@ func Test_HamlTag(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n%foo\n",
+			input: "@goht test() {\n\t%foo\n",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"multiple tags": {
-			input: "@goht test() {\n%foo\n%bar",
+			input: "@goht test() {\n\t%foo\n\t%bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"tag and id": {
-			input: "@goht test() {\n%foo#bar",
+			input: "@goht test() {\n\t%foo#bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tId, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"tag and class": {
-			input: "@goht test() {\n%foo.bar",
+			input: "@goht test() {\n\t%foo.bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tClass, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"tag and attribute": {
-			input: "@goht test() {\n%foo{id:\"bar\"}",
+			input: "@goht test() {\n\t%foo{id:\"bar\"}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tAttrOperator, lit: ":"},
@@ -634,20 +634,20 @@ func Test_HamlTag(t *testing.T) {
 			},
 		},
 		"tag and text": {
-			input: "@goht test() {\n%foo bar",
+			input: "@goht test() {\n\t%foo bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tPlainText, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"tag and text and close": {
-			input: "@goht test() {\n%foo bar\n}",
+			input: "@goht test() {\n\t%foo bar\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tPlainText, lit: "bar"},
 				{typ: tNewLine, lit: "\n"},
@@ -655,10 +655,10 @@ func Test_HamlTag(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		}, "tag and unescaped text": {
-			input: "@goht test() {\n%foo! bar",
+			input: "@goht test() {\n\t%foo! bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tUnescaped, lit: ""},
 				{typ: tPlainText, lit: "bar"},
@@ -666,30 +666,30 @@ func Test_HamlTag(t *testing.T) {
 			},
 		},
 		"tag and output code": {
-			input: "@goht test() {\n%foo= bar",
+			input: "@goht test() {\n\t%foo= bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tScript, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"tag and tag again": {
-			input: "@goht test() {\n%foo%bar",
+			input: "@goht test() {\n\t%foo%bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tPlainText, lit: "%bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"space before tag identifier": {
-			input: "@goht test() {\n% foo",
+			input: "@goht test() {\n\t% foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tError, lit: "Tag identifier expected"},
 				{typ: tEOF, lit: ""},
 			},
@@ -714,31 +714,31 @@ func Test_HamlId(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n#foo",
+			input: "@goht test() {\n\t#foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"multiple ids": {
-			input: "@goht test() {\n#foo\n#bar",
+			input: "@goht test() {\n\t#foo\n\t#bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with underscore": {
-			input: "@goht test() {\n#foo_bar\n}",
+			input: "@goht test() {\n\t#foo_bar\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo_bar"},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tGohtEnd, lit: ""},
@@ -746,10 +746,10 @@ func Test_HamlId(t *testing.T) {
 			},
 		},
 		"with hyphen": {
-			input: "@goht test() {\n#foo-bar\n}",
+			input: "@goht test() {\n\t#foo-bar\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo-bar"},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tGohtEnd, lit: ""},
@@ -757,30 +757,30 @@ func Test_HamlId(t *testing.T) {
 			},
 		},
 		"id and class": {
-			input: "@goht test() {\n#foo.bar",
+			input: "@goht test() {\n\t#foo.bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo"},
 				{typ: tClass, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"id and tag": {
-			input: "@goht test() {\n#foo%bar",
+			input: "@goht test() {\n\t#foo%bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo"},
 				{typ: tPlainText, lit: "%bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"id and attribute": {
-			input: "@goht test() {\n#foo{id:\"bar\"}",
+			input: "@goht test() {\n\t#foo{id:\"bar\"}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tAttrOperator, lit: ":"},
@@ -789,20 +789,20 @@ func Test_HamlId(t *testing.T) {
 			},
 		},
 		"id and text": {
-			input: "@goht test() {\n#foo bar",
+			input: "@goht test() {\n\t#foo bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo"},
 				{typ: tPlainText, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"id and unescaped text": {
-			input: "@goht test() {\n#foo! bar",
+			input: "@goht test() {\n\t#foo! bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo"},
 				{typ: tUnescaped, lit: ""},
 				{typ: tPlainText, lit: "bar"},
@@ -810,30 +810,30 @@ func Test_HamlId(t *testing.T) {
 			},
 		},
 		"id and output code": {
-			input: "@goht test() {\n#foo= bar",
+			input: "@goht test() {\n\t#foo= bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo"},
 				{typ: tScript, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"id and id again": {
-			input: "@goht test() {\n#foo#bar",
+			input: "@goht test() {\n\t#foo#bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo"},
 				{typ: tId, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"space before id identifier": {
-			input: "@goht test() {\n# foo",
+			input: "@goht test() {\n\t# foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tError, lit: "Id identifier expected"},
 				{typ: tEOF, lit: ""},
 			},
@@ -858,51 +858,51 @@ func Test_HamlClass(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n.foo",
+			input: "@goht test() {\n\t.foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tClass, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"multiple ids": {
-			input: "@goht test() {\n.foo\n.bar",
+			input: "@goht test() {\n\t.foo\n\t.bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tClass, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tClass, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"class and id": {
-			input: "@goht test() {\n.foo#bar",
+			input: "@goht test() {\n\t.foo#bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tClass, lit: "foo"},
 				{typ: tId, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"class and tag": {
-			input: "@goht test() {\n.foo%bar",
+			input: "@goht test() {\n\t.foo%bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tClass, lit: "foo"},
 				{typ: tPlainText, lit: "%bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"class and attribute": {
-			input: "@goht test() {\n.foo{id:\"bar\"}",
+			input: "@goht test() {\n\t.foo{id:\"bar\"}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tClass, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tAttrOperator, lit: ":"},
@@ -911,20 +911,20 @@ func Test_HamlClass(t *testing.T) {
 			},
 		},
 		"class and text": {
-			input: "@goht test() {\n.foo bar",
+			input: "@goht test() {\n\t.foo bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tClass, lit: "foo"},
 				{typ: tPlainText, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"class and unescaped text": {
-			input: "@goht test() {\n.foo! bar",
+			input: "@goht test() {\n\t.foo! bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tClass, lit: "foo"},
 				{typ: tUnescaped, lit: ""},
 				{typ: tPlainText, lit: "bar"},
@@ -932,30 +932,30 @@ func Test_HamlClass(t *testing.T) {
 			},
 		},
 		"class and output code": {
-			input: "@goht test() {\n.foo= bar",
+			input: "@goht test() {\n\t.foo= bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tClass, lit: "foo"},
 				{typ: tScript, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"class and class again": {
-			input: "@goht test() {\n.foo.bar",
+			input: "@goht test() {\n\t.foo.bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tClass, lit: "foo"},
 				{typ: tClass, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"space before class identifier": {
-			input: "@goht test() {\n. foo",
+			input: "@goht test() {\n\t. foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tError, lit: "Class identifier expected"},
 				{typ: tEOF, lit: ""},
 			},
@@ -980,10 +980,10 @@ func Test_WhitespaceRemoval(t *testing.T) {
 		want  []token
 	}{
 		"remove outer": {
-			input: "@goht test() {\n%p>\n}",
+			input: "@goht test() {\n\t%p>\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tNukeOuterWhitespace, lit: ""},
 				{typ: tNewLine, lit: "\n"},
@@ -992,10 +992,10 @@ func Test_WhitespaceRemoval(t *testing.T) {
 			},
 		},
 		"remove inner": {
-			input: "@goht test() {\n%p<\n}",
+			input: "@goht test() {\n\t%p<\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tNukeInnerWhitespace, lit: ""},
 				{typ: tNewLine, lit: "\n"},
@@ -1004,10 +1004,10 @@ func Test_WhitespaceRemoval(t *testing.T) {
 			},
 		},
 		"remove both": {
-			input: "@goht test() {\n%p<>\n}",
+			input: "@goht test() {\n\t%p<>\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tNukeInnerWhitespace, lit: ""},
 				{typ: tNukeOuterWhitespace, lit: ""},
@@ -1036,40 +1036,40 @@ func Test_HamlObjectRef(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n%p[foo]",
+			input: "@goht test() {\n\t%p[foo]",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tObjectRef, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with prefix": {
-			input: "@goht test() {\n%p[foo, \"bar\"]",
+			input: "@goht test() {\n\t%p[foo, \"bar\"]",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tObjectRef, lit: "foo, \"bar\""},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"on tag from class": {
-			input: "@goht test() {\n.foo[foo, \"bar\"]",
+			input: "@goht test() {\n\t.foo[foo, \"bar\"]",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tClass, lit: "foo"},
 				{typ: tObjectRef, lit: "foo, \"bar\""},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"on tag from id": {
-			input: "@goht test() {\n#foo[foo, \"bar\"]",
+			input: "@goht test() {\n\t#foo[foo, \"bar\"]",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo"},
 				{typ: tObjectRef, lit: "foo, \"bar\""},
 				{typ: tEOF, lit: ""},
@@ -1095,10 +1095,10 @@ func Test_HamlAttributes(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n%foo{id:\"bar\"}",
+			input: "@goht test() {\n\t%foo{id:\"bar\"}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1107,10 +1107,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"names with dashes": {
-			input: "@goht test() {\n%foo{data-foo:\"bar\"}",
+			input: "@goht test() {\n\t%foo{data-foo:\"bar\"}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "data-foo"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1119,10 +1119,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"names with underscores": {
-			input: "@goht test() {\n%foo{data_foo:\"bar\"}",
+			input: "@goht test() {\n\t%foo{data_foo:\"bar\"}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "data_foo"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1131,10 +1131,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"names with numbers": {
-			input: "@goht test() {\n%foo{data1:\"bar\"}",
+			input: "@goht test() {\n\t%foo{data1:\"bar\"}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "data1"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1143,10 +1143,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"names with colons": {
-			input: "@goht test() {\n%foo{\":x-data\":\"bar\",`x-on:click`:#{onClick}}",
+			input: "@goht test() {\n\t%foo{\":x-data\":\"bar\",`x-on:click`:#{onClick}}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: ":x-data"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1158,10 +1158,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"names with dots": {
-			input: "@goht test() {\n%foo{data.foo:\"bar\",x.on.click:#{onClick}}",
+			input: "@goht test() {\n\t%foo{data.foo:\"bar\",x.on.click:#{onClick}}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "data.foo"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1173,10 +1173,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"names with at signs": {
-			input: "@goht test() {\n%foo{\"@data\":\"bar\",`x@on@click`:#{onClick}}",
+			input: "@goht test() {\n\t%foo{\"@data\":\"bar\",`x@on@click`:#{onClick}}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "@data"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1187,10 +1187,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"several": {
-			input: "@goht test() {\n%foo{id:\"bar\", class: `baz` , title : \"qux\"}",
+			input: "@goht test() {\n\t%foo{id:\"bar\", class: `baz` , title : \"qux\"}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1205,10 +1205,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"several on multiple lines": {
-			input: "@goht test() {\n%foo{\n\tid:\"bar\",\n\tclass: `baz` ,\n\ttitle : \"qux\"\n}",
+			input: "@goht test() {\n\t%foo{\n\tid:\"bar\",\n\tclass: `baz` ,\n\ttitle : \"qux\"\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1223,10 +1223,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"static value with escaped quotes": {
-			input: "@goht test() {\n%foo{id:\"bar\\\"baz\"}",
+			input: "@goht test() {\n\t%foo{id:\"bar\\\"baz\"}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1235,10 +1235,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"dynamic value": {
-			input: "@goht test() {\n%foo{id:#{bar}}",
+			input: "@goht test() {\n\t%foo{id:#{bar}}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1247,10 +1247,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"dynamic value with escaped curly": {
-			input: "@goht test() {\n%foo{id:#{\"big}\"}, class: #{\"ba\"+'}'}}",
+			input: "@goht test() {\n\t%foo{id:#{\"big}\"}, class: #{\"ba\"+'}'}}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1262,10 +1262,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"dynamic values": {
-			input: "@goht test() {\n%foo{id:#{bar}, class: #{baz}}",
+			input: "@goht test() {\n\t%foo{id:#{bar}, class: #{baz}}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1277,20 +1277,20 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"boolean attribute": {
-			input: "@goht test() {\n%foo{bar}",
+			input: "@goht test() {\n\t%foo{bar}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"boolean operator": {
-			input: "@goht test() {\n%foo{bar?#{isBar}, baz ? #{isBaz}}",
+			input: "@goht test() {\n\t%foo{bar?#{isBar}, baz ? #{isBaz}}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "bar"},
 				{typ: tAttrOperator, lit: "?"},
@@ -1302,20 +1302,20 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"attributes command": {
-			input: "@goht test() {\n%foo{@attributes:#{listA, \"}}\", listB}}",
+			input: "@goht test() {\n\t%foo{@attributes:#{listA, \"}}\", listB}}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttributesCommand, lit: "listA, \"}}\", listB"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"missing delimiter": {
-			input: "@goht test() {\n%foo{id\"bar\", class: \"baz\"}",
+			input: "@goht test() {\n\t%foo{id\"bar\", class: \"baz\"}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tError, lit: "unexpected character: '\"'"},
@@ -1323,10 +1323,10 @@ func Test_HamlAttributes(t *testing.T) {
 			},
 		},
 		"missing separator": {
-			input: "@goht test() {\n%foo{id:\"bar\" class: \"baz\"}",
+			input: "@goht test() {\n\t%foo{id:\"bar\" class: \"baz\"}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "id"},
 				{typ: tAttrOperator, lit: ":"},
@@ -1355,41 +1355,41 @@ func Test_HamlDoctype(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n!!!",
+			input: "@goht test() {\n\t!!!",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tDoctype, lit: ""},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with type": {
-			input: "@goht test() {\n!!! Strict",
+			input: "@goht test() {\n\t!!! Strict",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tDoctype, lit: "Strict"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"not a doctype": {
-			input: "@goht test() {\n!foo",
+			input: "@goht test() {\n\t!foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tUnescaped, lit: ""},
 				{typ: tPlainText, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"doctype with content": {
-			input: "@goht test() {\n!!! 5\n%html\n}",
+			input: "@goht test() {\n\t!!! 5\n\t%html\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tDoctype, lit: "5"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "html"},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tGohtEnd, lit: ""},
@@ -1416,69 +1416,69 @@ func Test_HamlUnescaped(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n!foo",
+			input: "@goht test() {\n\t!foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tUnescaped, lit: ""},
 				{typ: tPlainText, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with space": {
-			input: "@goht test() {\n! foo",
+			input: "@goht test() {\n\t! foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tUnescaped, lit: ""},
 				{typ: tPlainText, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"dynamic text": {
-			input: "@goht test() {\n! #{foo}",
+			input: "@goht test() {\n\t! #{foo}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tUnescaped, lit: ""},
 				{typ: tDynamicText, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"unescaped code": {
-			input: "@goht test() {\n!= foo",
+			input: "@goht test() {\n\t!= foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tUnescaped, lit: ""},
 				{typ: tScript, lit: "foo"},
 			},
 		},
 		"not unescaped": {
-			input: "@goht test() {\n%p ! foo",
+			input: "@goht test() {\n\t%p ! foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tPlainText, lit: "! foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"tag with unescaped text": {
-			input: "@goht test() {\n%foo! bar",
+			input: "@goht test() {\n\t%foo! bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tUnescaped, lit: ""},
 				{typ: tPlainText, lit: "bar"},
 			},
 		},
 		"tag with unescaped code": {
-			input: "@goht test() {\n%foo!= bar",
+			input: "@goht test() {\n\t%foo!= bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tUnescaped, lit: ""},
 				{typ: tScript, lit: "bar"},
@@ -1486,22 +1486,22 @@ func Test_HamlUnescaped(t *testing.T) {
 		},
 		"mixed with tags": {
 			input: `@goht test() {
-- var html = "<em>is</em>"
-%p This #{html} HTML.
-%p! This #{html} HTML.
+	- var html = "<em>is</em>"
+	%p This #{html} HTML.
+	%p! This #{html} HTML.
 }`,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "var html = \"<em>is</em>\""},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tPlainText, lit: "This "},
 				{typ: tDynamicText, lit: "html"},
 				{typ: tPlainText, lit: " HTML."},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tUnescaped, lit: ""},
 				{typ: tPlainText, lit: "This "},
@@ -1532,19 +1532,19 @@ func Test_HamlComment(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n/ foo",
+			input: "@goht test() {\n\t/ foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tComment, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"nested content": {
-			input: "@goht test() {\n/\n\t%p bar",
+			input: "@goht test() {\n\t/\n\t%p bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tComment, lit: ""},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tIndent, lit: "\t"},
@@ -1554,51 +1554,60 @@ func Test_HamlComment(t *testing.T) {
 			},
 		},
 		"haml comment": {
-			input: "@goht test() {\n-# foo",
+			input: "@goht test() {\n\t-# foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tRubyComment, lit: ""},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"nested haml comment": {
-			input: "@goht test() {\n%p foo\n-#\n\t%p bar\n}",
+			input: `@goht test() {
+	%p foo
+	-#
+		%p bar
+}`,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tPlainText, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tRubyComment, lit: ""},
 				{typ: tGohtEnd, lit: ""},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"both comments": {
-			input: "@goht test() {\n/ foo\n-# bar",
+			input: "@goht test() {\n\t/ foo\n\t-# bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tComment, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tRubyComment, lit: ""},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"both comments with nested content": {
-			input: "@goht test() {\n/\n\tfoo\n-#\n\t%p bar\n}",
+			input: `@goht test() {
+	/
+		foo
+	-#
+		%p bar
+}`,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tComment, lit: ""},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t"},
+				{typ: tIndent, lit: "\t\t"},
 				{typ: tPlainText, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tRubyComment, lit: ""},
 				{typ: tGohtEnd, lit: ""},
 				{typ: tEOF, lit: ""},
@@ -1624,20 +1633,20 @@ func Test_HamlVoidTags(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n%foo/",
+			input: "@goht test() {\n\t%foo/",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tVoidTag, lit: ""},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"line is ignored": {
-			input: "@goht test() {\n%foo/ bar",
+			input: "@goht test() {\n\t%foo/ bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tError, lit: "self-closing tags can't have content"},
 			},
@@ -1662,101 +1671,101 @@ func Test_HamlOutputCode(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n=foo",
+			input: "@goht test() {\n\t=foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tScript, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with space": {
-			input: "@goht test() {\n= foo",
+			input: "@goht test() {\n\t= foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tScript, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"after tag": {
-			input: "@goht test() {\n%foo= bar",
+			input: "@goht test() {\n\t%foo= bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tScript, lit: "bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"without space": {
-			input: "@goht test() {\n=foo",
+			input: "@goht test() {\n\t=foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tScript, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with parens": {
-			input: "@goht test() {\n= foo()",
+			input: "@goht test() {\n\t= foo()",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tScript, lit: "foo()"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with render command": {
-			input: "@goht test() {\n= @render foo(\"bar\")",
+			input: "@goht test() {\n\t= @render foo(\"bar\")",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tRenderCommand, lit: "foo(\"bar\")"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with render command and parens": {
-			input: "@goht test() {\n= @render() foo(\"bar\")",
+			input: "@goht test() {\n\t= @render() foo(\"bar\")",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tRenderCommand, lit: "foo(\"bar\")"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with missing render argument": {
-			input: "@goht test() {\n= @render",
+			input: "@goht test() {\n\t= @render",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tError, lit: "render argument expected"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with children command": {
-			input: "@goht test() {\n= @children",
+			input: "@goht test() {\n\t= @children",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tChildrenCommand, lit: ""},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with children command and parens": {
-			input: "@goht test() {\n= @children()",
+			input: "@goht test() {\n\t= @children()",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tChildrenCommand, lit: ""},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"without any children arguments": {
-			input: "@goht test() {\n= @children() asdfasdf",
+			input: "@goht test() {\n\t= @children() asdfasdf",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tError, lit: "children command does not accept arguments"},
 				{typ: tEOF, lit: ""},
 			},
@@ -1781,118 +1790,118 @@ func Test_HamlExecuteCode(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n-foo",
+			input: "@goht test() {\n\t-foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with space": {
-			input: "@goht test() {\n- foo",
+			input: "@goht test() {\n\t- foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"not code": {
-			input: "@goht test() {\n%foo- bar\n#foo-bar bar\n%p - bar",
+			input: "@goht test() {\n\t%foo- bar\n\t#foo-bar bar\n\t%p - bar",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo-"},
 				{typ: tPlainText, lit: "bar"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tId, lit: "foo-bar"},
 				{typ: tPlainText, lit: "bar"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tPlainText, lit: "- bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"without space": {
-			input: "@goht test() {\n-foo",
+			input: "@goht test() {\n\t-foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"nested": {
 			input: `@goht test() {
-- if foo != "" {
-	%p Foo exists and is #{foo}.
-- }
+	- if foo != "" {
+		%p Foo exists and is #{foo}.
+	- }
 `,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "if foo != \"\" {"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t"},
+				{typ: tIndent, lit: "\t\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tPlainText, lit: "Foo exists and is "},
 				{typ: tDynamicText, lit: "foo"},
 				{typ: tPlainText, lit: "."},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "}"},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"ruby style comment": {
-			input: "@goht test() {\n-# comment\n- foo",
+			input: "@goht test() {\n\t-# comment\n\t- foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tRubyComment, lit: ""},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"nested ruby style comment": {
-			input: "@goht test() {\n-#\n\tcomment\n- foo",
+			input: "@goht test() {\n\t-#\n\t\tcomment\n\t- foo",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tRubyComment, lit: ""},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "foo"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with receiver": {
-			input: "@goht (t Tester) test() {\n- t.bar",
+			input: "@goht (t Tester) test() {\n\t- t.bar",
 			want: []token{
 				{typ: tGohtStart, lit: "(t Tester) test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "t.bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with receiver and interface": {
-			input: "@goht (t Tester) test(v interface{}) {\n- t.bar",
+			input: "@goht (t Tester) test(v interface{}) {\n\t- t.bar",
 			want: []token{
 				{typ: tGohtStart, lit: "(t Tester) test(v interface{})"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "t.bar"},
 				{typ: tEOF, lit: ""},
 			},
 		},
 		"with receiver and interface with methods": {
-			input: "@goht (t Tester) test(v interface{ Foo() string }) {\n- t.bar",
+			input: "@goht (t Tester) test(v interface{ Foo() string }) {\n\t- t.bar",
 			want: []token{
 				{typ: tGohtStart, lit: "(t Tester) test(v interface{ Foo() string })"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "t.bar"},
 				{typ: tEOF, lit: ""},
 			},
@@ -1917,13 +1926,13 @@ func Test_HamlIndent(t *testing.T) {
 		want  []token
 	}{
 		"simple": {
-			input: "@goht test() {\n%foo\n\tbar\n}",
+			input: "@goht test() {\n\t%foo\n\t\tbar\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t"},
+				{typ: tIndent, lit: "\t\t"},
 				{typ: tPlainText, lit: "bar"},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tGohtEnd, lit: ""},
@@ -1931,10 +1940,10 @@ func Test_HamlIndent(t *testing.T) {
 			},
 		},
 		"indented too deep": {
-			input: "@goht test() {\n%foo\n\t\tbar\n}",
+			input: "@goht test() {\n\t%foo\n\t\t\tbar\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tError, lit: "the line was indented 2 levels deeper than the previous line"},
@@ -1942,24 +1951,24 @@ func Test_HamlIndent(t *testing.T) {
 		},
 		"different indents": {
 			input: `@goht test() {
-%p1
-	%span one
-	%p2
-		%p3 three
+	%p1
+		%span one
+		%p2
+			%p3 three
 }`,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p1"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t"},
+				{typ: tIndent, lit: "\t\t"},
 				{typ: tTag, lit: "span"},
 				{typ: tPlainText, lit: "one"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t"},
+				{typ: tIndent, lit: "\t\t"},
 				{typ: tTag, lit: "p2"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t\t"},
+				{typ: tIndent, lit: "\t\t\t"},
 				{typ: tTag, lit: "p3"},
 				{typ: tPlainText, lit: "three"},
 				{typ: tNewLine, lit: "\n"},
@@ -1969,12 +1978,12 @@ func Test_HamlIndent(t *testing.T) {
 		},
 		"indents must be tabs": {
 			input: `@goht test() {
-%p1
-  %p2
+	%p1
+    %p2
 }`,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p1"},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tError, lit: "the line was indented using spaces, templates must be indented using tabs"},
@@ -1983,16 +1992,16 @@ func Test_HamlIndent(t *testing.T) {
 		},
 		"wrong indent size": {
 			input: `@goht test() {
-%p1
-	%p2
-			%p3
+	%p1
+		%p2
+				%p3
 }`,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p1"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t"},
+				{typ: tIndent, lit: "\t\t"},
 				{typ: tTag, lit: "p2"},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tError, lit: "the line was indented 2 levels deeper than the previous line"},
@@ -2019,10 +2028,10 @@ func Test_HamlFilters(t *testing.T) {
 		want  []token
 	}{
 		"simple javascript": {
-			input: "@goht test() {\n:javascript\n\tfoo\n}",
+			input: "@goht test() {\n\t:javascript\n\t\tfoo\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tFilterStart, lit: "javascript"},
 				{typ: tPlainText, lit: "foo\n"},
 				{typ: tFilterEnd, lit: ""},
@@ -2031,10 +2040,10 @@ func Test_HamlFilters(t *testing.T) {
 			},
 		},
 		"simple css": {
-			input: "@goht test() {\n:css\n\tfoo\n}",
+			input: "@goht test() {\n\t:css\n\t\tfoo\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tFilterStart, lit: "css"},
 				{typ: tPlainText, lit: "foo\n"},
 				{typ: tFilterEnd, lit: ""},
@@ -2043,10 +2052,10 @@ func Test_HamlFilters(t *testing.T) {
 			},
 		},
 		"indented": {
-			input: "@goht test() {\n:javascript\n\tfoo\n}",
+			input: "@goht test() {\n\t:javascript\n\t\tfoo\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tFilterStart, lit: "javascript"},
 				{typ: tPlainText, lit: "foo\n"},
 				{typ: tFilterEnd, lit: ""},
@@ -2055,10 +2064,10 @@ func Test_HamlFilters(t *testing.T) {
 			},
 		},
 		"interpolation": {
-			input: "@goht test() {\n:javascript\n\tfoo #{bar}\n}",
+			input: "@goht test() {\n\t:javascript\n\t\tfoo #{bar}\n}",
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tFilterStart, lit: "javascript"},
 				{typ: tPlainText, lit: "foo "},
 				{typ: tDynamicText, lit: "bar"},
@@ -2070,16 +2079,16 @@ func Test_HamlFilters(t *testing.T) {
 		},
 		"inside tag": {
 			input: `@goht test() {
-%p
-	:javascript
-		console.log("hello world")
+	%p
+		:javascript
+			console.log("hello world")
 }`,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t"},
+				{typ: tIndent, lit: "\t\t"},
 				{typ: tFilterStart, lit: "javascript"},
 				{typ: tPlainText, lit: "console.log(\"hello world\")\n"},
 				{typ: tFilterEnd, lit: ""},
@@ -2089,21 +2098,21 @@ func Test_HamlFilters(t *testing.T) {
 		},
 		"surrounded by tags": {
 			input: `@goht test() {
-%p
-	:javascript
-		console.log("hello world")
-	%p foo
+	%p
+		:javascript
+			console.log("hello world")
+		%p foo
 }`,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tNewLine, lit: "\n"},
-				{typ: tIndent, lit: "\t"},
+				{typ: tIndent, lit: "\t\t"},
 				{typ: tFilterStart, lit: "javascript"},
 				{typ: tPlainText, lit: "console.log(\"hello world\")\n"},
 				{typ: tFilterEnd, lit: ""},
-				{typ: tIndent, lit: "\t"},
+				{typ: tIndent, lit: "\t\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tPlainText, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
@@ -2113,18 +2122,18 @@ func Test_HamlFilters(t *testing.T) {
 		},
 		"filter following filter": {
 			input: `@goht test() {
-:javascript
-	console.log("Hello");
-:css
-	.color { color: red; }
+	:javascript
+		console.log("Hello");
+	:css
+		.color { color: red; }
 }`,
 			want: []token{
 				{typ: tGohtStart, lit: "test()"},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tFilterStart, lit: "javascript"},
 				{typ: tPlainText, lit: "console.log(\"Hello\");\n"},
 				{typ: tFilterEnd, lit: ""},
-				{typ: tIndent, lit: ""},
+				{typ: tIndent, lit: "\t"},
 				{typ: tFilterStart, lit: "css"},
 				{typ: tPlainText, lit: ".color { color: red; }\n"},
 				{typ: tFilterEnd, lit: ""},

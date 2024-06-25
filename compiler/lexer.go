@@ -11,15 +11,13 @@ import (
 type lexFn func(*lexer) lexFn
 
 type lexer struct {
-	reader     *bytes.Reader
-	lex        lexFn
-	tokens     chan token
-	s          string
-	width      int
-	pos        []int
-	indentChar rune
-	indentLen  int
-	indent     int
+	reader *bytes.Reader
+	lex    lexFn
+	tokens chan token
+	s      string
+	width  int
+	pos    []int
+	indent int
 }
 
 func newLexer(input []byte) *lexer {
@@ -159,6 +157,14 @@ func (l *lexer) skipUntil(stopList string) {
 		l.s = l.s[:len(l.s)-1]
 	}
 	l.backup()
+}
+
+// skipAhead consumes the next length runes and discards them.
+func (l *lexer) skipAhead(length int) {
+	for i := 0; i < length; i++ {
+		l.next()
+	}
+	l.ignore()
 }
 
 // current returns the current string being built by the lexer.

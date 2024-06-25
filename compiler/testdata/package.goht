@@ -1,5 +1,5 @@
 package testdata
 
 @goht PackageTest() {
-This is a package test.
+	This is a package test.
 }

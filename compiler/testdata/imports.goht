@@ -5,6 +5,6 @@ import (
 )
 
 @goht ImportsTest() {
-- s := fmt.Sprintf("Hello, %s!", "world")
-%p= s
+	- s := fmt.Sprintf("Hello, %s!", "world")
+	%p= s
 }

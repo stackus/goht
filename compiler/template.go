@@ -148,6 +148,7 @@ func (tw *templateWriter) WriteStringIndent(s string) (r Range, err error) {
 			return
 		}
 	}
+
 	if _, err = tw.write(strings.Repeat("\t", tw.indent)); err != nil {
 		return
 	}
@@ -186,9 +187,8 @@ func (tw *templateWriter) write(s string) (r Range, err error) {
 	} else {
 		tw.pos.Col += len(s)
 	}
-	// var n int
+
 	_, err = io.WriteString(tw.w, s)
-	// tw.pos.Index += int64(n)
 	r.To = *tw.pos
 	return
 }

@@ -1,32 +1,32 @@
 package testdata
 
 @goht ChildrenTest(v string) {
-.passed-in= v
-.children
-	=@children
-.after After children
+	.passed-in= v
+	.children
+		=@children
+	.after After children
 }
 
 @goht RenderTest() {
-.parent
-	.local This is local content
-	=@render ChildrenTest("This is passed-in content")
-		.child This is child content
-	.after After parent
+	.parent
+		.local This is local content
+		=@render ChildrenTest("This is passed-in content")
+			.child This is child content
+		.after After parent
 }
 
 @goht WrapperTest() {
-.wrapper
-	.list
-		=@children
+	.wrapper
+		.list
+			=@children
 }
 
 @goht WrappedTest(v string) {
-.item= v
+	.item= v
 }
 
 @goht NestedRenderTest() {
-=@render WrapperTest()
-	=@render WrappedTest("first")
-	=@render WrappedTest("second")
+	=@render WrapperTest()
+		=@render WrappedTest("first")
+		=@render WrappedTest("second")
 }
