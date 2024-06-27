@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.5.0](https://github.com/stackus/goht/compare/v0.4.5...v0.5.0) - 2024-06-26
+
 ### Changed
 - Require tabs for indentation in GoHT templates. This aligns the indentation style with Go's standard formatting.
 - Require templates to be indented at a minimum of one level. The initial indent must be one level.
