@@ -19,6 +19,7 @@ const (
 	nRoot
 	nGoCode
 	nGoht
+	nTemplate
 	nIndent
 	nDoctype
 	nElement
@@ -43,6 +44,8 @@ func (n nodeType) String() string {
 		return "GoCode"
 	case nGoht:
 		return "Goht"
+	case nTemplate:
+		return "Template"
 	case nIndent:
 		return "Indent"
 	case nDoctype:
@@ -203,6 +206,8 @@ func (n *node) handleNode(p *parser, indent int) error {
 		}
 	case tGohtEnd:
 		return p.backToType(nGoht)
+	case tTemplateEnd:
+		return p.backToType(nTemplate)
 	case tEOF:
 		return n.errorf("template is incomplete: %s", p.peek())
 	case tError:
@@ -310,6 +315,8 @@ func (n *RootNode) parse(p *parser) error {
 		p.addNode(NewCodeNode(p.next()))
 	case tGohtStart:
 		p.addNode(NewGohtNode(p.next()))
+	case tTemplateStart:
+		p.addNode(NewTemplateNode(p.next()))
 	case tEOF:
 		p.next()
 		return nil
@@ -361,6 +368,73 @@ func (n *CodeNode) parse(p *parser) error {
 		return p.backToType(nRoot)
 	default:
 		return n.errorf("unexpected: %s", p.peek())
+	}
+}
+
+type TemplateNode struct {
+	node
+	decl string
+}
+
+func NewTemplateNode(t token) *TemplateNode {
+	return &TemplateNode{
+		node: newNode(nTemplate, -1, t),
+		decl: t.lit,
+	}
+}
+
+func (n *TemplateNode) Source(tw *templateWriter) error {
+	entry := ` goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+`
+	exit := `		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}`
+	tw.ResetVarName()
+	if _, err := tw.Write("func "); err != nil {
+		return err
+	}
+	if r, err := tw.Write(n.decl); err != nil {
+		return err
+	} else {
+		tw.Add(n.origin, r)
+	}
+	if _, err := tw.Write(entry); err != nil {
+		return err
+	}
+
+	itw := tw.Indent(2)
+	for _, c := range n.children {
+		if err := c.Source(itw); err != nil {
+			return err
+		}
+	}
+	if _, err := itw.Close(); err != nil {
+		return err
+	}
+
+	_, err := tw.Write(exit)
+	return err
+}
+
+func (n *TemplateNode) parse(p *parser) error {
+	switch p.peek().Type() {
+	case tTemplateEnd:
+		p.next()
+		return p.backToType(nRoot)
+	default:
+		return n.handleNode(p, 0)
 	}
 }
 

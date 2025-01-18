@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-func Test_GohtParsing(t *testing.T) {
+func Test_Parsing(t *testing.T) {
 	tests := map[string]struct {
 		input   string
 		want    string
 		wantErr bool
 	}{
-		"full document": {
+		"full haml document": {
 			input: `package testing
 
 var foo = "bar"
@@ -33,6 +33,52 @@ var foo = "bar"
 			want: `Root
 	GoCode
 	Goht
+		Doctype
+		NewLine
+		Element html()
+			NewLine
+			Element head()
+				NewLine
+				Element title()
+					Script
+			Element body()
+				NewLine
+				Element p()
+					Text(S)
+					Text(D)
+				Element div()
+					NewLine
+					Element p()
+						Script
+				SilentScript
+					Element div()
+						NewLine
+						Element p()
+							Script
+	GoCode
+`,
+		},
+		"full slim document": {
+			input: `package testing
+
+var foo = "bar"
+
+@slim test(title string, err error) {
+	doctype 5
+	html
+		head
+			title= title
+		body
+			p some text #{foo}
+			#main-content
+				p= "Hello World"
+			- if err != nil
+				.error
+					p= "Something went wrong"
+`,
+			want: `Root
+	GoCode
+	Slim
 		Doctype
 		NewLine
 		Element html()

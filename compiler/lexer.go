@@ -43,6 +43,7 @@ func (l *lexer) nextToken() token {
 	}
 }
 
+// next consumes the next rune from the input.
 func (l *lexer) next() rune {
 	ch, size, err := l.reader.ReadRune()
 	if err != nil {
@@ -59,6 +60,7 @@ func (l *lexer) next() rune {
 	return ch
 }
 
+// backup steps back one rune.
 func (l *lexer) backup() {
 	if l.width == 0 {
 		return
@@ -72,12 +74,14 @@ func (l *lexer) backup() {
 	l.s = l.s[:len(l.s)-l.width]
 }
 
+// peek returns the next rune without consuming it.
 func (l *lexer) peek() rune {
 	ch := l.next()
 	l.backup()
 	return ch
 }
 
+// peekAhead returns the next length runes without consuming them.
 func (l *lexer) peekAhead(length int) (string, error) {
 	width := 0
 	s := ""
@@ -102,29 +106,30 @@ func (l *lexer) peekAhead(length int) (string, error) {
 	return s, nil
 }
 
+// ignore discards the current captured string.
 func (l *lexer) ignore() {
 	l.s = ""
 }
 
-// accept consumes the next rune if it's contained in the valid string.
-func (l *lexer) accept(valid string) bool {
-	if strings.ContainsRune(valid, l.next()) {
+// accept consumes the next rune if it's contained in the acceptRunes list.
+func (l *lexer) accept(acceptRunes string) bool {
+	if strings.ContainsRune(acceptRunes, l.next()) {
 		return true
 	}
 	l.backup()
 	return false
 }
 
-// acceptRun consumes a run of runes from the valid string.
-func (l *lexer) acceptRun(valid string) {
-	for strings.ContainsRune(valid, l.next()) {
+// acceptRun consumes a run of runes from the acceptRunes list.
+func (l *lexer) acceptRun(acceptRunes string) {
+	for strings.ContainsRune(acceptRunes, l.next()) {
 	}
 	l.backup()
 }
 
-// acceptUntil consumes runes until it finds a rune in the invalid string.
-func (l *lexer) acceptUntil(invalid string) {
-	for r := l.next(); !strings.ContainsRune(invalid, r) && r != scanner.EOF; r = l.next() {
+// acceptUntil consumes runes until it encounters a rune in the stopRunes list.
+func (l *lexer) acceptUntil(stopRunes string) {
+	for r := l.next(); !strings.ContainsRune(stopRunes, r) && r != scanner.EOF; r = l.next() {
 	}
 	l.backup()
 }
@@ -136,24 +141,24 @@ func (l *lexer) acceptAhead(length int) {
 	}
 }
 
-// skip consumes the next rune and then discards it.
+// skip discards the next rune.
 func (l *lexer) skip() rune {
 	r := l.next()
 	l.s = l.s[:len(l.s)-1]
 	return r
 }
 
-// skipRun consumes a run of runes from the skipList and discards them.
-func (l *lexer) skipRun(skipList string) {
-	for strings.ContainsRune(skipList, l.next()) {
+// skipRun discards a contiguous run of runes from the skipRunes list.
+func (l *lexer) skipRun(skipRunes string) {
+	for strings.ContainsRune(skipRunes, l.next()) {
 		l.s = l.s[:len(l.s)-1]
 	}
 	l.backup()
 }
 
-// skipUntil consumes and discards runes until it finds a rune in the stopList.
-func (l *lexer) skipUntil(stopList string) {
-	for r := l.next(); !strings.ContainsRune(stopList, r) && r != scanner.EOF; r = l.next() {
+// skipUntil discards runes until it encounters a rune in the stopRunes list.
+func (l *lexer) skipUntil(stopRunes string) {
+	for r := l.next(); !strings.ContainsRune(stopRunes, r) && r != scanner.EOF; r = l.next() {
 		l.s = l.s[:len(l.s)-1]
 	}
 	l.backup()
@@ -167,7 +172,7 @@ func (l *lexer) skipAhead(length int) {
 	l.ignore()
 }
 
-// current returns the current string being built by the lexer.
+// current returns the current captured string being built by the lexer.
 func (l *lexer) current() string {
 	return l.s
 }
@@ -186,7 +191,7 @@ func (l *lexer) errorf(format string, args ...any) lexFn {
 	return func(l *lexer) lexFn { return nil }
 }
 
-// position returns the current line and column of the file being lexed.
+// position returns the current line and column of the content being lexed.
 func (l *lexer) position() (int, int) {
 	newLinesInString := strings.Count(l.s, "\n")
 	line := len(l.pos) - newLinesInString
