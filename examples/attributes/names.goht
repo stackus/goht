@@ -6,12 +6,12 @@ package attributes
 // underscores (_) are all acceptable as-is.
 
 @goht SimpleNames() {
-%a{
-  href: "https://github.com/stackus/goht",
-  data-foo: "bar",
-  odd_name: "baz",
-  _: "I'm a _hyperscript attribute!"
-} Goht
+	%a{
+		href: "https://github.com/stackus/goht",
+		data-foo: "bar",
+		odd_name: "baz",
+		_: "I'm a _hyperscript attribute!"
+	} Goht
 }
 
 // For more complex names, such as data attributes, you can use
@@ -22,9 +22,9 @@ package attributes
 // The names will be rendered into the HTML without the quotes.
 
 @goht ComplexNames() {
-%a{
-  href: "https://github.com/stackus/goht",
-  `:class`: "show ? '' : 'hidden'",
-  `@click`: "show = !show",
-} Goht
+	%a{
+		href: "https://github.com/stackus/goht",
+		`:class`: "show ? '' : 'hidden'",
+		`@click`: "show = !show",
+	} Goht
 }

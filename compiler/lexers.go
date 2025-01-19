@@ -216,10 +216,10 @@ func ignoreIndentedLines(indent int, next lexFn) lexFn {
 			l.skip()
 			return ignoreIndentedLines(indent, next)
 		case ' ', '\t':
-			priorIndents, err := l.peekAhead(indent)
-			if err != nil {
-				return l.errorf("unexpected error while evaluating indents: %s", err)
-			}
+			priorIndents := l.peekAhead(indent)
+			// if err != nil {
+			// 	return l.errorf("unexpected error while evaluating indents: %s", err)
+			// }
 			if len(strings.TrimSpace(priorIndents)) != 0 {
 				return next
 			}
@@ -228,6 +228,35 @@ func ignoreIndentedLines(indent int, next lexFn) lexFn {
 				return lexErr
 			}
 			l.skipUntil("\n\r")
+			return ignoreIndentedLines(indent, next)
+		case scanner.EOF:
+			l.emit(tEOF)
+			return nil
+		default:
+			return next
+		}
+	}
+}
+
+func acceptIndentedLines(indent int, next lexFn) lexFn {
+	return func(l *lexer) lexFn {
+		switch l.peek() {
+		case '\n', '\r':
+			l.next()
+			return ignoreIndentedLines(indent, next)
+		case ' ', '\t':
+			priorIndents := l.peekAhead(indent)
+			// if err != nil {
+			// 	return l.errorf("unexpected error while evaluating indents: %s", err)
+			// }
+			if len(strings.TrimSpace(priorIndents)) != 0 {
+				return next
+			}
+			// validate we have the correct indents
+			if lexErr := l.validateIndent(priorIndents); lexErr != nil {
+				return lexErr
+			}
+			l.acceptUntil("\n\r")
 			return ignoreIndentedLines(indent, next)
 		case scanner.EOF:
 			l.emit(tEOF)

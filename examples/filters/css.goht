@@ -6,8 +6,8 @@ package filters
 var color = "red"
 
 @goht Css() {
-:css
-	.color {
-		color: #{color};
-	}
+	:css
+		.color {
+			color: #{color};
+		}
 }

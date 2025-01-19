@@ -10,10 +10,10 @@ func sayHello() string {
 }
 
 @goht ExecuteCode() {
-- foo := sayHello()
-%p= foo
+	- foo := sayHello()
+	%p= foo
 }
 
 @goht RenderCode() {
-%p= sayHello()
+	%p= sayHello()
 }

@@ -193,11 +193,7 @@ func Test_LexerPeekAhead(t *testing.T) {
 			for i := 0; i < tt.next; i++ {
 				l.next()
 			}
-			got, err := l.peekAhead(tt.length)
-			if err != nil {
-				t.Errorf("peekAhead: %v", err)
-				return
-			}
+			got := l.peekAhead(tt.length)
 			if got != tt.want {
 				t.Errorf("peekAhead: want %v, got %v", tt.want, got)
 				return

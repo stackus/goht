@@ -82,7 +82,7 @@ func (l *lexer) peek() rune {
 }
 
 // peekAhead returns the next length runes without consuming them.
-func (l *lexer) peekAhead(length int) (string, error) {
+func (l *lexer) peekAhead(length int) string {
 	width := 0
 	s := ""
 	var err error
@@ -96,14 +96,14 @@ func (l *lexer) peekAhead(length int) (string, error) {
 		width += size
 		s += string(ch)
 	}
-	if err != nil && err != io.EOF {
-		return "", fmt.Errorf("failed to peek ahead: %v", err)
-	}
-	_, err = l.reader.Seek(int64(-width), io.SeekCurrent)
-	if err != nil {
-		return "", fmt.Errorf("failed to seek back: %v", err)
-	}
-	return s, nil
+	// if err != nil && err != io.EOF {
+	// 	return "", fmt.Errorf("failed to peek ahead: %v", err)
+	// }
+	_, _ = l.reader.Seek(int64(-width), io.SeekCurrent)
+	// if err != nil {
+	// 	return "", fmt.Errorf("failed to seek back: %v", err)
+	// }
+	return s
 }
 
 // ignore discards the current captured string.

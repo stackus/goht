@@ -10,16 +10,16 @@ package comments
 // output.
 
 @goht RubyStyle() {
-%p This is the only paragraph in the output.
--# %p This comment is removed from the output.
+	%p This is the only paragraph in the output.
+	-# %p This comment is removed from the output.
 
 }
 
 // Ruby style comments can also be nested.
 
 @goht RubyStyleNested() {
-%p This is the only paragraph in the output.
--#
-  %p This paragraph is removed.
-  %%% broken syntax is no problem.
+	%p This is the only paragraph in the output.
+	-#
+		%p This paragraph is removed.
+		%%% broken syntax is no problem.
 }

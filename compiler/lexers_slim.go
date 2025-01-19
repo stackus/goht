@@ -50,7 +50,7 @@ func lexSlimIndent(l *lexer) lexFn {
 }
 
 func lexSlimContentStart(l *lexer) lexFn {
-	switch l.peek() {
+	switch p := l.peek(); p {
 	case '#':
 		return lexSlimId
 	case '.':
@@ -69,10 +69,10 @@ func lexSlimContentStart(l *lexer) lexFn {
 		return lexSlimLineEnd
 	default:
 		// if the next character is a letter, we're starting a tag
-		if isLetter(l.peek()) {
+		if isLetter(p) {
 			return lexSlimTag
 		}
-		return l.errorf("unexpected character: %q", l.peek())
+		return l.errorf("unexpected character: %q", p)
 	}
 }
 
@@ -86,12 +86,8 @@ func lexSlimContent(l *lexer) lexFn {
 		return lexSlimId
 	case '.':
 		return lexSlimClass
-	case '[':
-		return lexSlimObjectReference
 	case '{':
 		return lexSlimAttributesStart
-	case '!':
-		return lexSlimUnescaped
 	case '-':
 		return lexSlimControlCode
 	case '=':
@@ -214,19 +210,54 @@ func lexSlimOutputCode(l *lexer) lexFn {
 	}
 }
 
+func lexSlimTextStart(l *lexer) lexFn {
+	l.acceptUntil("#.{=!/<> \t\n\r")
+	if l.current() == "" {
+		return l.errorf("text expected")
+	}
+	l.emit(tPlainText)
+	return lexSlimContentEnd
+}
+
 func lexSlimComment(l *lexer) lexFn {
 	l.skip() // eat slash
 	if l.peek() != '!' {
 		// ignore the rest of the line
 		l.skipUntil("\n\r")
 		l.emit(tRubyComment)
-		return ignoreIndentedLines(l.indent+1, lexHamlLineStart)
+		return ignoreIndentedLines(l.indent+1, lexSlimLineStart)
 	}
+	// HTML comments in slim can be multiline
+	// The comment continues to the next line if:
+	// - the number of indents are the same
+	// - there is at least one more whitespace characters
+	// The additional whitespace characters are removed from the second+ lines if they are
+	// to the left of the first non-whitespace character on the first line.
+	// TODO: Testing appears that this is space based and when you use tabs for the additional whitespace, it doesn't work as expected.
+	// The '/' and '!' will both count as whitespace characters in this case.
+	// One additional whitespace character may follow the '!' character.
+	// This one additional whitespace character is removed from the first line
+	// and will allow the second+ lines to have one additional whitespace character.
+	// Example counts:
+	// "/!This is a comment" is 2 whitespace characters and up to 2 whitespace characters are removed from the second+ lines
+	// "/! This is a comment" is 3 whitespace characters and up to 3 whitespace characters are removed from the second+ lines
+	// "/!  This is a comment" is 4 whitespace characters and only the first is removed and the second+ lines can have up to 3 whitespace characters
+	// We remove "up to" the count but do not require the count to be the same. (at least one whitespace character rule remains though)
+	// In practice, this means if the comments all start at the same column then they are considered to have no whitespace padding.
+
 	l.skip() // eat bang
-	l.skipRun(" \t")
-	l.acceptUntil("\n\r")
-	l.emit(tComment)
-	return lexSlimLineEnd
+	return lexSlimFilterLineStart(l.indent+1, tEscapedText)
+}
+
+func lexSlimTextBlockLineStart(indent int, spaces int, textType tokenType) lexFn {
+	return func(l *lexer) lexFn {
+		if l.peek() == '|' {
+			l.skip()
+			l.skipRun(" \t")
+			return lexSlimTextBlockContent(indent, spaces, textType)
+		}
+		return lexSlimLineEnd
+	}
 }
 
 var slimFilters = []string{"javascript", "css"}
@@ -271,14 +302,14 @@ func lexSlimFilterIndent(indent int, textType tokenType) lexFn {
 	return func(l *lexer) lexFn {
 		var indents string
 
-		// only accept the whitespace that belongs to the indent
-		var err error
+		// // only accept the whitespace that belongs to the indent
+		// var err error
 
 		// peeking first, in case we've reached the end of the filter
-		indents, err = l.peekAhead(indent)
-		if err != nil {
-			return l.errorf("unexpected error while evaluating filter indents: %s", err)
-		}
+		indents = l.peekAhead(indent)
+		// if err != nil {
+		// 	return l.errorf("unexpected error while evaluating filter indents: %s", err)
+		// }
 
 		// trim the tabs from what we've peeked into; no longer using TrimSpace as that would trim spaces and newlines
 		if len(strings.Trim(indents, "\t")) != 0 {
@@ -310,9 +341,7 @@ func lexSlimFilterContent(indent int, textType tokenType) lexFn {
 // lexSlimFilterDynamicText parses out dynamic text values within a filter block.
 func lexSlimFilterDynamicText(textType tokenType, next lexFn) lexFn {
 	return func(l *lexer) lexFn {
-		if s, err := l.peekAhead(2); err != nil {
-			return l.errorf("unexpected error: %s", err)
-		} else if s != "#{" {
+		if s := l.peekAhead(2); s != "#{" {
 			l.next()
 			return next
 		}

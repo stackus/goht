@@ -8,15 +8,15 @@ package indents
 // spaces in another.
 
 @goht UsingTabs() {
-!!!
-%html{lang: "en"}
-	%head
-		%meta{charset: "utf-8"}
-		%title
-			Hello World
-	%body
-		%h1
-			Hello World
-		%p
-			Hello World
+	!!!
+	%html{lang: "en"}
+		%head
+			%meta{charset: "utf-8"}
+			%title
+				Hello World
+		%body
+			%h1
+				Hello World
+			%p
+				Hello World
 }

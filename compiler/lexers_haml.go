@@ -87,9 +87,7 @@ func lexHamlContentStart(l *lexer) lexFn {
 		l.skip()
 		return lexHamlTextStart
 	case '!':
-		if s, err := l.peekAhead(3); err != nil {
-			return l.errorf("unexpected error: %s", err)
-		} else if s == "!!!" {
+		if s := l.peekAhead(3); s == "!!!" {
 			// TODO return an error if we're nesting doctypes
 			return lexHamlDoctype
 		}
@@ -381,10 +379,10 @@ func lexHamlTextContent(l *lexer) lexFn {
 	l.acceptUntil("\\#\n\r")
 	switch l.peek() {
 	case '\\':
-		isHashComing, err := l.peekAhead(2)
-		if err != nil {
-			return l.errorf("unexpected error: %s", err)
-		}
+		isHashComing := l.peekAhead(2)
+		// if err != nil {
+		// 	return l.errorf("unexpected error: %s", err)
+		// }
 		if isHashComing == "\\#" {
 			l.skip()
 			// was the backslash being escaped?
@@ -406,9 +404,7 @@ func lexHamlTextContent(l *lexer) lexFn {
 }
 
 func lexHamlDynamicText(l *lexer) lexFn {
-	if s, err := l.peekAhead(2); err != nil {
-		return l.errorf("unexpected error: %s", err)
-	} else if s != "#{" {
+	if s := l.peekAhead(2); s != "#{" {
 		l.next()
 		return lexHamlTextContent
 	}
@@ -578,14 +574,14 @@ func lexHamlFilterIndent(indent int, textType tokenType) lexFn {
 	return func(l *lexer) lexFn {
 		var indents string
 
-		// only accept the whitespace that belongs to the indent
-		var err error
+		// // only accept the whitespace that belongs to the indent
+		// var err error
 
 		// peeking first, in case we've reached the end of the filter
-		indents, err = l.peekAhead(indent)
-		if err != nil {
-			return l.errorf("unexpected error while evaluating filter indents: %s", err)
-		}
+		indents = l.peekAhead(indent)
+		// if err != nil {
+		// 	return l.errorf("unexpected error while evaluating filter indents: %s", err)
+		// }
 
 		// trim the tabs from what we've peeked into; no longer using TrimSpace as that would trim spaces and newlines
 		if len(strings.Trim(indents, "\t")) != 0 {
@@ -615,9 +611,7 @@ func lexHamlFilterContent(indent int, textType tokenType) lexFn {
 
 func lexHamlFilterDynamicText(textType tokenType, next lexFn) lexFn {
 	return func(l *lexer) lexFn {
-		if s, err := l.peekAhead(2); err != nil {
-			return l.errorf("unexpected error: %s", err)
-		} else if s != "#{" {
+		if s := l.peekAhead(2); s != "#{" {
 			l.next()
 			return next
 		}
