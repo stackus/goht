@@ -14,6 +14,20 @@ package tags
 		%img{src: "logo.png", alt: "logo"}
 }
 
+@haml HamlSelfClosing() {
+	%img{src: "logo.png", alt: "logo"}
+	%p
+		A paragraph is not self closing.
+		%img{src: "logo.png", alt: "logo"}
+}
+
+@slim SlimSelfClosing() {
+	img{src: "logo.png", alt: "logo"}
+	p
+		A paragraph is not self closing.
+		img{src: "logo.png", alt: "logo"}
+}
+
 // You may also use the self closing tag syntax to create a tag
 // that is not self closing. This is useful for creating tags
 // that are not known by the parser.
@@ -26,4 +40,12 @@ package tags
 
 @goht AlsoSelfClosing() {
 	%isNowSelfClosing/
+}
+
+@haml HamlAlsoSelfClosing() {
+	%isNowSelfClosing/
+}
+
+@slim SlimAlsoSelfClosing() {
+	isNowSelfClosing/
 }

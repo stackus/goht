@@ -16,7 +16,7 @@ func Test_Parsing(t *testing.T) {
 
 var foo = "bar"
 
-@goht test(title string, err error) {
+@haml test(title string, err error) {
 	!!! 5
 	%html
 		%head
@@ -32,7 +32,7 @@ var foo = "bar"
 `,
 			want: `Root
 	GoCode
-	Goht
+	Template
 		Doctype
 		NewLine
 		Element html()
@@ -64,7 +64,7 @@ var foo = "bar"
 var foo = "bar"
 
 @slim test(title string, err error) {
-	doctype 5
+	doctype
 	html
 		head
 			title= title
@@ -75,10 +75,11 @@ var foo = "bar"
 			- if err != nil
 				.error
 					p= "Something went wrong"
+}
 `,
 			want: `Root
 	GoCode
-	Slim
+	Template
 		Doctype
 		NewLine
 		Element html()
@@ -138,7 +139,7 @@ func Test_RootNode(t *testing.T) {
 		},
 		"simple goht": {
 			input: "package main\n@goht test() {\n}",
-			want:  "Root\n\tGoCode\n\tGoht\n",
+			want:  "Root\n\tGoCode\n\tTemplate\n",
 		},
 	}
 
@@ -159,7 +160,7 @@ func Test_RootNode(t *testing.T) {
 	}
 }
 
-func Test_GohtNode(t *testing.T) {
+func Test_TemplateNode(t *testing.T) {
 	tests := map[string]struct {
 		input   string
 		want    string
@@ -167,12 +168,12 @@ func Test_GohtNode(t *testing.T) {
 	}{
 		"empty": {
 			input:   "@goht empty() {\n",
-			want:    "Root\n\tGoht\n",
+			want:    "Root\n\tTemplate\n",
 			wantErr: true,
 		},
 		"simple": {
 			input: "@goht test() {\n\tFoo\n}",
-			want:  "Root\n\tGoht\n\t\tText(S)\n\t\tNewLine\n",
+			want:  "Root\n\tTemplate\n\t\tText(S)\n\t\tNewLine\n",
 		},
 	}
 	for name, test := range tests {
@@ -200,11 +201,11 @@ func Test_TextNode(t *testing.T) {
 	}{
 		"simple": {
 			input: "@goht test() {\n\tFoo\n}",
-			want:  "Root\n\tGoht\n\t\tText(S)\n\t\tNewLine\n",
+			want:  "Root\n\tTemplate\n\t\tText(S)\n\t\tNewLine\n",
 		},
 		"with dynamic text": {
 			input: "@goht test() {\n\tFoo #{foo}\n}",
-			want:  "Root\n\tGoht\n\t\tText(S)\n\t\tText(D)\n\t\tNewLine\n",
+			want:  "Root\n\tTemplate\n\t\tText(S)\n\t\tText(D)\n\t\tNewLine\n",
 		},
 	}
 	for name, test := range tests {
@@ -233,7 +234,7 @@ func Test_UnescapeNode(t *testing.T) {
 		"empty": {
 			input: "@goht test() {\n\t!\n}",
 			want: `Root
-	Goht
+	Template
 		Unescape
 		NewLine
 `,
@@ -243,7 +244,7 @@ func Test_UnescapeNode(t *testing.T) {
 	! Foo
 }`,
 			want: `Root
-	Goht
+	Template
 		Unescape
 			Text(S)
 		NewLine
@@ -251,11 +252,11 @@ func Test_UnescapeNode(t *testing.T) {
 		},
 		"dynamic text": {
 			input: "@goht test() {\n\t! #{foo}\n}",
-			want:  "Root\n\tGoht\n\t\tUnescape\n\t\t\tText(D)\n\t\tNewLine\n",
+			want:  "Root\n\tTemplate\n\t\tUnescape\n\t\t\tText(D)\n\t\tNewLine\n",
 		},
 		"static and dynamic text": {
 			input: "@goht test() {\n\t! Foo #{foo}\n}",
-			want:  "Root\n\tGoht\n\t\tUnescape\n\t\t\tText(S)\n\t\t\tText(D)\n\t\tNewLine\n",
+			want:  "Root\n\tTemplate\n\t\tUnescape\n\t\t\tText(S)\n\t\t\tText(D)\n\t\tNewLine\n",
 		},
 		"illegal nesting": {
 			input: `@goht test() {
@@ -263,7 +264,7 @@ func Test_UnescapeNode(t *testing.T) {
 		bar
 }`,
 			want: `Root
-	Goht
+	Template
 		Element p()
 			Unescape
 				Text(S)
@@ -277,7 +278,7 @@ func Test_UnescapeNode(t *testing.T) {
 	%p! This #{html} HTML.
 }`,
 			want: `Root
-	Goht
+	Template
 		SilentScript
 		Element p()
 			Text(S)
@@ -316,12 +317,12 @@ func Test_ElementNode(t *testing.T) {
 	}{
 		"simple": {
 			input: "@goht test() {\n\t%p\n}",
-			want:  "Root\n\tGoht\n\t\tElement p()\n\t\t\tNewLine\n",
+			want:  "Root\n\tTemplate\n\t\tElement p()\n\t\t\tNewLine\n",
 		},
 		"illegal nesting": {
 			input: "@goht test() {\n\t%p foo\n\t\t%p bar\n}",
 			want: `Root
-	Goht
+	Template
 		Element p()
 			Text(S)
 `,
@@ -330,7 +331,7 @@ func Test_ElementNode(t *testing.T) {
 		"unescaped text": {
 			input: "@goht test() {\n\t%p! foo\n}",
 			want: `Root
-	Goht
+	Template
 		Element p()
 			Unescape
 				Text(S)
@@ -342,7 +343,7 @@ func Test_ElementNode(t *testing.T) {
 	%p bar
 }`,
 			want: `Root
-	Goht
+	Template
 		Element p()
 			Unescape
 				Text(S)
@@ -358,7 +359,7 @@ func Test_ElementNode(t *testing.T) {
 	%img{src: "foo.png"}
 }`,
 			want: `Root
-	Goht
+	Template
 		Element p()
 			Text(S)
 		Element img(src="foo.png")
@@ -377,7 +378,7 @@ func Test_ElementNode(t *testing.T) {
 	%closed/
 }`,
 			want: `Root
-	Goht
+	Template
 		Element p()
 			Text(S)
 		Element closed()
@@ -390,7 +391,7 @@ func Test_ElementNode(t *testing.T) {
 		},
 		"with object ref": {
 			input: "@goht test() {\n\t%p[foo]\n}",
-			want:  "Root\n\tGoht\n\t\tElement p()\n\t\t\tNewLine\n",
+			want:  "Root\n\tTemplate\n\t\tElement p()\n\t\t\tNewLine\n",
 		},
 	}
 	for name, test := range tests {
@@ -419,15 +420,23 @@ func Test_ElementAttributes(t *testing.T) {
 		"simple": {
 			input: "@goht test() {\n\t%p{foo:\"bar\"}\n}",
 			want: `Root
-	Goht
+	Template
 		Element p(foo="bar")
+			NewLine
+`,
+		},
+		"no tag": {
+			input: "@goht test() {\n\t{foo:\"bar\"}\n}",
+			want: `Root
+	Template
+		Element div(foo="bar")
 			NewLine
 `,
 		},
 		"dynamic attribute": {
 			input: "@goht test() {\n\t%p{foo:#{bar}}\n}",
 			want: `Root
-	Goht
+	Template
 		Element p(foo={bar})
 			NewLine
 `,
@@ -435,7 +444,7 @@ func Test_ElementAttributes(t *testing.T) {
 		"quoted attribute names": {
 			input: "@goht test() {\n\t%p{\"x:foo\":#{bar}, `@fizz`:`b\"uzz`}\n}",
 			want: `Root
-	Goht
+	Template
 		Element p(x:foo={bar},@fizz="b\"uzz")
 			NewLine
 `,
@@ -443,7 +452,7 @@ func Test_ElementAttributes(t *testing.T) {
 		"attributes command": {
 			input: "@goht test() {\n\t%p{foo:#{bar}, @attributes:#{list}}\n}",
 			want: `Root
-	Goht
+	Template
 		Element p(foo={bar},@attrs={list...})
 			NewLine
 `,
@@ -456,7 +465,7 @@ func Test_ElementAttributes(t *testing.T) {
 	}
 }`,
 			want: `Root
-	Goht
+	Template
 		Element p(foo={bar},@attrs={list...})
 			NewLine
 `,
@@ -467,7 +476,7 @@ func Test_ElementAttributes(t *testing.T) {
 	%p bar
 }`,
 			want: `Root
-	Goht
+	Template
 		Element p()
 			Text(S)
 		Element p()
@@ -479,7 +488,7 @@ func Test_ElementAttributes(t *testing.T) {
 	.foo{bar} fizz
 }`,
 			want: `Root
-	Goht
+	Template
 		Element div(bar)
 			Text(S)
 `,
@@ -511,14 +520,14 @@ func Test_SilentScriptNode(t *testing.T) {
 		"simple": {
 			input: "@goht test() {\n\t- var foo = \"bar\"\n}",
 			want: `Root
-	Goht
+	Template
 		SilentScript
 `,
 		},
 		"nested content": {
 			input: "@goht test() {\n\t- var foo = \"bar\"\n\t\t%p= foo\n}",
 			want: `Root
-	Goht
+	Template
 		SilentScript
 			Element p()
 				Script
@@ -527,7 +536,7 @@ func Test_SilentScriptNode(t *testing.T) {
 		"mixed indents": {
 			input: "@goht test() {\n\t%p1 one\n\t- if foo {\n\t\t%p bar\n\t- }\n\t%p2 two\n}",
 			want: `Root
-	Goht
+	Template
 		Element p1()
 			Text(S)
 		SilentScript
@@ -541,7 +550,7 @@ func Test_SilentScriptNode(t *testing.T) {
 		"shorter indent": {
 			input: "@goht test() {\n\t%p1\n\t\t- if foo\n\t%p2 two\n}",
 			want: `Root
-	Goht
+	Template
 		Element p1()
 			NewLine
 			SilentScript
@@ -552,7 +561,7 @@ func Test_SilentScriptNode(t *testing.T) {
 		"ruby style comment": {
 			input: "@goht test() {\n\t-# foo\n\t%p bar\n}",
 			want: `Root
-	Goht
+	Template
 		Element p()
 			Text(S)
 `,
@@ -584,7 +593,7 @@ func Test_CommentNode(t *testing.T) {
 		"same line": {
 			input: "@goht test() {\n\t/ foo\n}",
 			want: `Root
-	Goht
+	Template
 		Comment
 			NewLine
 `,
@@ -592,7 +601,7 @@ func Test_CommentNode(t *testing.T) {
 		"nested content": {
 			input: "@goht test() {\n\t/\n\t\t%p bar\n}",
 			want: `Root
-	Goht
+	Template
 		Comment
 			NewLine
 			Element p()
@@ -626,7 +635,7 @@ func Test_ScriptNode(t *testing.T) {
 		"simple": {
 			input: "@goht test() {\n\t= foo\n}",
 			want: `Root
-	Goht
+	Template
 		Script
 		NewLine
 `,
@@ -634,7 +643,7 @@ func Test_ScriptNode(t *testing.T) {
 		"after element": {
 			input: "@goht test() {\n\t%p= foo\n}",
 			want: `Root
-	Goht
+	Template
 		Element p()
 			Script
 `,
@@ -642,7 +651,7 @@ func Test_ScriptNode(t *testing.T) {
 		"before content": {
 			input: "@goht test() {\n\t= foo\n\t%p bar\n}",
 			want: `Root
-	Goht
+	Template
 		Script
 		NewLine
 		Element p()
@@ -652,7 +661,7 @@ func Test_ScriptNode(t *testing.T) {
 		"mixed indents": {
 			input: "@goht test() {\n\t%p1\n\t\t%p2= foo\n\t%p3 bar\n}",
 			want: `Root
-	Goht
+	Template
 		Element p1()
 			NewLine
 			Element p2()
@@ -688,14 +697,14 @@ func Test_RenderNode(t *testing.T) {
 		"simple": {
 			input: "@goht test() {\n\t= @render foo()\n}",
 			want: `Root
-	Goht
+	Template
 		RenderCommand
 `,
 		},
 		"with children": {
 			input: "@goht test() {\n\t= @render foo()\n\t\t%p bar\n}",
 			want: `Root
-	Goht
+	Template
 		RenderCommand
 			Element p()
 				Text(S)
@@ -704,7 +713,7 @@ func Test_RenderNode(t *testing.T) {
 		"mixed indents": {
 			input: "@goht test() {\n\t%p1 one\n\t= @render foo()\n\t\t%p bar\n\t%p2 two\n}",
 			want: `Root
-	Goht
+	Template
 		Element p1()
 			Text(S)
 		RenderCommand
@@ -741,14 +750,14 @@ func Test_ChildrenCommand(t *testing.T) {
 		"simple": {
 			input: "@goht test() {\n\t= @children\n}",
 			want: `Root
-	Goht
+	Template
 		ChildrenCommand
 `,
 		},
 		"mixed indents": {
 			input: "@goht test() {\n\t%p1 one\n\t%parent\n\t\t= @children\n\t%p2 two\n}",
 			want: `Root
-	Goht
+	Template
 		Element p1()
 			Text(S)
 		Element parent()

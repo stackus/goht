@@ -12,14 +12,40 @@ package comments
 @goht RubyStyle() {
 	%p This is the only paragraph in the output.
 	-# %p This comment is removed from the output.
-
 }
 
-// Ruby style comments can also be nested.
+@haml HamlRubyStyle() {
+	%p This is the only paragraph in the output.
+	-# %p This comment is removed from the output.
+}
+
+// In the Slim syntax "RubyStyle" comments use a "/" to indicate the
+// start of the comment
+
+@slim SlimRubyStyle() {
+	p This is the only paragraph in the output.
+	/ p This comment is removed from the output.
+}
+
+// Ruby style comments can comment nested content.
 
 @goht RubyStyleNested() {
 	%p This is the only paragraph in the output.
 	-#
 		%p This paragraph is removed.
+		%%% broken syntax is no problem.
+}
+
+@haml HamlRubyStyleNested() {
+	%p This is the only paragraph in the output.
+	-#
+		%p This paragraph is removed.
+		%%% broken syntax is no problem.
+}
+
+@slim SlimRubyStyleNested() {
+	p This is the only paragraph in the output.
+	/
+		p This paragraph is removed.
 		%%% broken syntax is no problem.
 }

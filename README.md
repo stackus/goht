@@ -1,7 +1,7 @@
-# GoHT (Go Haml Templates)
-A [Haml](http://haml.info/) template engine and file generation tool for Go.
+# GoHT (Go HTML Templates)
+A [Haml](http://haml.info/) and [Slim](https://slim-template.github.io/) template engine and file generation tool for Go.
 
-![GoHT](docs/goht_header.png)
+![GoHT](docs/goht_header_html.png)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/stackus/goht)](https://goreportcard.com/report/github.com/stackus/goht)
 [![](https://godoc.org/github.com/stackus/goht?status.svg)](https://pkg.go.dev/github.com/stackus/goht)
@@ -11,6 +11,8 @@ A [Haml](http://haml.info/) template engine and file generation tool for Go.
 - [Quick Start](#quick-start)
 - [Supported Haml Syntax & Features](#supported-haml-syntax--features)
   - [Unsupported Haml Features](#unsupported-haml-features)
+- [Supported Slim Syntax & Features](#supported-slim-syntax--features)
+	- [Unsupported Slim Features](#unsupported-slim-features)
 - [GoHT CLI](#goht-cli)
 - [IDE Support](#ide-support)
 	- [LSP](#lsp)
@@ -19,8 +21,8 @@ A [Haml](http://haml.info/) template engine and file generation tool for Go.
   - [Using GoHT with HTTP handlers](#using-goht-with-http-handlers)
   - [A big nod to Templ](#a-big-nod-to-templ)
 - [The GoHT template](#the-goht-template)
-- [Haml Syntax](#haml-syntax)
-  - [GoHT and Haml differences](#goht-and-haml-differences)
+- [GoHT Syntax](#goht-syntax)
+  - [GoHT template differences](#goht-template-differences)
     - [Go package and imports](#go-package-and-imports)
     - [Multiple templates per file](#multiple-templates-per-file)
     - [Doctypes](#doctypes)
@@ -29,6 +31,7 @@ A [Haml](http://haml.info/) template engine and file generation tool for Go.
     - [Attributes](#attributes)
     - [Classes](#classes)
     - [Object References](#object-references)
+    - [Inlined Tags](#inlined-tags)
     - [Filters](#filters)
     - [Template nesting](#template-nesting)
 - [Contributing](#contributing)
@@ -42,13 +45,13 @@ A [Haml](http://haml.info/) template engine and file generation tool for Go.
 - Easy nesting of templates
 
 ## Quick Start
-First create a GoHT file, a file which mixes Go and Haml with a `.goht` extension:
+First create a GoHT file, a file which mixes Go and Haml (and Slim!) with a `.goht` extension:
 ```haml
 package main
 
 var siteTitle = "GoHT"
 
-@goht SiteLayout(pageTitle string) {
+@haml SiteLayout(pageTitle string) {
   !!!
   %html{lang:"en"}
     %head
@@ -59,9 +62,9 @@ var siteTitle = "GoHT"
       = @children
 }
 
-@goht HomePage() {
+@slim HomePage() {
   = @render SiteLayout("Home Page")
-    %p This is the home page for GoHT.
+    p This is the home page for GoHT.
 }
 ```
 
@@ -110,18 +113,38 @@ Which would serve the following HTML:
 - [x] Doctypes (`!!!`)
 - [x] Tags (`%tag`)
 - [x] Attributes (`{name: value}`) [(more info)](#attributes)
-- [x] Classes and IDs (`.class` `#id`) [(more info)](#classes)
+- [x] Classes and IDs (`.class`, `#id`) [(more info)](#classes)
 - [x] Object References (`[obj]`) [(more info)](#object-references)
 - [x] Unescaped Text (`!` `!=`)
 - [x] Comments (`/` `-#`)
+- [x] Self-closing Tags (`%tag/`)]
 - [x] Inline Interpolation (`#{value}`)
 - [x] Inlining Code (`- code`)
 - [x] Rendering Code (`= code`)
 - [x] Filters (`:plain`, ...) [(more info)](#filters)
-- [x] Whitespace Removal (`%tag>` `%tag<`) [(more info)](#whitespace-removal)
+- [x] Whitespace Removal (`%tag>`, `%tag<`) [(more info)](#whitespace-removal)
 
 ### Unsupported Haml Features
 - [ ] Probably something I've missed, please raise an issue if you find something missing.
+
+## Supported Slim Syntax & Features
+- [x] Doctypes (`doctype`)
+- [x] Tags (`tag`)
+- [x] Attributes (`{name: value}`) [(more info)](#attributes)
+- [x] Classes and IDs (`.class`, `#id`) [(more info)](#classes)
+- [x] Inline Tags (`tag: othertag`)
+- [x] Unescaped Text (`|`)
+- [x] Comments (`/`, `/!`)
+- [x] Self-closing Tags (`tag/`)
+- [x] Inline Interpolation (`#{value}`)
+- [x] Inlining Code (`- code`)
+- [x] Rendering Code (`= code`, `== code`)
+- [x] Filters (`:plain`, ...) [(more info)](#filters)
+- [x] Long Statement wrapping (`\`), (`,`)]
+
+### Unsupported Slim Features
+
+- [ ] Whitespace Addition (`tag<` `tag>`)
 
 ## GoHT CLI
 
@@ -149,6 +172,9 @@ goht generate --force
 See more options with `goht help generate` or `goht generate -h`.
 
 ## IDE Support
+
+> Note: The IDE extensions are being worked on to add the new Slim syntax highlighting.
+
 ![vscode_ide_example.png](docs/vscode_ide_example.png)
 - VSCode [Extension](https://marketplace.visualstudio.com/items?itemName=stackus.goht-vscode) and code [repository](https://github.com/stackus/goht-vscode)
 - JetBrains (GoLand and others) [Plugin](https://plugins.jetbrains.com/plugin/23783-goht) and code [repository](https://github.com/stackus/goht-jetbrains)
@@ -217,7 +243,7 @@ The second parameter passed into the `Render` method can be anything that implem
 such as a file or a buffer, or the `http.ResponseWriter` that you get from an HTTP handler.
 
 ### Using GoHT with HTTP handlers
-Using the GoHT templates is made very easy.
+Using the GoHT templates is made straightforward.
 ```go
 package main
 
@@ -245,36 +271,48 @@ There are a number of examples showing various Haml and GoHT features in the [ex
 ### A big nod to Templ
 The way that you use GoHT is very similar to how you would use [Templ](https://templ.guide). This is no accident as I am a big fan of the work being done with that engine.
 
-After getting the Haml properly lexed, and parsed, I did not want to reinvent the wheel and come up with a whole new rendering API.
+After getting the Haml properly lexed and parsed, I did not want to reinvent the wheel and come up with a whole new rendering API.
 The API that Templ presents is nice and easy to use, so I decided to replicate it in GoHT.
 
 ## The GoHT template
 GoHT templates are files with the extension `.goht` that when processed will produce a matching Go file with the extension `.goht.go`.
 
-In these files you are free to write any Go code that you wish, and then drop into Haml mode using the `@goht` directive.
+In these files you are free to write any Go code that you wish, and then drop into Haml mode using the `@haml` directive.
+
+> Note: The original `@goht` directive is still supported for HAML templating, but it is deprecated and will be removed in a future version.
 
 The following starts the creation of a SiteLayout template:
 ```haml
-@goht SiteLayout() {
+@haml SiteLayout() {
+
+or
+
+@slim SiteLayout() {
 ```
 
 GoHT templates are closed like Go functions, with a closing brace `}`. So a complete but empty example is this:
 ```haml
-@goht SiteLayout() {
+@haml SiteLayout() {
+}
+
+or
+
+@slim SiteLayout() {
 }
 ```
-Inside the template you can use any Haml features, such as tags, attributes, classes,
+Inside the templates you can use any Haml or Slim features, such as tags, attributes, classes,
 IDs, text, comments, interpolation, code inlining, code rendering, and filters.
 
-## Haml Syntax
+## GoHT Syntax
 The Haml syntax is documented at the [Haml](http://haml.info/) website.
 Please see that site or the [Haml Reference](https://haml.info/docs/yardoc/file.REFERENCE.html) for more information.
+The Slim syntax is documented at the [Slim](https://slim-lang.com/) website.
 
-GoHT has implemented the Haml syntax very closely.
-So, if you are already familiar with Haml then you should be able to jump right in.
+GoHT has implemented nearly all Haml and Slim syntax.
+So, if you are already familiar with Haml or Slim then you should be able to jump right in.
 There are some minor differences that I will document in the next section.
 
-### GoHT and Haml differences
+### GoHT template differences
 
 Important differences are:
 - [Go package and imports](#go-package-and-imports): You can declare a package and imports for your templates.
@@ -283,9 +321,9 @@ Important differences are:
 - [Indents](#indents): GoHT follows the rules of GoFMT for indents.
 - [Inlined code](#inlined-code): You won't be using Ruby here, you'll be using Go.
 - [Rendering code](#rendering-code): The catch is what is being outputted will need to be a string in all cases.
-- [Attributes](#attributes): Only the Ruby 1.9 style of attributes is supported.
+- [Attributes](#attributes): Only the Ruby 1.9 (`{...}`) style of attributes is supported.
 - [Classes](#classes): Multiple sources of classes are supported.
-- [Object References](#object-references): Limited support for object references.
+- [Object References](#object-references): Haml Only: Limited support for object references.
 - [Filters](#filters): Partial list of supported filters.
 - [Template nesting](#template-nesting): Templates can be nested, and content can be passed into them.
 
@@ -295,19 +333,21 @@ You can provide a package name at the top of your GoHT template file. If you do 
 You may also import any packages that you need to use in your template. The imports you use and the ones brought in by GoHT will be combined and deduplicated.
 
 ### Multiple templates per file
-You can declare as many templates in a file as you wish. Each template must have a unique name in the module they will be output into.
+You can declare as many templates in a file as you wish.
+Each template must have a unique name in the module they will be output into.
+You may also mix Haml and Slim templates in the same file.
 ```haml
-@goht SiteLayout() {
+@slim SiteLayout() {
 }
 
-@goht HomePage() {
+@haml HomePage() {
 }
 ```
 
 The templates are converted into Go functions, so they must be valid Go function names.
 This also means that you can declare them with parameters and can use those parameters in the template.
 ```haml
-@goht SiteLayout(title string) {
+@haml SiteLayout(title string) {
   !!!
   %html{lang:"en"}
     %head
@@ -316,28 +356,55 @@ This also means that you can declare them with parameters and can use those para
       -# ... the rest of the template
 }
 ```
+The same applies to Slim templates:
+```slim
+@slim SiteLayout(title string) {
+	doctype html
+	html(lang="en")
+		head
+			title= title
+		body
+			/ ... the rest of the template
+}
+```
 
 ### Doctypes
 Only the HTML 5 doctype is supported, and is written using `!!!`.
 ```haml
-@goht SiteLayout() {
+@haml SiteLayout() {
   !!!
+}
+
+@slim SiteLayout() {
+	doctype
 }
 ```
 
-> Note about indenting. GoHT follows the similar rules as Haml for indenting. The first line of the template must be at the same level as the `@goht` directive. After that, you MUST use tabs to indent the content of the template.
+> Note about indenting. GoHT follows the same rules as Haml for indenting. The first line of the template must be at the same level as the `@haml` or `@slim` directive. After that, you MUST use tabs to indent the content of the template.
 
 ### Indents
 GoHT follows the rules of GoFMT for indents, meaning that you should use tabs for indentation.
 
-You must also indent the content of the template, and the closing brace should be at the same level as the `@goht` directive.
+You must also indent the content of the template, and the closing brace should be at the same level as the `@haml` directive.
 ```haml
-@goht SiteLayout() {
+@haml SiteLayout() {
   %html
     %head
       %title GoHT
     %body
       %h1 GoHT
+}
+```
+
+Slim:
+```slim
+@slim SiteLayout() {
+  doctype
+  html
+    head
+      title GoHT
+    body
+      h1 GoHT
 }
 ```
 
@@ -353,19 +420,25 @@ So instead of this with Ruby:
   - if user
     %strong The user exists
 ```
-You would write this with Go:
+You would write this with Go (Go needs the `!= nil` check):
 ```haml
   - if user != nil
     %strong The user exists
 ```
 There is minimal processing performed on the Go code you put into the templates, so it needs to be valid Go code sans braces.
+
 > You may continue to use the braces if you wish. Existing code with braces will continue to work without modifications.
 
 ### Rendering code
-Like in Haml, you can output variables and the results of expressions. The `=` script syntax and text interpolation `#{}` are supported.
+Like in Haml, you can output variables and the results of expressions. The `=` script syntax and text interpolation `#{}` are supported for both template languages.
 ```haml
   %strong= user.Name
   %strong The user's name is #{user.Name}
+```
+Slim:
+```slim
+  strong= user.Name
+  strong The user's name is #{user.Name}
 ```
 
 The catch is what is being outputted will need to be a string in all cases.
@@ -388,7 +461,8 @@ The interpolation also supports the shortcut:
 When formatting a value into a string `fmt.Sprintf` is used under the hood, so you can use any of the formatting options that it supports.
 
 ### Attributes
-Only the Ruby 1.9 style of attributes is supported.
+**Only the Ruby 1.9 style of attributes is supported.**
+
 This syntax is closest to the Go syntax, and is the most readable.
 Between the attribute name, operator, and value you can include or leave out as much whitespace as you like.
 ```haml
@@ -472,15 +546,29 @@ type ObjectClasser interface {
 The result of these methods will be used
 to populate the id and class attributes in a similar way to how Haml would apply the Ruby object references.
 
+### Inlined Tags
+**Slim Only**
+
+GoHT supports inlining tags to keep templates as compact as possible.
+
+```slim
+  ul
+		li: a.First Fist Item
+		li: a.Second Second Item
+		li: a.Third Third Item
+```
+
 ### Filters
 Only the following Haml filters are supported:
-- `:plain`
-- `:escaped`
-- `:preserve`
+- `:plain` (Haml Only)
+- `:escaped` (Haml Only)
+- `:preserve` (Haml Only)
 - `:javascript`
 - `:css`
 
 ### Whitespace Removal
+**Haml Only**
+
 GoHT supports the removal of whitespace between tags. This is done by adding a `>` or `<` to the end of the tag.
 
 - `>` will remove all whitespace between the tag and its parent or siblings.
@@ -491,20 +579,20 @@ Both can be used together to remove whitespace both inside and outside a tag; th
 ### Template nesting
 The biggest departure from Haml is how templates can be combined. When working Haml you could use `= render :partial_name` or `= haml :partial_name` to render a partial. The `render` and `haml` functions are not available in GoHT, instead you can use the `@render` directive.
 ```haml
-@goht HomePage() {
+@haml HomePage() {
   = @render SiteLayout()
 }
 ```
 The above would render the `SiteLayout` template, and you would call it with any parameters that it needs. You can also call it and provide it with a block of content to render where it chooses.
 ```haml
-@goht HomePage() {
+@haml HomePage() {
   = @render SiteLayout()
     %p This is the home page for GoHT.
 }
 ```
 Any content nested under the `@render` directive will be passed into the template that it can render where it wants using the `@children` directive.
 ```haml
-@goht SiteLayout() {
+@haml SiteLayout() {
   !!!
   %html{lang:"en"}
     %head

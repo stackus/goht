@@ -10,6 +10,16 @@ package commands
 	%p the other template was rendered above.
 }
 
+@haml HamlRenderExample() {
+	%p= @render ChildrenExample()
+	%p the other template was rendered above.
+}
+
+@slim SlimRenderExample() {
+	p= @render ChildrenExample()
+	p the other template was rendered above.
+}
+
 // You may also include nested content to be rendered by the template.
 // You do not need to include any opening or closing braces when you
 // are passing content on to be rendered by another template.
@@ -18,4 +28,16 @@ package commands
 	%p The other template will be rendered below.
 	= @render ChildrenExample()
 		%span this content will be rendered by the other template.
+}
+
+@haml HamlRenderWithChildrenExample() {
+	%p The other template will be rendered below.
+	= @render ChildrenExample()
+		%span this content will be rendered by the other template.
+}
+
+@slim SlimRenderWithChildrenExample() {
+	p The other template will be rendered below.
+	= @render ChildrenExample()
+		span this content will be rendered by the other template.
 }

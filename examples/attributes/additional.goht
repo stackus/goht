@@ -21,3 +21,15 @@ var strAttrs = map[string]string{
 		@attributes: #{boolAttrs, strAttrs},
 	}
 }
+
+@haml HamlAttributesCmd() {
+	%input{
+		@attributes: #{boolAttrs, strAttrs},
+	}
+}
+
+@slim SlimAttributesCmd() {
+	input{
+		@attributes: #{boolAttrs, strAttrs},
+	}
+}

@@ -23,6 +23,20 @@ package tags
 		%p This tag has whitespace between it and the tag above.
 }
 
+@haml HamlWhitespace() {
+	%p This text has no whitespace between it and the tag.
+	%p
+		This text has whitespace between it and the tag.
+		%p This tag has whitespace between it and the tag above.
+}
+
+@slim SlimWhitespace() {
+	p This text has no whitespace between it and the tag.
+	p
+		This text has NO whitespace between it and the tag.
+		p This tag has NO whitespace between it and the tag above.
+}
+
 // You can control the whitespace that will be rendered between tags
 // in the final output by using the `>` and <` operators.
 // The `>` operator will remove all whitespace outside the tag, and
@@ -41,4 +55,28 @@ package tags
 			This text has no whitespace between it and the parent tag.
 			There is also no whitespace between this tag and the sibling text above it.
 			Finally, the tag has no whitespace between it and the outer tag.
+}
+
+@haml HamlRemoveWhitespace() {
+	%p<
+		This text has no whitespace between it and the parent tag.
+	%p
+		There is whitespace between this text and the parent tag.
+		%p><
+			This text has no whitespace between it and the parent tag.
+			There is also no whitespace between this tag and the sibling text above it.
+			Finally, the tag has no whitespace between it and the outer tag.
+}
+
+@slim SlimRemoveWhitespace() {
+	p
+		|<
+		|This text has no whitespace between it and the parent tag.
+	p
+		|There is whitespace between this text and the parent tag.
+		p
+			|<>
+			|This text has no whitespace between it and the parent tag.
+			|There is also no whitespace between this tag and the sibling text above it.
+			|Finally, the tag has no whitespace between it and the outer tag.
 }

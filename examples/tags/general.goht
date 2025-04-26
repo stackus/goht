@@ -6,10 +6,30 @@ package tags
 	%main This is a main tag.
 }
 
+@haml HamlSpecifyTag() {
+	%p This is a paragraph tag.
+	%main This is a main tag.
+}
+
+@slim SlimSpecifyTag() {
+	p This is a paragraph tag.
+	main This is a main tag.
+}
+
 // You may also let the tag default to a `div` when using the id or
 // class syntax's, `#` and `.` respectively.
 
 @goht DefaultToDivs() {
+	#main This is a div tag with an id of `main`.
+	.main This is a div tag with a class of `main`.
+}
+
+@haml HamlDefaultToDivs() {
+	#main This is a div tag with an id of `main`.
+	.main This is a div tag with a class of `main`.
+}
+
+@slim SlimDefaultToDivs() {
 	#main This is a div tag with an id of `main`.
 	.main This is a div tag with a class of `main`.
 }
@@ -24,11 +44,35 @@ package tags
 	%p.main#main This is a paragraph tag with an id and class of `main`.
 }
 
+@haml HamlCombined() {
+	%p#main This is a paragraph tag with an id of `main`.
+	%main.main This is a main tag with a class of `main`.
+	.main#main This is a div tag with an id and class of `main`.
+	%p.main#main This is a paragraph tag with an id and class of `main`.
+}
+
+@slim SlimCombined() {
+	p#main This is a paragraph tag with an id of `main`.
+	main.main This is a main tag with a class of `main`.
+	.main#main This is a div tag with an id and class of `main`.
+	p.main#main This is a paragraph tag with an id and class of `main`.
+}
+
 // The class operator may be repeated to add multiple classes.
 // Repeating the id operator will result in the id being overwritten
 // but will not throw an error.
 
 @goht MultipleClasses() {
+	.main.main2 This is a div tag with two classes, `main` and `main2`.
+	#main#main2 This is a div tag with an id of `main2`.
+}
+
+@haml HamlMultipleClasses() {
+	.main.main2 This is a div tag with two classes, `main` and `main2`.
+	#main#main2 This is a div tag with an id of `main2`.
+}
+
+@slim SlimMultipleClasses() {
 	.main.main2 This is a div tag with two classes, `main` and `main2`.
 	#main#main2 This is a div tag with an id of `main2`.
 }

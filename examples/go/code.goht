@@ -14,6 +14,24 @@ func sayHello() string {
 	%p= foo
 }
 
+@haml HamlExecuteCode() {
+	- foo := sayHello()
+	%p= foo
+}
+
+@slim SlimExecuteCode() {
+	- foo := sayHello()
+	p= foo
+}
+
 @goht RenderCode() {
 	%p= sayHello()
+}
+
+@haml HamlRenderCode() {
+	%p= sayHello()
+}
+
+@slim SlimRenderCode() {
+	p= sayHello()
 }

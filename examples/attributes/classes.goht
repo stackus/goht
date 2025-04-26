@@ -26,3 +26,11 @@ var myOptionalClasses = map[string]bool{
 @goht Classes() {
 	%p.fizz.buzz{class: #{myClassList, myOptionalClasses}}
 }
+
+@haml HamlClasses() {
+	%p.fizz.buzz{class: #{myClassList, myOptionalClasses}}
+}
+
+@slim SlimClasses() {
+	p.fizz.buzz{class: #{myClassList, myOptionalClasses}}
+}

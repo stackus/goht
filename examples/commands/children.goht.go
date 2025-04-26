@@ -42,3 +42,55 @@ func ChildrenExample() goht.Template {
 		return
 	})
 }
+
+func HamlChildrenExample() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p>\nThe following was passed in from the calling template:\n"); __err != nil {
+			return
+		}
+		if __err = __children.Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func SlimChildrenExample() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p>\n<The>following was passed in from the calling template:</The>\n"); __err != nil {
+			return
+		}
+		if __err = __children.Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}

@@ -11,3 +11,17 @@ var color = "red"
 			color: #{color};
 		}
 }
+
+@haml HamlCss() {
+	:css
+		.color {
+			color: #{color};
+		}
+}
+
+@slim SlimCss() {
+	:css
+		.color {
+			color: #{color};
+		}
+}

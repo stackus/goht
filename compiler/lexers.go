@@ -112,6 +112,8 @@ func lexTemplate(l *lexer) lexFn {
 	switch l.current() {
 	case "@goht", "@haml":
 		return lexTemplateStart(l, lexHamlLineStart)
+	case "@slim":
+		return lexTemplateStart(l, lexSlimLineStart)
 	}
 	return nil
 }

@@ -22,7 +22,7 @@ func Plain() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>\nThis is plain text. It <pre>will</pre> be displayed as HTML.\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>\nThis is plain text. It <pre>will</pre> be displayed as HTML.\r\n"); __err != nil {
 			return
 		}
 		var __var1 string
@@ -32,7 +32,37 @@ func Plain() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("\n</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("\r\n</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func HamlPlain() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p>\nThis is plain text. It <pre>will</pre> be displayed as HTML.\r\n"); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors("This <pre>\"will\"</pre> be interpolated with HTML intact."); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\r\n</p>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -52,7 +82,7 @@ func Escaped() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>\nThis is escaped text. It &lt;pre&gt;will not&lt;/pre&gt; be displayed as HTML.\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>\nThis is escaped text. It &lt;pre&gt;will not&lt;/pre&gt; be displayed as HTML.\r\n"); __err != nil {
 			return
 		}
 		var __var1 string
@@ -62,7 +92,37 @@ func Escaped() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("\n</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("\r\n</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func HamlEscaped() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p>\nThis is escaped text. It &lt;pre&gt;will not&lt;/pre&gt; be displayed as HTML.\r\n"); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors(goht.EscapeString("This <pre>\"will not\"</pre> be interpolated with HTML intact.")); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\r\n</p>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -82,7 +142,7 @@ func Preserve() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>\nThis is preserved text. It <pre>will</pre> be displayed as HTML.&#x000A;"); __err != nil {
+		if _, __err = __buf.WriteString("<p>\nThis is preserved text. It <pre>will</pre> be displayed as HTML.\r&#x000A;"); __err != nil {
 			return
 		}
 		var __var1 string
@@ -92,7 +152,37 @@ func Preserve() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("&#x000A;\n</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("\r&#x000A;\n</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func HamlPreserve() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p>\nThis is preserved text. It <pre>will</pre> be displayed as HTML.\r&#x000A;"); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors("This <pre>\"will\"</pre> be interpolated with HTML intact."); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\r&#x000A;\n</p>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

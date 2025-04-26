@@ -29,10 +29,90 @@ func SpecifyTag() goht.Template {
 	})
 }
 
+func HamlSpecifyTag() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p>This is a paragraph tag.</p>\n<main>This is a main tag.</main>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func SlimSpecifyTag() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p>This is a paragraph tag.</p>\n<main>This is a main tag.</main>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
 // You may also let the tag default to a `div` when using the id or
 // class syntax's, `#` and `.` respectively.
 
 func DefaultToDivs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<div id=\"main\">This is a div tag with an id of `main`.</div>\n<div class=\"main\">This is a div tag with a class of `main`.</div>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func HamlDefaultToDivs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<div id=\"main\">This is a div tag with an id of `main`.</div>\n<div class=\"main\">This is a div tag with a class of `main`.</div>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func SlimDefaultToDivs() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
@@ -75,11 +155,91 @@ func Combined() goht.Template {
 	})
 }
 
+func HamlCombined() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p id=\"main\">This is a paragraph tag with an id of `main`.</p>\n<main class=\"main\">This is a main tag with a class of `main`.</main>\n<div id=\"main\" class=\"main\">This is a div tag with an id and class of `main`.</div>\n<p id=\"main\" class=\"main\">This is a paragraph tag with an id and class of `main`.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func SlimCombined() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p id=\"main\">This is a paragraph tag with an id of `main`.</p>\n<main class=\"main\">This is a main tag with a class of `main`.</main>\n<div id=\"main\" class=\"main\">This is a div tag with an id and class of `main`.</div>\n<p id=\"main\" class=\"main\">This is a paragraph tag with an id and class of `main`.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
 // The class operator may be repeated to add multiple classes.
 // Repeating the id operator will result in the id being overwritten
 // but will not throw an error.
 
 func MultipleClasses() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<div class=\"main main2\">This is a div tag with two classes, `main` and `main2`.</div>\n<div id=\"main2\">This is a div tag with an id of `main2`.</div>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func HamlMultipleClasses() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<div class=\"main main2\">This is a div tag with two classes, `main` and `main2`.</div>\n<div id=\"main2\">This is a div tag with an id of `main2`.</div>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func SlimMultipleClasses() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {

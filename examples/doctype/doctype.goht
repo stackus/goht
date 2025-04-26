@@ -5,3 +5,11 @@ package doctype
 @goht Doctype() {
 	!!!
 }
+
+@haml HamlDoctype() {
+	!!!
+}
+
+@slim SlimDoctype() {
+	doctype
+}

@@ -24,8 +24,6 @@ const (
 	tGoCode
 
 	// Template tokens
-	tGohtStart
-	tGohtEnd
 	tTemplateStart
 	tTemplateEnd
 
@@ -75,10 +73,10 @@ func (t tokenType) String() string {
 		return "Import"
 	case tGoCode:
 		return "GoCode"
-	case tGohtStart:
-		return "GohtStart"
-	case tGohtEnd:
-		return "GohtEnd"
+	// case tGohtStart:
+	// 	return "GohtStart"
+	// case tGohtEnd:
+	// 	return "GohtEnd"
 	case tTemplateStart:
 		return "TemplateStart"
 	case tTemplateEnd:

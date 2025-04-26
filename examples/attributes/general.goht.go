@@ -32,6 +32,46 @@ func StaticAttrs() goht.Template {
 	})
 }
 
+func HamlStaticAttrs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p class=\"foo\" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func SlimStaticAttrs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p class=\"foo\" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
 // You can also use dynamic values for your attributes. Dynamic attribute
 // values share the same syntax as the interpolated values. A hash and a
 // pair of curly braces.
@@ -69,6 +109,68 @@ func DynamicAttrs() goht.Template {
 	})
 }
 
+func HamlDynamicAttrs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p"); __err != nil {
+			return
+		}
+		var __var1 string
+		__var1, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func SlimDynamicAttrs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p"); __err != nil {
+			return
+		}
+		var __var1 string
+		__var1, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
 // There are times when you have a lot of attributes and you want to keep
 // your lines short. You can break up your attributes into multiple lines
 // without any additional syntax.
@@ -76,6 +178,68 @@ func DynamicAttrs() goht.Template {
 // not required.
 
 func MultilineAttrs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p"); __err != nil {
+			return
+		}
+		var __var1 string
+		__var1, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func HamlMultilineAttrs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p"); __err != nil {
+			return
+		}
+		var __var1 string
+		__var1, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func SlimMultilineAttrs() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
@@ -173,6 +337,134 @@ func WhitespaceAttrs() goht.Template {
 	})
 }
 
+func HamlWhitespaceAttrs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p"); __err != nil {
+			return
+		}
+		var __var1 string
+		__var1, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
+			return
+		}
+		var __var2 string
+		__var2, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
+			return
+		}
+		var __var3 string
+		__var3, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var3 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
+			return
+		}
+		var __var4 string
+		__var4, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var4 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func SlimWhitespaceAttrs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<p"); __err != nil {
+			return
+		}
+		var __var1 string
+		__var1, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
+			return
+		}
+		var __var2 string
+		__var2, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
+			return
+		}
+		var __var3 string
+		__var3, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var3 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
+			return
+		}
+		var __var4 string
+		__var4, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var4 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
 // The dynamic attribute values may also include formatting rules just like
 // the interpolated values. The attribute values are always evaluated as
 // strings and are always rendered inside double quotes in the final HTML.
@@ -180,6 +472,58 @@ func WhitespaceAttrs() goht.Template {
 var intVar = 10
 
 func FormattedValue() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<textarea rows=\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(goht.EscapeString(goht.FormatString("%d", intVar)) + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" cols=\"80\"></textarea>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func HamlFormattedValue() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<textarea rows=\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(goht.EscapeString(goht.FormatString("%d", intVar)) + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" cols=\"80\"></textarea>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func SlimFormattedValue() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {

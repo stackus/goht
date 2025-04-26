@@ -9,6 +9,14 @@ package attributes
 	%p{class: "foo", id: "bar"} This is a paragraph.
 }
 
+@haml HamlStaticAttrs() {
+	%p{class: "foo", id: "bar"} This is a paragraph.
+}
+
+@slim SlimStaticAttrs() {
+	p{class: "foo", id: "bar"} This is a paragraph.
+}
+
 // You can also use dynamic values for your attributes. Dynamic attribute
 // values share the same syntax as the interpolated values. A hash and a
 // pair of curly braces.
@@ -17,6 +25,14 @@ var myDynamicValue = "foo"
 
 @goht DynamicAttrs() {
 	%p{class: #{myDynamicValue}, id: "bar"} This is a paragraph.
+}
+
+@haml HamlDynamicAttrs() {
+	%p{class: #{myDynamicValue}, id: "bar"} This is a paragraph.
+}
+
+@slim SlimDynamicAttrs() {
+	p{class: #{myDynamicValue}, id: "bar"} This is a paragraph.
 }
 
 // There are times when you have a lot of attributes and you want to keep
@@ -32,6 +48,20 @@ var myDynamicValue = "foo"
 	} This is a paragraph.
 }
 
+@haml HamlMultilineAttrs() {
+	%p{
+		class: #{myDynamicValue},
+		id: "bar",
+	} This is a paragraph.
+}
+
+@slim SlimMultilineAttrs() {
+	p{
+		class: #{myDynamicValue},
+		id: "bar",
+	} This is a paragraph.
+}
+
 // You may include as much whitespace as you wish between the attribute,
 // operator, value, and attribute separator. The following are all valid.
 
@@ -42,6 +72,20 @@ var myDynamicValue = "foo"
 	%p{class :#{myDynamicValue}, id   : "bar"} This is a paragraph.
 }
 
+@haml HamlWhitespaceAttrs() {
+	%p{class: #{myDynamicValue}, id: "bar"} This is a paragraph.
+	%p{class:#{myDynamicValue},id:"bar"} This is a paragraph.
+	%p{class: #{myDynamicValue},id: "bar"} This is a paragraph.
+	%p{class :#{myDynamicValue}, id   : "bar"} This is a paragraph.
+}
+
+@slim SlimWhitespaceAttrs() {
+	p{class: #{myDynamicValue}, id: "bar"} This is a paragraph.
+	p{class:#{myDynamicValue},id:"bar"} This is a paragraph.
+	p{class: #{myDynamicValue},id: "bar"} This is a paragraph.
+	p{class :#{myDynamicValue}, id   : "bar"} This is a paragraph.
+}
+
 // The dynamic attribute values may also include formatting rules just like
 // the interpolated values. The attribute values are always evaluated as
 // strings and are always rendered inside double quotes in the final HTML.
@@ -50,4 +94,12 @@ var intVar = 10
 
 @goht FormattedValue() {
 	%textarea{rows: #{%d intVar}, cols: "80"}
+}
+
+@haml HamlFormattedValue() {
+	%textarea{rows: #{%d intVar}, cols: "80"}
+}
+
+@slim SlimFormattedValue() {
+	textarea{rows: #{%d intVar}, cols: "80"}
 }

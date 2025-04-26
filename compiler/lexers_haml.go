@@ -6,32 +6,6 @@ import (
 	"text/scanner"
 )
 
-// func lexHamlStart(l *lexer) lexFn {
-// 	l.ignore()
-// 	l.skipRun(" ")
-// 	l.acceptUntil(")")
-// 	if strings.HasPrefix(l.current(), "(") {
-// 		// we've only captured the receiver, so we need to capture the rest of the function signature
-// 		l.next()
-// 		for {
-// 			l.acceptUntil(")")
-// 			// handle the situation where the function signature contains an `interface{}` type with one or more methods
-// 			openParens := strings.Count(l.current(), "(")
-// 			closeParens := strings.Count(l.current(), ")")
-// 			if openParens == closeParens+1 {
-// 				break
-// 			}
-// 			l.next()
-// 		}
-// 	}
-// 	l.next()
-// 	l.emit(tGohtStart)
-// 	l.skipRun(" {")
-// 	l.skipRun("\n\r")
-//
-// 	return lexHamlLineStart
-// }
-
 func lexHamlLineStart(l *lexer) lexFn {
 	switch l.peek() {
 	case '}':
@@ -58,12 +32,6 @@ func lexHamlIndent(l *lexer) lexFn {
 		// return an error that indents are required
 		return l.errorf("haml templates must be indented")
 	}
-
-	// if len(indent) == 0 {
-	// 	l.indent = 0
-	// 	l.emit(tIndent)
-	// 	return lexHamlContentStart
-	// }
 
 	// validate the indent against the sequence and char
 	if lexHamlErr := l.validateIndent(indent); lexHamlErr != nil {
@@ -100,6 +68,8 @@ func lexHamlContentStart(l *lexer) lexFn {
 		return lexHamlComment
 	case ':':
 		return lexHamlFilterStart
+	case '{':
+		return lexHamlAttributesStart
 	case scanner.EOF, '\n', '\r':
 		return lexHamlLineEnd
 	default:
@@ -380,9 +350,6 @@ func lexHamlTextContent(l *lexer) lexFn {
 	switch l.peek() {
 	case '\\':
 		isHashComing := l.peekAhead(2)
-		// if err != nil {
-		// 	return l.errorf("unexpected error: %s", err)
-		// }
 		if isHashComing == "\\#" {
 			l.skip()
 			// was the backslash being escaped?
@@ -574,14 +541,8 @@ func lexHamlFilterIndent(indent int, textType tokenType) lexFn {
 	return func(l *lexer) lexFn {
 		var indents string
 
-		// // only accept the whitespace that belongs to the indent
-		// var err error
-
 		// peeking first, in case we've reached the end of the filter
 		indents = l.peekAhead(indent)
-		// if err != nil {
-		// 	return l.errorf("unexpected error while evaluating filter indents: %s", err)
-		// }
 
 		// trim the tabs from what we've peeked into; no longer using TrimSpace as that would trim spaces and newlines
 		if len(strings.Trim(indents, "\t")) != 0 {

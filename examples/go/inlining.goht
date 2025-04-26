@@ -1,5 +1,9 @@
 package example
 
+import (
+	"fmt"
+)
+
 // You can include Go code to handle conditional and loop statements
 // in your Goht templates.
 
@@ -14,6 +18,28 @@ var isAdmin = true
 			%button Login
 		- }
 		%button View content
+}
+
+@haml HamlConditional() {
+	.actions
+		- if isAdmin {
+			%button<
+				Edit content
+		- } else {
+			%button Login
+		- }
+		%button View content
+}
+
+@slim SlimConditional() {
+	.actions
+		- if isAdmin {
+			button
+				Edit content
+		- } else {
+			button Login
+		- }
+		button View content
 }
 
 // However, we are using Haml and so we're into shortcuts. We can
@@ -34,6 +60,26 @@ var isAdmin = true
 		%button View content
 }
 
+@haml HamlShorthandConditional() {
+	.actions
+		- if isAdmin
+			%button<
+				Edit content
+		- else
+			%button Login
+		%button View content
+}
+
+@slim SlimShorthandConditional() {
+	.actions
+		- if isAdmin
+			button
+				|Edit content
+		- else
+			button Login
+		button View content
+}
+
 // With a switch statement, we can use the case and default keywords
 // but we will need to nest these statements if we're using the
 // shorthand syntax. (win some, lose some)
@@ -47,4 +93,50 @@ var isAdmin = true
 			- case false:
 				%button Login
 		%button View content
+}
+
+@haml HamlShorthandSwitch() {
+	.actions
+		- switch isAdmin
+			- case true:
+				%button<
+					Edit content
+			- case false:
+				%button Login
+		%button View content
+}
+
+@slim SlimShorthandSwitch() {
+	.actions
+		- switch isAdmin
+			- case true:
+				button
+					|Edit content
+			- case false:
+				button Login
+		button View content
+}
+
+// Slim supports splitting the control code across multiple lines which
+// is useful for long statements. The additional lines must be indented
+// one additional level.
+//
+// Ending a statement with a backslash or a comma will let you break
+// long statements across multiple lines.
+
+type longType struct {
+	title string
+	actions string
+}
+
+@slim SlimLongStatement() {
+	.actions
+		- action := longType{\
+				title: "Edit content",
+				actions: "Edit content",
+			}
+	p=action.actions
+	= fmt.Sprintf("Title: %s",
+			action.title,
+		)
 }

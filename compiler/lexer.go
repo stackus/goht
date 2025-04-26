@@ -96,13 +96,7 @@ func (l *lexer) peekAhead(length int) string {
 		width += size
 		s += string(ch)
 	}
-	// if err != nil && err != io.EOF {
-	// 	return "", fmt.Errorf("failed to peek ahead: %v", err)
-	// }
 	_, _ = l.reader.Seek(int64(-width), io.SeekCurrent)
-	// if err != nil {
-	// 	return "", fmt.Errorf("failed to seek back: %v", err)
-	// }
 	return s
 }
 
@@ -169,7 +163,8 @@ func (l *lexer) skipAhead(length int) {
 	for i := 0; i < length; i++ {
 		l.next()
 	}
-	l.ignore()
+	l.s = l.s[:len(l.s)-length]
+	// l.ignore()
 }
 
 // current returns the current captured string being built by the lexer.

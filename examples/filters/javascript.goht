@@ -10,3 +10,13 @@ var name = "Bob"
 	:javascript
 		console.log("Hello #{name}!");
 }
+
+@haml HamlJavaScript() {
+	:javascript
+		console.log("Hello #{name}!");
+}
+
+@slim SlimJavaScript() {
+	:javascript
+		console.log("Hello #{name}!");
+}

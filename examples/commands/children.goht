@@ -15,3 +15,15 @@ package commands
 		The following was passed in from the calling template:
 		= @children
 }
+
+@haml HamlChildrenExample() {
+	%p
+		The following was passed in from the calling template:
+		= @children
+}
+
+@slim SlimChildrenExample() {
+	p
+		The following was passed in from the calling template:
+		= @children
+}

@@ -20,3 +20,31 @@ package indents
 			%p
 				Hello World
 }
+
+@haml HamlUsingTabs() {
+	!!!
+	%html{lang: "en"}
+		%head
+			%meta{charset: "utf-8"}
+			%title
+				Hello World
+		%body
+			%h1
+				Hello World
+			%p
+				Hello World
+}
+
+@slim SlimUsingTabs() {
+	doctype
+	html{lang: "en"}
+		head
+			meta{charset: "utf-8"}
+			title
+				|Hello World
+		body
+			h1
+				|Hello World
+			p
+				|Hello World
+}

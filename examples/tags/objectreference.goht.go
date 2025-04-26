@@ -68,10 +68,98 @@ func ObjectRefs(obj Foo) goht.Template {
 	})
 }
 
+func HamlObjectRefs(obj Foo) goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<article"); __err != nil {
+			return
+		}
+		if __var1 := goht.ObjectID(obj); __var1 != "" {
+			if _, __err = __buf.WriteString(" id=\"" + __var1 + "\""); __err != nil {
+				return
+			}
+		}
+		var __var2 string
+		__var2, __err = goht.BuildClassList(goht.ObjectClass(obj))
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(">Foo article</article>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
 // You may include a prefix to be used with the id and class.
 var prefixVar = "article"
 
 func PrefixedObjectRefs(obj Foo) goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<article"); __err != nil {
+			return
+		}
+		if __var1 := goht.ObjectID(obj, "prefix"); __var1 != "" {
+			if _, __err = __buf.WriteString(" id=\"" + __var1 + "\""); __err != nil {
+				return
+			}
+		}
+		var __var2 string
+		__var2, __err = goht.BuildClassList(goht.ObjectClass(obj, "prefix"))
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(">Foo article with id \"prefix_foo_bar\" and class \"prefix_foo\"</article>\n<article"); __err != nil {
+			return
+		}
+		if __var3 := goht.ObjectID(obj, prefixVar); __var3 != "" {
+			if _, __err = __buf.WriteString(" id=\"" + __var3 + "\""); __err != nil {
+				return
+			}
+		}
+		var __var4 string
+		__var4, __err = goht.BuildClassList(goht.ObjectClass(obj, prefixVar))
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var4 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(">Foo article with id \"article_foo_bar\" and class \"article_foo\"</article>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func HamlPrefixedObjectRefs(obj Foo) goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {

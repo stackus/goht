@@ -56,3 +56,75 @@ func ConditionalAttrs() goht.Template {
 		return
 	})
 }
+
+func HamlConditionalAttrs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<button"); __err != nil {
+			return
+		}
+		if disabled {
+			if _, __err = __buf.WriteString(" disabled"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString(">Click me!</button>\n<button"); __err != nil {
+			return
+		}
+		if foo == "bar" {
+			if _, __err = __buf.WriteString(" disabled"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString(">Click me!</button>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}
+
+func SlimConditionalAttrs() goht.Template {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __children goht.Template
+		ctx, __children = goht.PopChildren(ctx)
+		_ = __children
+		if _, __err = __buf.WriteString("<button"); __err != nil {
+			return
+		}
+		if disabled {
+			if _, __err = __buf.WriteString(" disabled"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString(">Click me!</button>\n<button"); __err != nil {
+			return
+		}
+		if foo == "bar" {
+			if _, __err = __buf.WriteString(" disabled"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString(">Click me!</button>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	})
+}

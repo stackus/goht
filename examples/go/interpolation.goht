@@ -9,11 +9,31 @@ var someVar = "Hello"
 	%p #{someVar}, World!
 }
 
+@haml HamlInterpolateCode() {
+	%p #{someVar}, World!
+}
+
+@slim SlimInterpolateCode() {
+	p #{someVar}, World!
+}
+
 // Interpolation is not done within Go code or within a string literal.
 @goht NoInterpolation() {
 	%p Do the following; No interpolation is necessary.
 	%p= someVar + ", World!"
 	%p= "No interpolation is #{performed} here."
+}
+
+@haml HamlNoInterpolation() {
+	%p Do the following; No interpolation is necessary.
+	%p= someVar + ", World!"
+	%p= "No interpolation is #{performed} here."
+}
+
+@slim SlimNoInterpolation() {
+	p Do the following; No interpolation is necessary.
+	p= someVar + ", World!"
+	p= "No interpolation is #{performed} here."
 }
 
 // Because the interpolation and tag id share the same starting character,
@@ -23,6 +43,11 @@ var someVar = "Hello"
 // when it is the first character of text following a tag.
 
 @goht EscapeInterpolation() {
+	\#{someVar}, World!
+	%p #{someVar}, World!
+}
+
+@haml HamlEscapeInterpolation() {
 	\#{someVar}, World!
 	%p #{someVar}, World!
 }
@@ -42,6 +67,16 @@ var someVar = "Hello"
 // will render as "#{someVar}" in the final HTML.
 
 @goht IgnoreInterpolation() {
+	\\#{someVar}, World!
+	%p
+		\\#{someVar}, World!
+	A greeting: \#{someVar}, World!
+	\. this line begins with a period
+	\# this line begins with a hash
+	\% this line begins with a percent
+}
+
+@haml HamlIgnoreInterpolation() {
 	\\#{someVar}, World!
 	%p
 		\\#{someVar}, World!

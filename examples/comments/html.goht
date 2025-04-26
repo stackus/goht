@@ -10,6 +10,19 @@ package comments
 	/ This is a HTML comment
 }
 
+@haml HamlHtmlComments() {
+	%p This is a paragraph
+	/ This is a HTML comment
+}
+
+// HTML comments in the Slim syntax use "/!" to indicate the start of
+// the comment.
+
+@slim SlimHtmlComments() {
+	p This is a paragraph
+	/! This is a HTML comment
+}
+
 // You may also use them to comment out nested elements. This does
 // not stop the nested elements from being parsed, just from being
 // displayed.
@@ -18,4 +31,16 @@ package comments
 	%p This is a paragraph
 	/
 		%p This is a paragraph that is commented out
+}
+
+@haml HamlHtmlCommentsNested() {
+	%p This is a paragraph
+	/
+		%p This is a paragraph that is commented out
+}
+
+@slim SlimHtmlCommentsNested() {
+	p This is a paragraph
+	/!
+		p This is a paragraph that is commented out
 }

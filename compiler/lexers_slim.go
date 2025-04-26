@@ -33,12 +33,6 @@ func lexSlimIndent(l *lexer) lexFn {
 		return l.errorf("slim templates must be indented")
 	}
 
-	// if len(indent) == 0 {
-	// 	l.indent = 0
-	// 	l.emit(tIndent)
-	// 	return lexSlimContentStart
-	// }
-
 	// validate the indent against the sequence and char
 	if lexSlimErr := l.validateIndent(indent); lexSlimErr != nil {
 		return lexSlimErr
@@ -65,6 +59,8 @@ func lexSlimContentStart(l *lexer) lexFn {
 		return lexSlimFilterStart
 	case '|':
 		return lexSlimTextBlock
+	case '{':
+		return lexSlimAttributesStart
 	case scanner.EOF, '\n', '\r':
 		return lexSlimLineEnd
 	default:
@@ -93,28 +89,18 @@ func lexSlimContent(l *lexer) lexFn {
 	case '=':
 		return lexSlimOutputCode
 	case '/':
-		return lexSlimVoidTag
+		return lexSlimCloseTag
 	case '>', '<':
 		return lexSlimWhitespaceAddition
+	case ':':
+		return lexSlimInlineTag
+	case ' ', '\t':
+		l.skip()
+		return lexSlimTextBlockContent(l.indent+1, 0, tPlainText)
 	case scanner.EOF, '\n', '\r':
 		return lexSlimLineEnd
 	default:
-		return lexSlimTextStart
-	}
-}
-
-func lexSlimContentEnd(l *lexer) lexFn {
-	switch l.peek() {
-	case '=':
-		return lexSlimOutputCode
-	case '/':
-		return lexSlimVoidTag
-	case '>', '<':
-		return lexSlimWhitespaceAddition
-	case scanner.EOF, '\n', '\r':
-		return lexSlimLineEnd
-	default:
-		return lexSlimTextStart
+		return lexSlimTextBlockContent(l.indent+1, 0, tPlainText)
 	}
 }
 
@@ -144,19 +130,25 @@ func slimIdentifier(typ tokenType, l *lexer) lexFn {
 	}
 
 	// these characters may follow an identifier
-	const mayFollowIdentifier = "#.{=!/<> \t\n\r"
+	const mayFollowIdentifier = "#.{=!/<>: \t\n\r"
 
 	l.acceptUntil(mayFollowIdentifier)
 	if l.current() == "" {
 		return l.errorf("%s identifier expected", typ)
 	}
 	if l.current() == "doctype" {
-		l.emit(tDoctype)
-		l.skipUntil("\n\r")
-		return lexSlimLineEnd
+		return lexSlimDoctype
 	}
 	l.emit(typ)
 	return lexSlimContent
+}
+
+func lexSlimDoctype(l *lexer) lexFn {
+	l.ignore()
+	l.skipRun(" \t")
+	l.acceptUntil("\n\r")
+	l.emit(tDoctype)
+	return lexSlimLineEnd
 }
 
 func lexSlimTag(l *lexer) lexFn {
@@ -171,21 +163,24 @@ func lexSlimClass(l *lexer) lexFn {
 	return slimIdentifier(tClass, l)
 }
 
+func lexSlimInlineTag(l *lexer) lexFn {
+	l.skip() // eat colon
+	l.skipRun(" \t")
+	return lexSlimContentStart
+}
+
 func lexSlimControlCode(l *lexer) lexFn {
 	l.skip() // eat dash
 
 	l.skipRun(" \t")
-	l.acceptUntil("\n\r")
-	// TODO: Support multiline silent scripts when they end with a backslash or comma
-	// example:
-	// - foo = bar \
-	//   + baz
-	// - foo = bigCall( \
-	//   	bar,
-	//   	baz,
-	//   )
-	// Extended lines must be indented once.
-	// Additional indentation is captured and emitted with the script
+	l.acceptUntil("\\\n\r")
+	// support long code lines split across multiple lines
+	if n := l.peek(); n == '\\' || strings.HasSuffix(l.current(), ",") {
+		if n == '\\' {
+			l.skip()
+		}
+		return lexSlimCodeBlockContent(l.indent+1, tSilentScript)
+	}
 	l.emit(tSilentScript)
 	return lexSlimLineEnd
 }
@@ -202,21 +197,16 @@ func lexSlimOutputCode(l *lexer) lexFn {
 	case '@':
 		return lexSlimCommandCode
 	default:
-		l.acceptUntil("\n\r")
-		// TODO: Support multiline output code when they end with a backslash or comma
-		// see the comments in lexHamlSilentScript
+		l.acceptUntil("\\\n\r")
+		if n := l.peek(); n == '\\' || strings.HasSuffix(l.current(), ",") {
+			if n == '\\' {
+				l.skip()
+			}
+			return lexSlimCodeBlockContent(l.indent+1, tScript)
+		}
 		l.emit(tScript)
 		return lexSlimLineEnd
 	}
-}
-
-func lexSlimTextStart(l *lexer) lexFn {
-	l.acceptUntil("#.{=!/<> \t\n\r")
-	if l.current() == "" {
-		return l.errorf("text expected")
-	}
-	l.emit(tPlainText)
-	return lexSlimContentEnd
 }
 
 func lexSlimComment(l *lexer) lexFn {
@@ -227,37 +217,170 @@ func lexSlimComment(l *lexer) lexFn {
 		l.emit(tRubyComment)
 		return ignoreIndentedLines(l.indent+1, lexSlimLineStart)
 	}
-	// HTML comments in slim can be multiline
-	// The comment continues to the next line if:
-	// - the number of indents are the same
-	// - there is at least one more whitespace characters
-	// The additional whitespace characters are removed from the second+ lines if they are
-	// to the left of the first non-whitespace character on the first line.
-	// TODO: Testing appears that this is space based and when you use tabs for the additional whitespace, it doesn't work as expected.
-	// The '/' and '!' will both count as whitespace characters in this case.
-	// One additional whitespace character may follow the '!' character.
-	// This one additional whitespace character is removed from the first line
-	// and will allow the second+ lines to have one additional whitespace character.
-	// Example counts:
-	// "/!This is a comment" is 2 whitespace characters and up to 2 whitespace characters are removed from the second+ lines
-	// "/! This is a comment" is 3 whitespace characters and up to 3 whitespace characters are removed from the second+ lines
-	// "/!  This is a comment" is 4 whitespace characters and only the first is removed and the second+ lines can have up to 3 whitespace characters
-	// We remove "up to" the count but do not require the count to be the same. (at least one whitespace character rule remains though)
-	// In practice, this means if the comments all start at the same column then they are considered to have no whitespace padding.
 
 	l.skip() // eat bang
-	return lexSlimFilterLineStart(l.indent+1, tEscapedText)
+	l.skipRun(" \t")
+	return lexSlimTextBlockContent(l.indent+1, 0, tComment)
+}
+
+func lexSlimTextBlock(l *lexer) lexFn {
+	l.skip() // eat pipe
+	// test for a space after the pipe
+	if n := l.peek(); n == ' ' || n == '\t' {
+		return lexSlimTextBlockContent(l.indent+1, 1, tPlainText)
+	}
+	return lexSlimTextBlockContent(l.indent+1, 0, tPlainText)
 }
 
 func lexSlimTextBlockLineStart(indent int, spaces int, textType tokenType) lexFn {
 	return func(l *lexer) lexFn {
-		if l.peek() == '|' {
-			l.skip()
-			l.skipRun(" \t")
-			return lexSlimTextBlockContent(indent, spaces, textType)
+		switch l.peek() {
+		case ' ', '\t':
+			return lexSlimTextBlockIndent(indent, spaces, textType)
+		case scanner.EOF:
+			l.emit(tEOF)
+			return nil
+		default:
+			if l.current() != "" {
+				l.emit(textType)
+			}
+			return lexSlimLineStart
 		}
-		return lexSlimLineEnd
 	}
+}
+
+func lexSlimTextBlockIndent(indent int, spaces int, textType tokenType) lexFn {
+	return func(l *lexer) lexFn {
+		// only accept the whitespace that belongs to the indent
+
+		// peeking first, in case we've reached the end of the filter
+		indents := l.peekAhead(indent)
+
+		if len(strings.Trim(indents, "\t")) != 0 {
+			if l.current() != "" {
+				l.emit(textType)
+			}
+			return lexSlimLineStart
+		}
+
+		l.skipAhead(indent)
+
+		return lexSlimTextBlockContent(indent, spaces, textType)
+	}
+}
+
+func lexSlimTextBlockContent(indent int, spaces int, textType tokenType) lexFn {
+	return func(l *lexer) lexFn {
+		if spaces != 0 {
+			if n := l.peek(); n == ' ' || n == '\t' {
+				l.skip() // eat space
+			}
+		}
+		l.acceptUntil("#\n\r")
+		if len(l.current()) > 0 {
+			l.emit(textType)
+		}
+
+		if l.peek() == '#' && !strings.HasSuffix(l.current(), "\\") {
+			// l.emit(textType)
+			return lexSlimFilterDynamicText(textType, lexSlimTextBlockContent(indent, spaces, textType))
+		}
+		l.acceptRun("\n\r")
+		if l.current() != "" {
+			l.emit(tNewLine)
+		}
+		return lexSlimTextBlockLineStart(indent, spaces, textType)
+	}
+}
+
+func lexSlimCodeBlockLineStart(indent int, textType tokenType) lexFn {
+	return func(l *lexer) lexFn {
+		switch l.peek() {
+		case ' ', '\t':
+			return lexSlimCodeBlockIndent(indent, textType)
+		case scanner.EOF:
+			l.emit(tEOF)
+			return nil
+		default:
+			if l.current() != "" {
+				l.emit(textType)
+			}
+			return lexSlimLineStart
+		}
+	}
+}
+
+func lexSlimCodeBlockIndent(indent int, textType tokenType) lexFn {
+	return func(l *lexer) lexFn {
+		// only accept the whitespace that belongs to the indent
+
+		// peeking first, in case we've reached the end of the block
+		indents := l.peekAhead(indent)
+
+		if len(strings.Trim(indents, "\t")) != 0 {
+			if l.current() != "" {
+				l.emit(textType)
+			}
+			return lexSlimLineStart
+		}
+
+		l.skipAhead(indent)
+
+		return lexSlimCodeBlockContent(indent, textType)
+	}
+}
+
+func lexSlimCodeBlockContent(indent int, textType tokenType) lexFn {
+	return func(l *lexer) lexFn {
+		l.acceptUntil("\n\r")
+		l.skipRun("\n\r")
+		return lexSlimCodeBlockLineStart(indent, textType)
+	}
+}
+
+func lexSlimCloseTag(l *lexer) lexFn {
+	l.skip() // eat slash
+	l.skipRun(" \t")
+	l.acceptUntil("\n\r")
+	if l.current() != "" {
+		return l.errorf("no content expected")
+	}
+	l.emit(tVoidTag)
+	return lexSlimLineEnd
+}
+
+func lexSlimCommandCode(l *lexer) lexFn {
+	l.skipRun("@")
+	l.acceptUntil("() \t\n\r")
+	if l.current() == "" {
+		return l.errorf("command code expected")
+	}
+	switch l.current() {
+	case "render":
+		l.acceptRun("() \t")
+		l.ignore()
+		l.acceptUntil("\\\n\r")
+		if l.current() == "" {
+			return l.errorf("render argument expected")
+		}
+		if n := l.peek(); n == '\\' || strings.HasSuffix(l.current(), ",") {
+			if n == '\\' {
+				l.skip()
+			}
+			return lexSlimCodeBlockContent(l.indent+1, tRenderCommand)
+		}
+		l.emit(tRenderCommand)
+	case "children":
+		l.acceptRun("() \t")
+		l.ignore()
+		l.acceptUntil("\n\r")
+		if l.current() != "" {
+			return l.errorf("children command does not accept arguments")
+		}
+		l.emit(tChildrenCommand)
+	}
+	l.skipRun("\n\r")
+	return lexSlimLineStart
 }
 
 var slimFilters = []string{"javascript", "css"}
@@ -302,14 +425,8 @@ func lexSlimFilterIndent(indent int, textType tokenType) lexFn {
 	return func(l *lexer) lexFn {
 		var indents string
 
-		// // only accept the whitespace that belongs to the indent
-		// var err error
-
 		// peeking first, in case we've reached the end of the filter
 		indents = l.peekAhead(indent)
-		// if err != nil {
-		// 	return l.errorf("unexpected error while evaluating filter indents: %s", err)
-		// }
 
 		// trim the tabs from what we've peeked into; no longer using TrimSpace as that would trim spaces and newlines
 		if len(strings.Trim(indents, "\t")) != 0 {
@@ -358,4 +475,173 @@ func lexSlimFilterDynamicText(textType tokenType, next lexFn) lexFn {
 		l.skip() // skip closing brace
 		return next
 	}
+}
+
+// Parsing the Slim attributes the same as the Haml attributes
+
+func lexSlimAttributesStart(l *lexer) lexFn {
+	l.skip()
+	return lexSlimAttribute
+}
+
+func lexSlimAttributesEnd(l *lexer) lexFn {
+	l.skip()
+	return lexSlimContent
+}
+
+func lexSlimAttribute(l *lexer) lexFn {
+	// supported attributes
+	// key
+	// key:value
+	// key?value
+	// @attributes: []any (string, map[string]string, map[string]bool)
+
+	l.skipRun(", \t\n\r")
+
+	switch l.peek() {
+	case '}':
+		return lexSlimAttributesEnd
+	case '@':
+		return lexSlimAttributeCommandStart
+	default:
+		return lexSlimAttributeName
+	}
+}
+
+func lexSlimAttributeName(l *lexer) lexFn {
+	if l.peek() == '"' || l.peek() == '`' {
+		r := continueToMatchingQuote(l, tAttrName, false)
+		if r == scanner.EOF {
+			return l.errorf("attribute name not closed: eof")
+		} else if r != '"' && r != '`' {
+			return l.errorf("unexpected character: %q", r)
+		}
+	} else {
+		l.acceptUntil("?:,}{\" \t\n\r")
+		if l.current() == "" {
+			return l.errorf("attribute name expected")
+		}
+		l.emit(tAttrName)
+	}
+
+	l.skipRun(" \t\n\r")
+	switch l.peek() {
+	case '?', ':':
+		return lexSlimAttributeOperator
+	case ',', '}':
+		return lexSlimAttributeEnd
+	default:
+		return l.errorf("unexpected character: %q", l.peek())
+	}
+}
+
+func lexSlimAttributeOperator(l *lexer) lexFn {
+	l.skipRun(" \t\n\r")
+	switch l.peek() {
+	case '?', ':':
+		l.next()
+		l.emit(tAttrOperator)
+		return lexSlimAttributeValue
+	}
+	return l.errorf("unexpected character: %q", l.peek())
+}
+
+func lexSlimAttributeValue(l *lexer) lexFn {
+	l.skipRun(" \t\n\r")
+
+	switch l.peek() {
+	case '"', '`':
+		return lexSlimAttributeStaticValue
+	case '#':
+		return lexSlimAttributeDynamicValue
+	}
+	return l.errorf("unexpected character: %q", l.peek())
+}
+
+func lexSlimAttributeStaticValue(l *lexer) lexFn {
+	r := continueToMatchingQuote(l, tAttrEscapedValue, true)
+	if r == scanner.EOF {
+		return l.errorf("attribute value not closed: eof")
+	} else if r != '"' && r != '`' {
+		return l.errorf("unexpected character: %q", r)
+	}
+	return lexSlimAttributeEnd
+}
+
+func lexSlimAttributeDynamicValue(l *lexer) lexFn {
+	l.skip() // skip hash
+	if l.peek() != '{' {
+		return l.errorf("unexpected character: %q", l.peek())
+	}
+	l.skip() // skip opening brace
+	r := continueToMatchingBrace(l, '}')
+	if r == scanner.EOF {
+		return l.errorf("attribute value not closed: eof")
+	}
+	l.backup()
+	l.emit(tAttrDynamicValue)
+	l.skip() // skip closing brace
+	return lexSlimAttributeEnd
+}
+
+func lexSlimAttributeCommandStart(l *lexer) lexFn {
+	l.skipRun("@")
+	l.acceptUntil(": \t\n\r")
+	if l.current() == "" {
+		return l.errorf("command code expected")
+	}
+	switch l.current() {
+	case "attributes":
+		return lexSlimAttributeCommand(tAttributesCommand)
+	default:
+		return l.errorf("unknown attribute command: %s", l.current())
+	}
+}
+
+func lexSlimAttributeCommand(command tokenType) lexFn {
+	return func(l *lexer) lexFn {
+		l.ignore()
+		l.skipUntil(":")
+		l.skipUntil("{")
+		l.skip() // skip opening brace
+		r := continueToMatchingBrace(l, '}')
+		if r == scanner.EOF {
+			return l.errorf("attribute value not closed: eof")
+		}
+		l.backup()
+		l.emit(command)
+		l.skip() // skip closing brace
+
+		return lexSlimAttributeEnd
+	}
+}
+
+func lexSlimAttributeEnd(l *lexer) lexFn {
+	l.skipRun(" \t\n\r")
+	switch l.peek() {
+	case ',':
+		l.skip()
+		return lexSlimAttribute
+	case '}':
+		return lexSlimAttributesEnd
+	default:
+		return l.errorf("unexpected character: %c", l.peek())
+	}
+}
+
+// TODO: Drop support for keeping whitespace; Also update Haml parsing to eat whitespace.
+func lexSlimWhitespaceAddition(l *lexer) lexFn {
+	l.skip()
+	l.skipRun(" \t")
+	switch l.peek() {
+	case '>':
+		l.skip()
+		l.emit(tNukeOuterWhitespace)
+	case '<':
+		l.skip()
+		l.emit(tNukeInnerWhitespace)
+	default:
+		return l.errorf("unexpected character: %q", l.peek())
+	}
+	return lexSlimContent
 }

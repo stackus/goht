@@ -12,6 +12,13 @@ package filters
 			#{"This <pre>\"will\"</pre> be interpolated with HTML intact."}
 }
 
+@haml HamlPlain() {
+	%p
+		:plain
+			This is plain text. It <pre>will</pre> be displayed as HTML.
+			#{"This <pre>\"will\"</pre> be interpolated with HTML intact."}
+}
+
 @goht Escaped() {
 	%p
 		:escaped
@@ -19,7 +26,21 @@ package filters
 			#{"This <pre>\"will not\"</pre> be interpolated with HTML intact."}
 }
 
+@haml HamlEscaped() {
+	%p
+		:escaped
+			This is escaped text. It <pre>will not</pre> be displayed as HTML.
+			#{"This <pre>\"will not\"</pre> be interpolated with HTML intact."}
+}
+
 @goht Preserve() {
+	%p
+		:preserve
+			This is preserved text. It <pre>will</pre> be displayed as HTML.
+			#{"This <pre>\"will\"</pre> be interpolated with HTML intact."}
+}
+
+@haml HamlPreserve() {
 	%p
 		:preserve
 			This is preserved text. It <pre>will</pre> be displayed as HTML.

@@ -14,6 +14,24 @@ package attributes
 	} Goht
 }
 
+@haml HamlSimpleNames() {
+	%a{
+		href: "https://github.com/stackus/goht",
+		data-foo: "bar",
+		odd_name: "baz",
+		_: "I'm a _hyperscript attribute!"
+	} Goht
+}
+
+@slim SlimSimpleNames() {
+	a{
+		href: "https://github.com/stackus/goht",
+		data-foo: "bar",
+		odd_name: "baz",
+		_: "I'm a _hyperscript attribute!"
+	} Goht
+}
+
 // For more complex names, such as data attributes, you can use
 // enclose the name in in double quotes or backticks.
 // - Names that start with an at sign (@).
@@ -23,6 +41,22 @@ package attributes
 
 @goht ComplexNames() {
 	%a{
+		href: "https://github.com/stackus/goht",
+		`:class`: "show ? '' : 'hidden'",
+		`@click`: "show = !show",
+	} Goht
+}
+
+@haml HamlComplexNames() {
+	%a{
+		href: "https://github.com/stackus/goht",
+		`:class`: "show ? '' : 'hidden'",
+		`@click`: "show = !show",
+	} Goht
+}
+
+@slim SlimComplexNames() {
+	a{
 		href: "https://github.com/stackus/goht",
 		`:class`: "show ? '' : 'hidden'",
 		`@click`: "show = !show",
