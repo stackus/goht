@@ -129,7 +129,7 @@ func World() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\r\n\tcolor: white;\r\n\tfont-family: sans-serif;\r\n\tbackground-color: #333;\r\n}\r\n.term {\r\n\tfont-weight: bold;\r\n\tcolor: #99f;\r\n}\r\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
 			return
 		}
 		for _, term := range terms {
@@ -181,7 +181,7 @@ func HamlWorld() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\r\n\tcolor: white;\r\n\tfont-family: sans-serif;\r\n\tbackground-color: #333;\r\n}\r\n.term {\r\n\tfont-weight: bold;\r\n\tcolor: #99f;\r\n}\r\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
 			return
 		}
 		for _, term := range terms {
@@ -233,7 +233,7 @@ func SlimWorld() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\r\n\tcolor: white;\r\n\tfont-family: sans-serif;\r\n\tbackground-color: #333;\r\n}\r\n.term {\r\n\tfont-weight: bold;\r\n\tcolor: #99f;\r\n}\r\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
 			return
 		}
 		for _, term := range terms {
