@@ -6,8 +6,22 @@ package filters
 var color = "red"
 
 @goht Css() {
-:css
-	.color {
-		color: #{color};
-	}
+	:css
+		.color {
+			color: #{color};
+		}
+}
+
+@haml HamlCss() {
+	:css
+		.color {
+			color: #{color};
+		}
+}
+
+@slim SlimCss() {
+	:css
+		.color {
+			color: #{color};
+		}
 }

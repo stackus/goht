@@ -10,10 +10,28 @@ func sayHello() string {
 }
 
 @goht ExecuteCode() {
-- foo := sayHello()
-%p= foo
+	- foo := sayHello()
+	%p= foo
+}
+
+@haml HamlExecuteCode() {
+	- foo := sayHello()
+	%p= foo
+}
+
+@slim SlimExecuteCode() {
+	- foo := sayHello()
+	p= foo
 }
 
 @goht RenderCode() {
-%p= sayHello()
+	%p= sayHello()
+}
+
+@haml HamlRenderCode() {
+	%p= sayHello()
+}
+
+@slim SlimRenderCode() {
+	p= sayHello()
 }

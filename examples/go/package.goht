@@ -5,6 +5,5 @@ package example
 // must be the first line of the file. If you do not specify a package,
 // the generated code will use "main" as the package name.
 
-
 @goht PackageExample() {
 }

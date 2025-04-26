@@ -1,0 +1,11 @@
+package tags
+
+// Slim allows you to inline tags for those times when you really
+// want to keep things concise.
+
+@slim SlimInlineTags() {
+	ul
+		li: a.first First Item
+		li: a.second First Item
+		li: a.third First Item
+}

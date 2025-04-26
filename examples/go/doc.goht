@@ -2,5 +2,13 @@
 package example
 
 @goht Doc() {
-.doc An example of package documentation.
+	.doc An example of package documentation.
+}
+
+@haml HamlDoc() {
+	.doc An example of package documentation.
+}
+
+@slim SlimDoc() {
+	.doc An example of package documentation.
 }

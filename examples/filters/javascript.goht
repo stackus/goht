@@ -7,6 +7,16 @@ package filters
 var name = "Bob"
 
 @goht JavaScript() {
-:javascript
-  console.log("Hello #{name}!");
+	:javascript
+		console.log("Hello #{name}!");
+}
+
+@haml HamlJavaScript() {
+	:javascript
+		console.log("Hello #{name}!");
+}
+
+@slim SlimJavaScript() {
+	:javascript
+		console.log("Hello #{name}!");
 }

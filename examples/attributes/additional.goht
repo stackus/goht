@@ -17,7 +17,19 @@ var strAttrs = map[string]string{
 }
 
 @goht AttributesCmd() {
-%input{
-  @attributes: #{boolAttrs, strAttrs},
+	%input{
+		@attributes: #{boolAttrs, strAttrs},
+	}
 }
+
+@haml HamlAttributesCmd() {
+	%input{
+		@attributes: #{boolAttrs, strAttrs},
+	}
+}
+
+@slim SlimAttributesCmd() {
+	input{
+		@attributes: #{boolAttrs, strAttrs},
+	}
 }

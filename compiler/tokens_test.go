@@ -37,14 +37,6 @@ func Test_TokenStringer(t *testing.T) {
 			typ:  tGoCode,
 			want: "GoCode",
 		},
-		"tGohtStart": {
-			typ:  tGohtStart,
-			want: "GohtStart",
-		},
-		"tGohtEnd": {
-			typ:  tGohtEnd,
-			want: "GohtEnd",
-		},
 		"tDoctype": {
 			typ:  tDoctype,
 			want: "Doctype",

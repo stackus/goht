@@ -8,10 +8,24 @@ package tags
 // to display an error.
 
 @goht SelfClosing() {
-%img{src: "logo.png", alt: "logo"}
-%p
-  A paragraph is not self closing.
-  %img{src: "logo.png", alt: "logo"}
+	%img{src: "logo.png", alt: "logo"}
+	%p
+		A paragraph is not self closing.
+		%img{src: "logo.png", alt: "logo"}
+}
+
+@haml HamlSelfClosing() {
+	%img{src: "logo.png", alt: "logo"}
+	%p
+		A paragraph is not self closing.
+		%img{src: "logo.png", alt: "logo"}
+}
+
+@slim SlimSelfClosing() {
+	img{src: "logo.png", alt: "logo"}
+	p
+		A paragraph is not self closing.
+		img{src: "logo.png", alt: "logo"}
 }
 
 // You may also use the self closing tag syntax to create a tag
@@ -25,5 +39,13 @@ package tags
 // 	"meta", "param", "source", "track", "wbr",
 
 @goht AlsoSelfClosing() {
-%isNowSelfClosing/
+	%isNowSelfClosing/
+}
+
+@haml HamlAlsoSelfClosing() {
+	%isNowSelfClosing/
+}
+
+@slim SlimAlsoSelfClosing() {
+	isNowSelfClosing/
 }

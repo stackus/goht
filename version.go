@@ -9,5 +9,5 @@ import (
 var version string
 
 func Version() string {
-	return strings.TrimPrefix(version, "VERSION=")
+	return strings.TrimSpace(strings.TrimPrefix(version, "VERSION="))
 }

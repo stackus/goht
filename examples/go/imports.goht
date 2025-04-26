@@ -13,5 +13,13 @@ import (
 // will be removed.
 
 @goht ImportExample() {
-%p= fmt.Sprintf("Hello, %s!", strings.TrimSuffix("World!", "!"))
+	%p= fmt.Sprintf("Hello, %s!", strings.TrimSuffix("World!", "!"))
+}
+
+@haml HamlImportExample() {
+	%p= fmt.Sprintf("Hello, %s!", strings.TrimSuffix("World!", "!"))
+}
+
+@slim SlimImportExample() {
+	p= fmt.Sprintf("Hello, %s!", strings.TrimSuffix("World!", "!"))
 }

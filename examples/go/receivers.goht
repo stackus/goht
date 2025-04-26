@@ -17,8 +17,22 @@ type User struct {
 //   @render u.Details()
 
 @goht (u User) Details() {
-.name User name: #{u.Name}
-.age
-  User Age:
-  !=%d u.Age
+	.name User name: #{u.Name}
+	.age
+		User Age:
+		!=%d u.Age
+}
+
+@haml (u User) HamlDetails() {
+	.name User name: #{u.Name}
+	.age
+		User Age:
+		!=%d u.Age
+}
+
+@slim (u User) SlimDetails() {
+	.name User name: #{u.Name}
+	.age
+		User Age:
+		=%d u.Age
 }

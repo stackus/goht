@@ -22,8 +22,10 @@ const (
 	tPackage
 	tImport
 	tGoCode
-	tGohtStart
-	tGohtEnd
+
+	// Template tokens
+	tTemplateStart
+	tTemplateEnd
 
 	// Goht/Haml tokens
 	tDoctype
@@ -71,10 +73,14 @@ func (t tokenType) String() string {
 		return "Import"
 	case tGoCode:
 		return "GoCode"
-	case tGohtStart:
-		return "GohtStart"
-	case tGohtEnd:
-		return "GohtEnd"
+	// case tGohtStart:
+	// 	return "GohtStart"
+	// case tGohtEnd:
+	// 	return "GohtEnd"
+	case tTemplateStart:
+		return "TemplateStart"
+	case tTemplateEnd:
+		return "TemplateEnd"
 	case tDoctype:
 		return "Doctype"
 	case tTag:

@@ -15,6 +15,16 @@ var disabled = true
 var foo = "bar"
 
 @goht ConditionalAttrs() {
-%button{disabled? #{disabled}} Click me!
-%button{disabled? #{foo == "bar"}} Click me!
+	%button{disabled? #{disabled}} Click me!
+	%button{disabled? #{foo == "bar"}} Click me!
+}
+
+@haml HamlConditionalAttrs() {
+	%button{disabled? #{disabled}} Click me!
+	%button{disabled? #{foo == "bar"}} Click me!
+}
+
+@slim SlimConditionalAttrs() {
+	button{disabled? #{disabled}} Click me!
+	button{disabled? #{foo == "bar"}} Click me!
 }

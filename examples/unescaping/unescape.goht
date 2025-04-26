@@ -9,16 +9,32 @@ package unescape
 // you should use the default escaping.
 
 @goht UnescapeCode() {
-%p= "This is <em>not</em> unescaped HTML."
-%p!= "This <em>is</em> unescaped HTML."
+	%p= "This is <em>NOT</em> unescaped HTML. (Ampersands everywhere!)"
+	%p!= "This <em>is</em> unescaped HTML."
+}
+
+@haml HamlUnescapeCode() {
+	%p= "This is <em>NOT</em> unescaped HTML. (Ampersands everywhere!)"
+	%p!= "This <em>is</em> unescaped HTML."
+}
+
+@slim SlimUnescapeCode() {
+	p= "This is <em>is</em> escaped HTML. (Ampersands everywhere!)"
+	p== "This is <em>NOT</em> escaped HTML."
 }
 
 // It can also affect the interpolated values.
 
 @goht UnescapeInterpolation() {
-- var html = "<em>is</em>"
-%p This #{html} HTML.
-%p! This #{html} HTML.
+	- var html = "<em>is</em>"
+	%p This #{html} is escaped. (Ampersands everywhere!)
+	%p! This #{html} is NOT escaped.
+}
+
+@haml HamlUnescapeInterpolation() {
+	- var html = "<em>is</em>"
+	%p This #{html} is escaped. (Ampersands everywhere!)
+	%p! This #{html} is NOT escaped.
 }
 
 // The plain text that you write into your Goht templates will not be
@@ -26,6 +42,11 @@ package unescape
 // text has already been HTML escaped properly.
 
 @goht UnescapeText() {
-%p This <em>is</em> HTML.
-%p! This <em>is</em> HTML.
+	%p This <em>is</em> HTML.
+	%p! This <em>is</em> HTML.
+}
+
+@haml HamlUnescapeText() {
+	%p This <em>is</em> HTML.
+	%p! This <em>is</em> HTML.
 }
