@@ -512,6 +512,14 @@ func (n *ElementNode) Source(tw *templateWriter) error {
 		return err
 	}
 	// close the tag
+	if n.isSelfClosing {
+		// add a "/" to the end of the tag as long as it's not in the list of tags that shouldn't get it
+		if !slices.Contains(selfClosedTags, strings.ToLower(n.tag)) {
+			if _, err := tw.WriteStringLiteral("/"); err != nil {
+				return err
+			}
+		}
+	}
 	if _, err := tw.WriteStringLiteral(">"); err != nil {
 		return err
 	}

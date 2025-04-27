@@ -24,7 +24,7 @@ package tags
 @slim SlimSelfClosing() {
 	img{src: "logo.png", alt: "logo"}
 	p
-		A paragraph is not self closing.
+		|A paragraph is not self closing.
 		img{src: "logo.png", alt: "logo"}
 }
 

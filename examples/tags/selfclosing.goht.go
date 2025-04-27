@@ -65,7 +65,7 @@ func SlimSelfClosing() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<img src=\"logo.png\" alt=\"logo\"><p>\n<A>paragraph is not self closing.</A>\n<img src=\"logo.png\" alt=\"logo\"></p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<img src=\"logo.png\" alt=\"logo\"><p>\nA paragraph is not self closing.\n<img src=\"logo.png\" alt=\"logo\"></p>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -95,7 +95,7 @@ func AlsoSelfClosing() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<isNowSelfClosing>"); __err != nil {
+		if _, __err = __buf.WriteString("<isNowSelfClosing/>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -115,7 +115,7 @@ func HamlAlsoSelfClosing() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<isNowSelfClosing>"); __err != nil {
+		if _, __err = __buf.WriteString("<isNowSelfClosing/>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -135,7 +135,7 @@ func SlimAlsoSelfClosing() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<isNowSelfClosing>"); __err != nil {
+		if _, __err = __buf.WriteString("<isNowSelfClosing/>"); __err != nil {
 			return
 		}
 		if !__isBuf {
