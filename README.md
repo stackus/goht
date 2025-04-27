@@ -39,6 +39,7 @@ A [Haml](http://haml.info/) and [Slim](https://slim-template.github.io/) templat
 
 ## Features
 - Full [Haml](http://haml.info/) language support 
+- Full [Slim](https://slim-lang.com/) language support
 - Templates are compiled to type-safe Go and not parsed at runtime
 - Multiple templates per file
 - Mix Go and templates together in the same file
@@ -139,12 +140,13 @@ Which would serve the following HTML:
 - [x] Inline Interpolation (`#{value}`)
 - [x] Inlining Code (`- code`)
 - [x] Rendering Code (`= code`, `== code`)
-- [x] Filters (`:plain`, ...) [(more info)](#filters)
+- [x] Filters (`:javascript`, `:css`) [(more info)](#filters)
 - [x] Long Statement wrapping (`\`), (`,`)]
+- [x] Whitespace Addition (`tag<` `tag>`) [(more info)](#whitespace-addition)
 
 ### Unsupported Slim Features
 
-- [ ] Whitespace Addition (`tag<` `tag>`)
+- [ ] Probably something I've missed, please raise an issue if you find something missing.
 
 ## GoHT CLI
 
@@ -266,6 +268,9 @@ func main() {
 	}
 }
 ```
+
+**More Examples!**
+
 There are a number of examples showing various Haml and GoHT features in the [examples](examples) directory.
 
 ### A big nod to Templ
@@ -575,6 +580,14 @@ GoHT supports the removal of whitespace between tags. This is done by adding a `
 - `<` will remove all whitespace between the tag and its first and last child.
 
 Both can be used together to remove whitespace both inside and outside a tag; the order they're in does not matter.
+
+### Whitespace Addition
+**Slim Only**
+
+GoHT supports the addition of whitespace between tags. This is done by adding a `<` or `>` to the end of the tag.
+
+- `<` will add whitespace before the tag
+- `>` will add whitespace after the tag
 
 ### Template nesting
 The biggest departure from Haml is how templates can be combined. When working Haml you could use `= render :partial_name` or `= haml :partial_name` to render a partial. The `render` and `haml` functions are not available in GoHT, instead you can use the `@render` directive.
