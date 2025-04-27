@@ -81,25 +81,19 @@ var foo = "bar"
 	GoCode
 	Template
 		Doctype
-		NewLine
 		Element html()
-			NewLine
 			Element head()
-				NewLine
 				Element title()
 					Script
 			Element body()
-				NewLine
 				Element p()
 					Text(S)
 					Text(D)
 				Element div()
-					NewLine
 					Element p()
 						Script
 				SilentScript
 					Element div()
-						NewLine
 						Element p()
 							Script
 	GoCode

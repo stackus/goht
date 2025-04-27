@@ -41,8 +41,11 @@ const (
 	tComment
 	tRubyComment
 	tVoidTag
+	tKeepNewlines
 	tNukeInnerWhitespace
 	tNukeOuterWhitespace
+	tAddWhitespaceBefore
+	tAddWhitespaceAfter
 	tEscapedText
 	tDynamicText
 	tPlainText
@@ -73,10 +76,6 @@ func (t tokenType) String() string {
 		return "Import"
 	case tGoCode:
 		return "GoCode"
-	// case tGohtStart:
-	// 	return "GohtStart"
-	// case tGohtEnd:
-	// 	return "GohtEnd"
 	case tTemplateStart:
 		return "TemplateStart"
 	case tTemplateEnd:
@@ -107,10 +106,16 @@ func (t tokenType) String() string {
 		return "RubyComment"
 	case tVoidTag:
 		return "VoidTag"
+	case tKeepNewlines:
+		return "KeepNewlines"
 	case tNukeInnerWhitespace:
 		return "NukeInnerWhitespace"
 	case tNukeOuterWhitespace:
 		return "NukeOuterWhitespace"
+	case tAddWhitespaceBefore:
+		return "AddWhitespaceBefore"
+	case tAddWhitespaceAfter:
+		return "AddWhitespaceAfter"
 	case tEscapedText:
 		return "EscapedText"
 	case tDynamicText:

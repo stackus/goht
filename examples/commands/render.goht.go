@@ -80,7 +80,7 @@ func SlimRenderExample() goht.Template {
 		if __err = ChildrenExample().Render(ctx, __buf); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p>\n<p>the other template was rendered above.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</p><p>the other template was rendered above.</p>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -178,7 +178,7 @@ func SlimRenderWithChildrenExample() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>The other template will be rendered below.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>The other template will be rendered below.</p>"); __err != nil {
 			return
 		}
 		__var1 := goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
@@ -187,7 +187,7 @@ func SlimRenderWithChildrenExample() goht.Template {
 				__buf = goht.GetBuffer()
 				defer goht.ReleaseBuffer(__buf)
 			}
-			if _, __err = __buf.WriteString("<span>this content will be rendered by the other template.</span>\n"); __err != nil {
+			if _, __err = __buf.WriteString("<span>this content will be rendered by the other template.</span>"); __err != nil {
 				return
 			}
 			if !__isBuf {
@@ -196,6 +196,9 @@ func SlimRenderWithChildrenExample() goht.Template {
 			return
 		})
 		if __err = ChildrenExample().Render(goht.PushChildren(ctx, __var1), __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

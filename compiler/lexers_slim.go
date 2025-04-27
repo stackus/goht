@@ -343,7 +343,7 @@ func lexSlimCloseTag(l *lexer) lexFn {
 	l.skipRun(" \t")
 	l.acceptUntil("\n\r")
 	if l.current() != "" {
-		return l.errorf("no content expected")
+		return l.errorf("self-closing tags can't have content")
 	}
 	l.emit(tVoidTag)
 	return lexSlimLineEnd
@@ -629,17 +629,14 @@ func lexSlimAttributeEnd(l *lexer) lexFn {
 	}
 }
 
-// TODO: Drop support for keeping whitespace; Also update Haml parsing to eat whitespace.
 func lexSlimWhitespaceAddition(l *lexer) lexFn {
-	l.skip()
-	l.skipRun(" \t")
 	switch l.peek() {
 	case '>':
 		l.skip()
-		l.emit(tNukeOuterWhitespace)
+		l.emit(tAddWhitespaceAfter)
 	case '<':
 		l.skip()
-		l.emit(tNukeInnerWhitespace)
+		l.emit(tAddWhitespaceBefore)
 	default:
 		return l.errorf("unexpected character: %q", l.peek())
 	}

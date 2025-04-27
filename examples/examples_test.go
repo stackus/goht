@@ -521,9 +521,9 @@ func TestSlimExamples(t *testing.T) {
 			template: tags.SlimWhitespace(),
 			htmlFile: "tags_whitespace",
 		},
-		"tags_removeWhitespace": {
-			template: tags.SlimRemoveWhitespace(),
-			htmlFile: "tags_removeWhitespace",
+		"tags_addWhitespace": {
+			template: tags.SlimAddWhitespace(),
+			htmlFile: "tags_addWhitespace",
 		},
 		"hello_world": {
 			template: hello.SlimWorld(),

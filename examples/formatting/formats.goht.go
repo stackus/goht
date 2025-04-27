@@ -202,7 +202,7 @@ func SlimIntExample() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(").</p>\n<p>The integer is ("); __err != nil {
+		if _, __err = __buf.WriteString(").</p><p>The integer is ("); __err != nil {
 			return
 		}
 		var __var2 string
@@ -212,7 +212,7 @@ func SlimIntExample() goht.Template {
 		if _, __err = __buf.WriteString(__var2); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") in binary.</p>\n<p>The integer is ("); __err != nil {
+		if _, __err = __buf.WriteString(") in binary.</p><p>The integer is ("); __err != nil {
 			return
 		}
 		var __var3 string
@@ -222,7 +222,7 @@ func SlimIntExample() goht.Template {
 		if _, __err = __buf.WriteString(__var3); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") in octal.</p>\n<p>The integer is ("); __err != nil {
+		if _, __err = __buf.WriteString(") in octal.</p><p>The integer is ("); __err != nil {
 			return
 		}
 		var __var4 string
@@ -232,7 +232,7 @@ func SlimIntExample() goht.Template {
 		if _, __err = __buf.WriteString(__var4); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") in hex.</p>\n<p>The integer is ("); __err != nil {
+		if _, __err = __buf.WriteString(") in hex.</p><p>The integer is ("); __err != nil {
 			return
 		}
 		var __var5 string
@@ -242,7 +242,7 @@ func SlimIntExample() goht.Template {
 		if _, __err = __buf.WriteString(__var5); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") in hex with uppercase.</p>\n<p>The integer is ("); __err != nil {
+		if _, __err = __buf.WriteString(") in hex with uppercase.</p><p>The integer is ("); __err != nil {
 			return
 		}
 		var __var6 string
@@ -442,7 +442,7 @@ func SlimFloatExample() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(").</p>\n<p>The float is ("); __err != nil {
+		if _, __err = __buf.WriteString(").</p><p>The float is ("); __err != nil {
 			return
 		}
 		var __var2 string
@@ -452,7 +452,7 @@ func SlimFloatExample() goht.Template {
 		if _, __err = __buf.WriteString(__var2); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") in scientific notation.</p>\n<p>The float is ("); __err != nil {
+		if _, __err = __buf.WriteString(") in scientific notation.</p><p>The float is ("); __err != nil {
 			return
 		}
 		var __var3 string
@@ -462,7 +462,7 @@ func SlimFloatExample() goht.Template {
 		if _, __err = __buf.WriteString(__var3); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") with 2 decimal places.</p>\n<p>The float is ("); __err != nil {
+		if _, __err = __buf.WriteString(") with 2 decimal places.</p><p>The float is ("); __err != nil {
 			return
 		}
 		var __var4 string
@@ -472,7 +472,7 @@ func SlimFloatExample() goht.Template {
 		if _, __err = __buf.WriteString(__var4); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") with 2 decimal places and padded to 9 characters.</p>\n<p>The float is ("); __err != nil {
+		if _, __err = __buf.WriteString(") with 2 decimal places and padded to 9 characters.</p><p>The float is ("); __err != nil {
 			return
 		}
 		var __var5 string
@@ -482,7 +482,7 @@ func SlimFloatExample() goht.Template {
 		if _, __err = __buf.WriteString(__var5); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") with 2 decimal places and padded to 9 characters and left aligned.</p>\n<p>The float is ("); __err != nil {
+		if _, __err = __buf.WriteString(") with 2 decimal places and padded to 9 characters and left aligned.</p><p>The float is ("); __err != nil {
 			return
 		}
 		var __var6 string
@@ -832,7 +832,7 @@ func SlimStringExample() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("). Strings do not require any additional formatting.</p>\n<p>The string is ("); __err != nil {
+		if _, __err = __buf.WriteString("). Strings do not require any additional formatting.</p><p>The string is ("); __err != nil {
 			return
 		}
 		var __var2 string
@@ -842,7 +842,7 @@ func SlimStringExample() goht.Template {
 		if _, __err = __buf.WriteString(__var2); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") quoted.</p>\n<p>The string is ("); __err != nil {
+		if _, __err = __buf.WriteString(") quoted.</p><p>The string is ("); __err != nil {
 			return
 		}
 		var __var3 string
@@ -852,7 +852,7 @@ func SlimStringExample() goht.Template {
 		if _, __err = __buf.WriteString(__var3); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") as hex.</p>\n<p>The string is ("); __err != nil {
+		if _, __err = __buf.WriteString(") as hex.</p><p>The string is ("); __err != nil {
 			return
 		}
 		var __var4 string
@@ -862,7 +862,7 @@ func SlimStringExample() goht.Template {
 		if _, __err = __buf.WriteString(__var4); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") as hex with uppercase.</p>\n<p>The string is ("); __err != nil {
+		if _, __err = __buf.WriteString(") as hex with uppercase.</p><p>The string is ("); __err != nil {
 			return
 		}
 		var __var5 string
@@ -872,7 +872,7 @@ func SlimStringExample() goht.Template {
 		if _, __err = __buf.WriteString(__var5); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") as is.</p>\n<p>The string is ("); __err != nil {
+		if _, __err = __buf.WriteString(") as is.</p><p>The string is ("); __err != nil {
 			return
 		}
 		var __var6 string
@@ -882,7 +882,7 @@ func SlimStringExample() goht.Template {
 		if _, __err = __buf.WriteString(__var6); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("), truncated to 4 characters.</p>\n<p>The string is ("); __err != nil {
+		if _, __err = __buf.WriteString("), truncated to 4 characters.</p><p>The string is ("); __err != nil {
 			return
 		}
 		var __var7 string
@@ -892,7 +892,7 @@ func SlimStringExample() goht.Template {
 		if _, __err = __buf.WriteString(__var7); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("), padded to 6 characters.</p>\n<p>The string is ("); __err != nil {
+		if _, __err = __buf.WriteString("), padded to 6 characters.</p><p>The string is ("); __err != nil {
 			return
 		}
 		var __var8 string
@@ -902,7 +902,7 @@ func SlimStringExample() goht.Template {
 		if _, __err = __buf.WriteString(__var8); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("), truncated to 4 characters and padded to 6 characters.</p>\n<p>The string is ("); __err != nil {
+		if _, __err = __buf.WriteString("), truncated to 4 characters and padded to 6 characters.</p><p>The string is ("); __err != nil {
 			return
 		}
 		var __var9 string

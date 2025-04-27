@@ -1,6 +1,6 @@
 package tags
-// Whitespace will be added between tags and between tags and text
-// if that text is on a new line after the tag.
+// Whitespace will be added between tags when using Haml and between
+// tags and text if that text is on a new line after the tag.
 //
 // %p Some text
 // The above line will render as:
@@ -29,6 +29,8 @@ package tags
 		This text has whitespace between it and the tag.
 		%p This tag has whitespace between it and the tag above.
 }
+
+// Slim does not keep whitespace between tags by default.
 
 @slim SlimWhitespace() {
 	p This text has no whitespace between it and the tag.
@@ -68,15 +70,18 @@ package tags
 			Finally, the tag has no whitespace between it and the outer tag.
 }
 
-@slim SlimRemoveWhitespace() {
-	p
-		|<
-		|This text has no whitespace between it and the parent tag.
-	p
+// You can add whitespace between tags by using the `>` and `<` operators.
+// The `>` operator will add whitespace after the tag, and the `<` operator
+// will add whitespace before the tag.
+//
+// The operators must be placed at the end of the tag:
+// p> Text
+// p< Text
+// p<> Text
+
+@slim SlimAddWhitespace() {
+	div> This tag has whitespace after it.
+	div
 		|There is whitespace between this text and the parent tag.
-		p
-			|<>
-			|This text has no whitespace between it and the parent tag.
-			|There is also no whitespace between this tag and the sibling text above it.
-			|Finally, the tag has no whitespace between it and the outer tag.
+		p<> There is whitespace before and after this tag.
 }

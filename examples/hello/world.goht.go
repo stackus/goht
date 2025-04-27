@@ -99,7 +99,7 @@ func slimTermsWrapper(term string) goht.Template {
 		if __err = __children.Render(ctx, __buf); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p>\n<p>And it was passed in as well "); __err != nil {
+		if _, __err = __buf.WriteString("</p><p>And it was passed in as well "); __err != nil {
 			return
 		}
 		var __var1 string
@@ -181,7 +181,7 @@ func HamlWorld() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<div>the following will loop a slice of strings and will pass each string into a child template</div>\n"); __err != nil {
 			return
 		}
 		for _, term := range terms {
@@ -233,7 +233,7 @@ func SlimWorld() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Hello World</title><style>\nbody {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head><body><h1>Hello World</h1><p>the following will loop a slice of strings and will pass each string into a child template</p>"); __err != nil {
 			return
 		}
 		for _, term := range terms {
@@ -253,7 +253,7 @@ func SlimWorld() goht.Template {
 				if _, __err = __buf.WriteString(__var2); __err != nil {
 					return
 				}
-				if _, __err = __buf.WriteString("</p>\n"); __err != nil {
+				if _, __err = __buf.WriteString("</p>"); __err != nil {
 					return
 				}
 				if !__isBuf {
@@ -265,7 +265,7 @@ func SlimWorld() goht.Template {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("</body>\n</html>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</body></html>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

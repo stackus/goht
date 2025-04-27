@@ -59,7 +59,7 @@ func SlimSpecifyTag() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>This is a paragraph tag.</p>\n<main>This is a main tag.</main>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This is a paragraph tag.</p><main>This is a main tag.</main>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -122,7 +122,7 @@ func SlimDefaultToDivs() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<div id=\"main\">This is a div tag with an id of `main`.</div>\n<div class=\"main\">This is a div tag with a class of `main`.</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div id=\"main\">This is a div tag with an id of `main`.</div><div class=\"main\">This is a div tag with a class of `main`.</div>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -185,7 +185,7 @@ func SlimCombined() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p id=\"main\">This is a paragraph tag with an id of `main`.</p>\n<main class=\"main\">This is a main tag with a class of `main`.</main>\n<div id=\"main\" class=\"main\">This is a div tag with an id and class of `main`.</div>\n<p id=\"main\" class=\"main\">This is a paragraph tag with an id and class of `main`.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p id=\"main\">This is a paragraph tag with an id of `main`.</p><main class=\"main\">This is a main tag with a class of `main`.</main><div id=\"main\" class=\"main\">This is a div tag with an id and class of `main`.</div><p id=\"main\" class=\"main\">This is a paragraph tag with an id and class of `main`.</p>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -249,7 +249,7 @@ func SlimMultipleClasses() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<div class=\"main main2\">This is a div tag with two classes, `main` and `main2`.</div>\n<div id=\"main2\">This is a div tag with an id of `main2`.</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div class=\"main main2\">This is a div tag with two classes, `main` and `main2`.</div><div id=\"main2\">This is a div tag with an id of `main2`.</div>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

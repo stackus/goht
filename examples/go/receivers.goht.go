@@ -123,7 +123,7 @@ func (u User) SlimDetails() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</div>\n<div class=\"age\">\n<User>Age:</User>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</div><div class=\"age\">User Age:"); __err != nil {
 			return
 		}
 		var __var2 string
@@ -133,7 +133,7 @@ func (u User) SlimDetails() goht.Template {
 		if _, __err = __buf.WriteString(__var2); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("\n</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</div>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

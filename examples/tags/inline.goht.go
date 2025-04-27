@@ -20,7 +20,7 @@ func SlimInlineTags() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<ul>\n<li><a class=\"first\">First Item</a>\n</li>\n<li><a class=\"second\">First Item</a>\n</li>\n<li><a class=\"third\">First Item</a>\n</li>\n</ul>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<ul><li><a class=\"first\">First Item</a></li><li><a class=\"second\">First Item</a></li><li><a class=\"third\">First Item</a></li></ul>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

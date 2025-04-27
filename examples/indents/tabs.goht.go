@@ -64,7 +64,7 @@ func SlimUsingTabs() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>\nHello World\n</title>\n</head>\n<body>\n<h1>\nHello World\n</h1>\n<p>\nHello World\n</p>\n</body>\n</html>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Hello World</title></head><body><h1>Hello World</h1><p>Hello World</p></body></html>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

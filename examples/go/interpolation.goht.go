@@ -193,7 +193,7 @@ func SlimNoInterpolation() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>Do the following; No interpolation is necessary.</p>\n<p>"); __err != nil {
+		if _, __err = __buf.WriteString("<p>Do the following; No interpolation is necessary.</p><p>"); __err != nil {
 			return
 		}
 		var __var1 string
@@ -203,7 +203,7 @@ func SlimNoInterpolation() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p>\n<p>"); __err != nil {
+		if _, __err = __buf.WriteString("</p><p>"); __err != nil {
 			return
 		}
 		var __var2 string

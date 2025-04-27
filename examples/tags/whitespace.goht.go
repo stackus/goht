@@ -7,8 +7,8 @@ import "context"
 import "io"
 import "github.com/stackus/goht"
 
-// Whitespace will be added between tags and between tags and text
-// if that text is on a new line after the tag.
+// Whitespace will be added between tags when using Haml and between
+// tags and text if that text is on a new line after the tag.
 //
 // %p Some text
 // The above line will render as:
@@ -64,6 +64,8 @@ func HamlWhitespace() goht.Template {
 	})
 }
 
+// Slim does not keep whitespace between tags by default.
+
 func SlimWhitespace() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -74,7 +76,7 @@ func SlimWhitespace() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>This text has no whitespace between it and the tag.</p>\n<p>\n<This>text has NO whitespace between it and the tag.</This>\n<p>This tag has NO whitespace between it and the tag above.</p>\n</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This text has no whitespace between it and the tag.</p><p><This>text has NO whitespace between it and the tag.</This><p>This tag has NO whitespace between it and the tag above.</p></p>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -133,7 +135,16 @@ func HamlRemoveWhitespace() goht.Template {
 	})
 }
 
-func SlimRemoveWhitespace() goht.Template {
+// You can add whitespace between tags by using the `>` and `<` operators.
+// The `>` operator will add whitespace after the tag, and the `<` operator
+// will add whitespace before the tag.
+//
+// The operators must be placed at the end of the tag:
+// p> Text
+// p< Text
+// p<> Text
+
+func SlimAddWhitespace() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
@@ -143,7 +154,7 @@ func SlimRemoveWhitespace() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>\n<\nThis text has no whitespace between it and the parent tag.\n</p>\n<p>\nThere is whitespace between this text and the parent tag.\n<p>\n<>\nThis text has no whitespace between it and the parent tag.\nThere is also no whitespace between this tag and the sibling text above it.\nFinally, the tag has no whitespace between it and the outer tag.\n</p>\n</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div>This tag has whitespace after it.</div> <div>There is whitespace between this text and the parent tag. <p>There is whitespace before and after this tag.</p> </div>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

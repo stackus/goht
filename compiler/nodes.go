@@ -97,11 +97,12 @@ type parsingNode interface {
 }
 
 type node struct {
-	typ         nodeType
-	indent      int
-	origin      token
-	children    []nodeBase
-	nextSibling nodeBase
+	typ          nodeType
+	indent       int
+	origin       token
+	children     []nodeBase
+	nextSibling  nodeBase
+	keepNewlines bool
 }
 
 func newNode(typ nodeType, indent int, origin token) node {
@@ -160,10 +161,16 @@ func (n *node) handleNode(p *parser, indent int) error {
 	t := p.peek()
 	_ = t
 	switch p.peek().Type() {
+	case tKeepNewlines:
+		n.keepNewlines = true
+		p.next()
 	case tRubyComment:
 		p.next()
 	case tNewLine:
-		p.addChild(NewNewLineNode(p.next()))
+		p.next()
+		if n.keepNewlines {
+			p.addChild(NewNewLineNode(t))
+		}
 	case tIndent:
 		nextIndent := len(p.peek().lit)
 		if nextIndent <= n.indent {
@@ -174,21 +181,21 @@ func (n *node) handleNode(p *parser, indent int) error {
 	case tDoctype:
 		p.addChild(NewDoctypeNode(p.next()))
 	case tTag, tId, tClass:
-		p.addNode(NewElementNode(p.next(), indent))
+		p.addNode(NewElementNode(p.next(), indent, n.keepNewlines))
 	case tAttrName:
-		p.addNode(NewElementNode(p.peek(), indent))
+		p.addNode(NewElementNode(p.peek(), indent, n.keepNewlines))
 	case tComment:
-		p.addNode(NewCommentNode(p.next(), indent))
+		p.addNode(NewCommentNode(p.next(), indent, n.keepNewlines))
 	case tUnescaped:
 		p.addNode(NewUnescapeNode(p.next(), indent))
 	case tPlainText, tPreserveText, tEscapedText, tDynamicText:
 		p.addChild(NewTextNode(p.next()))
 	case tSilentScript:
-		p.addNode(NewSilentScriptNode(p.next(), indent))
+		p.addNode(NewSilentScriptNode(p.next(), indent, n.keepNewlines))
 	case tScript:
-		p.addChild(NewScriptNode(p.next()))
+		p.addChild(NewScriptNode(p.next(), n.keepNewlines))
 	case tRenderCommand:
-		p.addNode(NewRenderCommandNode(p.next(), indent))
+		p.addNode(NewRenderCommandNode(p.next(), indent, n.keepNewlines))
 	case tChildrenCommand:
 		p.addChild(NewChildrenCommandNode(p.next()))
 	case tFilterStart:
@@ -203,8 +210,6 @@ func (n *node) handleNode(p *parser, indent int) error {
 		default:
 			return n.errorf("unknown filter: %s", t)
 		}
-	// case tGohtEnd:
-	// 	return p.backToType(nGoht)
 	case tTemplateEnd:
 		return p.backToType(nTemplate)
 	case tEOF:
@@ -420,6 +425,12 @@ func (n *TemplateNode) Source(tw *templateWriter) error {
 			return err
 		}
 	}
+	// ensure the template ends with a newline
+	if !n.keepNewlines {
+		if _, err := itw.WriteStringLiteral("\\n"); err != nil {
+			return err
+		}
+	}
 	if _, err := itw.Close(); err != nil {
 		return err
 	}
@@ -475,10 +486,12 @@ type ElementNode struct {
 	isSelfClosing       bool
 	nukeInnerWhitespace bool
 	nukeOuterWhitespace bool
+	addWhitespaceBefore bool
+	addWhitespaceAfter  bool
 	isComplete          bool
 }
 
-func NewElementNode(t token, indent int) *ElementNode {
+func NewElementNode(t token, indent int, keepNewlines bool) *ElementNode {
 	n := &ElementNode{
 		node:       newNode(nElement, indent, t),
 		tag:        "div",
@@ -494,12 +507,21 @@ func NewElementNode(t token, indent int) *ElementNode {
 		n.classes = append(n.classes, t)
 	}
 
+	if keepNewlines {
+		n.keepNewlines = true
+	}
+
 	return n
 }
 
 func (n *ElementNode) Source(tw *templateWriter) error {
 	if n.nukeOuterWhitespace {
 		if _, err := tw.WriteStringLiteral(goht.NukeBefore); err != nil {
+			return err
+		}
+	}
+	if n.addWhitespaceBefore {
+		if _, err := tw.WriteStringLiteral(" "); err != nil {
 			return err
 		}
 	}
@@ -551,13 +573,17 @@ func (n *ElementNode) Source(tw *templateWriter) error {
 	if _, err := tw.WriteStringLiteral("</" + n.tag + ">"); err != nil {
 		return err
 	}
-
 	if n.nukeOuterWhitespace {
 		if _, err := tw.WriteStringLiteral(goht.NukeAfter); err != nil {
 			return err
 		}
-	} else {
+	} else if n.keepNewlines {
 		if _, err := tw.WriteStringLiteral("\\n"); err != nil {
+			return err
+		}
+	}
+	if n.addWhitespaceAfter {
+		if _, err := tw.WriteStringLiteral(" "); err != nil {
 			return err
 		}
 	}
@@ -785,7 +811,7 @@ func (n *ElementNode) parse(p *parser) error {
 	}
 	switch p.peek().Type() {
 	case tNewLine:
-		t := p.next()
+		p.next()
 		n.isComplete = true
 		if slices.Contains(selfClosedTags, n.tag) {
 			n.isSelfClosing = true
@@ -793,7 +819,7 @@ func (n *ElementNode) parse(p *parser) error {
 		if n.isSelfClosing || len(n.children) > 0 {
 			n.disallowChildren = true
 		}
-		if len(n.children) == 0 {
+		if len(n.children) == 0 && n.keepNewlines {
 			n.AddChild(NewNewLineNode(t))
 		}
 	case tId:
@@ -816,6 +842,12 @@ func (n *ElementNode) parse(p *parser) error {
 	case tNukeInnerWhitespace:
 		p.next()
 		n.nukeInnerWhitespace = true
+	case tAddWhitespaceBefore:
+		p.next()
+		n.addWhitespaceBefore = true
+	case tAddWhitespaceAfter:
+		p.next()
+		n.addWhitespaceAfter = true
 	default:
 		return n.handleNode(p, n.indent+1)
 	}
@@ -928,28 +960,54 @@ type CommentNode struct {
 	text string
 }
 
-func NewCommentNode(t token, indent int) *CommentNode {
-	return &CommentNode{
+func NewCommentNode(t token, indent int, keepNewlines bool) *CommentNode {
+	n := &CommentNode{
 		node: newNode(nComment, indent, t),
 		text: t.lit,
 	}
+
+	if keepNewlines {
+		n.keepNewlines = true
+	}
+
+	return n
 }
 
 func (n *CommentNode) Source(tw *templateWriter) error {
 	if n.text != "" {
-		_, err := tw.WriteStringLiteral("<!--" + html.EscapeString(n.text) + "-->\\n")
-		return err
+		if _, err := tw.WriteStringLiteral("<!--" + html.EscapeString(n.text) + "-->"); err != nil {
+			return err
+		}
+		if n.keepNewlines {
+			if _, err := tw.WriteStringLiteral("\\n"); err != nil {
+				return err
+			}
+		}
+	}
+	// ignore children if there is only a newline
+	if len(n.children) == 0 || len(n.children) == 1 && n.children[0].Type() == nNewLine {
+		return nil
 	}
 	if _, err := tw.WriteStringLiteral("<!--"); err != nil {
 		return err
 	}
+
 	for _, c := range n.children {
 		if err := c.Source(tw); err != nil {
 			return err
 		}
 	}
-	_, err := tw.WriteStringLiteral("-->\\n")
-	return err
+
+	if _, err := tw.WriteStringLiteral("-->"); err != nil {
+		return err
+	}
+	if n.keepNewlines {
+		if _, err := tw.WriteStringLiteral("\\n"); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (n *CommentNode) parse(p *parser) error {
@@ -1132,11 +1190,17 @@ type SilentScriptNode struct {
 	needsClose bool
 }
 
-func NewSilentScriptNode(t token, indent int) *SilentScriptNode {
-	return &SilentScriptNode{
+func NewSilentScriptNode(t token, indent int, keepNewlines bool) *SilentScriptNode {
+	n := &SilentScriptNode{
 		node: newNode(nSilentScriptNode, indent, t),
 		code: t.lit,
 	}
+
+	if keepNewlines {
+		n.keepNewlines = true
+	}
+
+	return n
 }
 
 var openingStatements = []string{"if", "else if", "for", "switch"}
@@ -1222,11 +1286,17 @@ type ScriptNode struct {
 	code string
 }
 
-func NewScriptNode(t token) *ScriptNode {
-	return &ScriptNode{
+func NewScriptNode(t token, keepNewlines bool) *ScriptNode {
+	n := &ScriptNode{
 		node: newNode(nScriptNode, 0, t),
 		code: t.lit,
 	}
+
+	if keepNewlines {
+		n.keepNewlines = true
+	}
+
+	return n
 }
 
 func (n *ScriptNode) Source(tw *templateWriter) error {
@@ -1264,11 +1334,17 @@ type RenderCommandNode struct {
 	command string
 }
 
-func NewRenderCommandNode(t token, indent int) *RenderCommandNode {
-	return &RenderCommandNode{
+func NewRenderCommandNode(t token, indent int, keepNewlines bool) *RenderCommandNode {
+	n := &RenderCommandNode{
 		node:    newNode(nRenderCommand, indent, t),
 		command: t.lit,
 	}
+
+	if keepNewlines {
+		n.keepNewlines = true
+	}
+
+	return n
 }
 
 func (n *RenderCommandNode) Source(tw *templateWriter) error {

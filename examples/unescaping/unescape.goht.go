@@ -115,7 +115,7 @@ func SlimUnescapeCode() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p>\n<p>"); __err != nil {
+		if _, __err = __buf.WriteString("</p><p>"); __err != nil {
 			return
 		}
 		var __var2 string

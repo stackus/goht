@@ -65,7 +65,7 @@ func SlimHtmlComments() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>This is a paragraph</p>\n<!--This is a HTML comment-->\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This is a paragraph</p><!--This is a HTML comment-->\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -129,7 +129,7 @@ func SlimHtmlCommentsNested() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>This is a paragraph</p>\n\n<!--p This is a paragraph that is commented out-->\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This is a paragraph</p><!--p This is a paragraph that is commented out-->\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

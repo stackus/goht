@@ -89,19 +89,19 @@ func SlimConditional() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<div class=\"actions\">\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div class=\"actions\">"); __err != nil {
 			return
 		}
 		if isAdmin {
-			if _, __err = __buf.WriteString("<button>\n<Edit>content</Edit>\n</button>\n"); __err != nil {
+			if _, __err = __buf.WriteString("<button><Edit>content</Edit></button>"); __err != nil {
 				return
 			}
 		} else {
-			if _, __err = __buf.WriteString("<button>Login</button>\n"); __err != nil {
+			if _, __err = __buf.WriteString("<button>Login</button>"); __err != nil {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("<button>View content</button>\n</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<button>View content</button></div>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -189,17 +189,17 @@ func SlimShorthandConditional() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<div class=\"actions\">\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div class=\"actions\">"); __err != nil {
 			return
 		}
 		if isAdmin {
-			if _, __err = __buf.WriteString("<button>\nEdit content\n</button>\n"); __err != nil {
+			if _, __err = __buf.WriteString("<button>Edit content</button>"); __err != nil {
 				return
 			}
-		} else if _, __err = __buf.WriteString("<button>Login</button>\n"); __err != nil {
+		} else if _, __err = __buf.WriteString("<button>Login</button>"); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("<button>View content</button>\n</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<button>View content</button></div>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -289,20 +289,20 @@ func SlimShorthandSwitch() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<div class=\"actions\">\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div class=\"actions\">"); __err != nil {
 			return
 		}
 		switch isAdmin {
 		case true:
-			if _, __err = __buf.WriteString("<button>\nEdit content\n</button>\n"); __err != nil {
+			if _, __err = __buf.WriteString("<button>Edit content</button>"); __err != nil {
 				return
 			}
 		case false:
-			if _, __err = __buf.WriteString("<button>Login</button>\n"); __err != nil {
+			if _, __err = __buf.WriteString("<button>Login</button>"); __err != nil {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("<button>View content</button>\n</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<button>View content</button></div>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -334,11 +334,11 @@ func SlimLongStatement() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<div class=\"actions\">\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div class=\"actions\">"); __err != nil {
 			return
 		}
 		action := longType{title: "Edit content", actions: "Edit content"}
-		if _, __err = __buf.WriteString("</div>\n<p>"); __err != nil {
+		if _, __err = __buf.WriteString("</div><p>"); __err != nil {
 			return
 		}
 		var __var1 string
@@ -348,7 +348,7 @@ func SlimLongStatement() goht.Template {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</p>"); __err != nil {
 			return
 		}
 		var __var2 string
@@ -356,6 +356,9 @@ func SlimLongStatement() goht.Template {
 			return
 		}
 		if _, __err = __buf.WriteString(__var2); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

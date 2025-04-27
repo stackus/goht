@@ -422,7 +422,7 @@ func SlimWhitespaceAttrs() goht.Template {
 		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p><p"); __err != nil {
 			return
 		}
 		var __var2 string
@@ -433,7 +433,7 @@ func SlimWhitespaceAttrs() goht.Template {
 		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p><p"); __err != nil {
 			return
 		}
 		var __var3 string
@@ -444,7 +444,7 @@ func SlimWhitespaceAttrs() goht.Template {
 		if _, __err = __buf.WriteString(" class=\"" + __var3 + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n<p"); __err != nil {
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p><p"); __err != nil {
 			return
 		}
 		var __var4 string

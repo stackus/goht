@@ -79,7 +79,7 @@ func SlimChildrenExample() goht.Template {
 		var __children goht.Template
 		ctx, __children = goht.PopChildren(ctx)
 		_ = __children
-		if _, __err = __buf.WriteString("<p>\n<The>following was passed in from the calling template:</The>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p><The>following was passed in from the calling template:</The>"); __err != nil {
 			return
 		}
 		if __err = __children.Render(ctx, __buf); __err != nil {

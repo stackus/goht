@@ -106,7 +106,7 @@ func SlimAttributesCmd() goht.Template {
 		if _, __err = __buf.WriteString(" " + __var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(">"); __err != nil {
+		if _, __err = __buf.WriteString(">\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

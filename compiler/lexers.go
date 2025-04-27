@@ -111,14 +111,14 @@ func lexTemplate(l *lexer) lexFn {
 	l.acceptUntil(" ")
 	switch l.current() {
 	case "@goht", "@haml":
-		return lexTemplateStart(l, lexHamlLineStart)
+		return lexTemplateStart(l, true, lexHamlLineStart)
 	case "@slim":
-		return lexTemplateStart(l, lexSlimLineStart)
+		return lexTemplateStart(l, false, lexSlimLineStart)
 	}
 	return nil
 }
 
-func lexTemplateStart(l *lexer, next lexFn) lexFn {
+func lexTemplateStart(l *lexer, keepNewlines bool, next lexFn) lexFn {
 	l.ignore()
 	l.skipRun(" ")
 	l.acceptUntil(")")
@@ -138,6 +138,9 @@ func lexTemplateStart(l *lexer, next lexFn) lexFn {
 	}
 	l.next()
 	l.emit(tTemplateStart)
+	if keepNewlines {
+		l.emit(tKeepNewlines)
+	}
 	l.skipRun(" {")
 	l.skipRun("\n\r")
 

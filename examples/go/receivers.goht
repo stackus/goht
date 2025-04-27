@@ -33,6 +33,6 @@ type User struct {
 @slim (u User) SlimDetails() {
 	.name User name: #{u.Name}
 	.age
-		User Age:
+		|User Age:
 		=%d u.Age
 }

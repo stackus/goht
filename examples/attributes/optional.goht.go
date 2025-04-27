@@ -111,7 +111,7 @@ func SlimConditionalAttrs() goht.Template {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString(">Click me!</button>\n<button"); __err != nil {
+		if _, __err = __buf.WriteString(">Click me!</button><button"); __err != nil {
 			return
 		}
 		if foo == "bar" {
