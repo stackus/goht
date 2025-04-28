@@ -5,6 +5,7 @@ A [Haml](http://haml.info/) and [Slim](https://slim-template.github.io/) templat
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/stackus/goht)](https://goreportcard.com/report/github.com/stackus/goht)
 [![](https://godoc.org/github.com/stackus/goht?status.svg)](https://pkg.go.dev/github.com/stackus/goht)
+[![Coverage Status](https://coveralls.io/repos/github/stackus/goht/badge.svg?branch=main)](https://coveralls.io/github/stackus/goht?branch=main)
 
 ## Table of Contents
 - [Features](#features)
@@ -12,10 +13,10 @@ A [Haml](http://haml.info/) and [Slim](https://slim-template.github.io/) templat
 - [Supported Haml Syntax & Features](#supported-haml-syntax--features)
   - [Unsupported Haml Features](#unsupported-haml-features)
 - [Supported Slim Syntax & Features](#supported-slim-syntax--features)
-	- [Unsupported Slim Features](#unsupported-slim-features)
+  - [Unsupported Slim Features](#unsupported-slim-features)
 - [GoHT CLI](#goht-cli)
 - [IDE Support](#ide-support)
-	- [LSP](#lsp)
+  - [LSP](#lsp)
 - [Library Installation](#library-installation)
 - [Using GoHT](#using-goht)
   - [Using GoHT with HTTP handlers](#using-goht-with-http-handlers)
@@ -79,20 +80,20 @@ Use the generated Go code to render HTML in your application:
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
+  "fmt"
+  "log"
+  "net/http"
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		_ = HomePage().Render(r.Context(), w)
-	})
+  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    _ = HomePage().Render(r.Context(), w)
+  })
 
-	fmt.Println("Server starting on port 8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
-	}
+  fmt.Println("Server starting on port 8080...")
+  if err := http.ListenAndServe(":8080", nil); err != nil {
+    log.Fatal(err)
+  }
 }
 ```
 Which would serve the following HTML:
@@ -123,6 +124,7 @@ Which would serve the following HTML:
 - [x] Inlining Code (`- code`)
 - [x] Rendering Code (`= code`)
 - [x] Filters (`:plain`, ...) [(more info)](#filters)
+- [x] Long Statement wrapping (`\`), (`,`)]
 - [x] Whitespace Removal (`%tag>`, `%tag<`) [(more info)](#whitespace-removal)
 
 ### Unsupported Haml Features
@@ -217,19 +219,19 @@ This is what you'll use to render your templates in the application.
 package main
 
 import (
-	"context"
-	"os"
+  "context"
+  "os"
 
-	"github.com/stackus/goht/examples/tags"
+  "github.com/stackus/goht/examples/tags"
 )
 
 func main() {
-	tmpl := tags.RemoveWhitespace()
+  tmpl := tags.RemoveWhitespace()
 
-	err := tmpl.Render(context.Background(), os.Stdout)
-	if err != nil {
-		panic(err)
-	}
+  err := tmpl.Render(context.Background(), os.Stdout)
+  if err != nil {
+    panic(err)
+  }
 }
 ```
 The above would render the `RemoveWhitespace` example from the [examples](/examples) directory in this repository,
@@ -250,22 +252,22 @@ Using the GoHT templates is made straightforward.
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
+  "fmt"
+  "log"
+  "net/http"
 
-	"github.com/stackus/goht/examples/hello"
+  "github.com/stackus/goht/examples/hello"
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		_ = hello.World().Render(r.Context(), w)
-	})
+  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    _ = hello.World().Render(r.Context(), w)
+  })
 
-	fmt.Println("Server starting on port 8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
-	}
+  fmt.Println("Server starting on port 8080...")
+  if err := http.ListenAndServe(":8080", nil); err != nil {
+    log.Fatal(err)
+  }
 }
 ```
 
@@ -364,12 +366,12 @@ This also means that you can declare them with parameters and can use those para
 The same applies to Slim templates:
 ```slim
 @slim SiteLayout(title string) {
-	doctype html
-	html(lang="en")
-		head
-			title= title
-		body
-			/ ... the rest of the template
+  doctype html
+  html(lang="en")
+    head
+      title= title
+    body
+      / ... the rest of the template
 }
 ```
 
@@ -381,7 +383,7 @@ Only the HTML 5 doctype is supported, and is written using `!!!`.
 }
 
 @slim SiteLayout() {
-	doctype
+  doctype
 }
 ```
 
@@ -432,7 +434,15 @@ You would write this with Go (Go needs the `!= nil` check):
 ```
 There is minimal processing performed on the Go code you put into the templates, so it needs to be valid Go code sans braces.
 
-> You may continue to use the braces if you wish. Existing code with braces will continue to work without modifications.
+Long statements can be split over by ending a line with either a backslash `\` or a comma `,`.
+
+```haml
+  - if user != nil && user.Name != ""\
+    && user.Age > 0
+    %strong The user is not empty
+```
+
+> You may continue to use the braces at the ends of your lines if you wish. Existing code with braces will continue to work without modifications.
 
 ### Rendering code
 Like in Haml, you can output variables and the results of expressions. The `=` script syntax and text interpolation `#{}` are supported for both template languages.
@@ -455,11 +465,11 @@ You would need to write this:
 ```haml
   %strong= fmt.Sprintf("%d", user.Age)
 ```
-Which to be honest can be a bit long to write, so a shortcut is provided:
+Which, to be honest, can be a bit long to write, so a shortcut is provided:
 ```haml
   %strong=%d user.Age
 ```
-The interpolation also supports the shortcut:
+The interpolation syntax also supports the shortcut:
 ```haml
   %strong #{user.Name} is #{%d user.Age} years old.
 ```
@@ -505,8 +515,8 @@ Keep in mind that attribute names cannot be replaced with an interpolated string
 To support dynamic lists of attributes, you can use the `@attributes` directive.
 This directive takes a list of arguments which comes in two forms:
 - `map[string]string`
-	- The key is the attribute name, the value is the attribute value.
-	- The attribute will be rendered if the value is not empty.
+  - The key is the attribute name, the value is the attribute value.
+  - The attribute will be rendered if the value is not empty.
 - `map[string]bool`
   - The key is the attribute name, the value is the condition to render the attribute.
 ```haml
@@ -521,11 +531,11 @@ GoHT supports the `.` operator for classes and also will accept the `class` attr
 However, if the class attribute is given an interpolated value, it will need to be a comma separated list of values.
 These values can be the following types:
 - `string`
-	- `myClass` variable or `"foo bar"` string literal
+  - `myClass` variable or `"foo bar"` string literal
 - `[]string`
-	- Each item will be added to the class list if it is not blank.
+  - Each item will be added to the class list if it is not blank.
 - `map[string]bool`
-	- The key is the class name, the value is the condition to include the class.
+  - The key is the class name, the value is the condition to include the class.
 
 Examples:
 ```haml
@@ -558,9 +568,9 @@ GoHT supports inlining tags to keep templates as compact as possible.
 
 ```slim
   ul
-		li: a.First Fist Item
-		li: a.Second Second Item
-		li: a.Third Third Item
+    li: a.First Fist Item
+    li: a.Second Second Item
+    li: a.Third Third Item
 ```
 
 ### Filters
