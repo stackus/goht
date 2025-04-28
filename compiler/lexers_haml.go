@@ -167,7 +167,7 @@ func lexHamlClass(l *lexer) lexFn {
 
 func lexHamlObjectReference(l *lexer) lexFn {
 	l.skip() // eat opening bracket
-	r := continueToMatchingBrace(l, ']')
+	r := continueToMatchingBrace(l, ']', false)
 	if r == scanner.EOF {
 		return l.errorf("object reference not closed: eof")
 	}
@@ -272,7 +272,7 @@ func lexHamlAttributeDynamicValue(l *lexer) lexFn {
 		return l.errorf("unexpected character: %q", l.peek())
 	}
 	l.skip() // skip opening brace
-	r := continueToMatchingBrace(l, '}')
+	r := continueToMatchingBrace(l, '}', false)
 	if r == scanner.EOF {
 		return l.errorf("attribute value not closed: eof")
 	}
@@ -302,7 +302,7 @@ func lexHamlAttributeCommand(command tokenType) lexFn {
 		l.skipUntil(":")
 		l.skipUntil("{")
 		l.skip() // skip opening brace
-		r := continueToMatchingBrace(l, '}')
+		r := continueToMatchingBrace(l, '}', true)
 		if r == scanner.EOF {
 			return l.errorf("attribute value not closed: eof")
 		}
@@ -379,7 +379,7 @@ func lexHamlDynamicText(l *lexer) lexFn {
 		l.emit(tPlainText)
 	}
 	l.skipRun("#{")
-	r := continueToMatchingBrace(l, '}')
+	r := continueToMatchingBrace(l, '}', false)
 	if r == scanner.EOF {
 		return l.errorf("dynamic text value was not closed: eof")
 	}
@@ -420,17 +420,14 @@ func lexHamlSilentScript(l *lexer) lexFn {
 	}
 
 	l.skipRun(" \t")
-	l.acceptUntil("\n\r")
-	// TODO: Support multiline silent scripts when they end with a backslash or comma
-	// example:
-	// - foo = bar \
-	//   + baz
-	// - foo = bigCall( \
-	//   	bar,
-	//   	baz,
-	//   )
-	// Extended lines must be indented once.
-	// Additional indentation is captured and emitted with the script
+	l.acceptUntil("\\\n\r")
+	if n := l.peek(); n == '\\' || strings.HasSuffix(l.current(), ",") {
+		if n == '\\' {
+			l.skip()
+		}
+		l.acceptRun("\n\r")
+		return lexHamlCodeBlockIndent(l.indent+1, tSilentScript)
+	}
 	l.emit(tSilentScript)
 	return lexHamlLineEnd
 }
@@ -441,11 +438,50 @@ func lexHamlOutputCode(l *lexer) lexFn {
 	case '@':
 		return lexHamlCommandCode
 	default:
-		l.acceptUntil("\n\r")
-		// TODO: Support multiline output code when they end with a backslash or comma
-		// see the comments in lexHamlSilentScript
+		l.acceptUntil("\\\n\r")
+		if n := l.peek(); n == '\\' || strings.HasSuffix(l.current(), ",") {
+			if n == '\\' {
+				l.skip()
+			}
+			l.acceptRun("\n\r")
+			return lexHamlCodeBlockIndent(l.indent+1, tScript)
+		}
 		l.emit(tScript)
 		return lexHamlLineEnd
+	}
+}
+
+func lexHamlCodeBlockIndent(indent int, textType tokenType) lexFn {
+	return func(l *lexer) lexFn {
+		// only accept the whitespace that belongs to the indent
+
+		// peeking first, in case we've reached the end of the block
+		indents := l.peekAhead(indent)
+
+		if len(strings.Trim(indents, "\t")) != 0 {
+			return l.errorf("expected continuation of code")
+		}
+
+		l.skipAhead(indent)
+
+		return lexHamlCodeBlockContent(indent, textType)
+	}
+}
+
+func lexHamlCodeBlockContent(indent int, textType tokenType) lexFn {
+	return func(l *lexer) lexFn {
+		l.acceptUntil("\\\n\r")
+		if n := l.peek(); n == '\\' || strings.HasSuffix(l.current(), ",") {
+			if n == '\\' {
+				l.skip()
+			}
+			l.acceptRun("\n\r")
+			return lexHamlCodeBlockIndent(indent, textType)
+		}
+		l.acceptRun("\n\r")
+		l.emit(textType)
+
+		return lexHamlLineStart
 	}
 }
 
@@ -477,9 +513,16 @@ func lexHamlCommandCode(l *lexer) lexFn {
 	case "render":
 		l.acceptRun("() \t")
 		l.ignore()
-		l.acceptUntil("\n\r")
+		l.acceptUntil("\\\n\r")
 		if l.current() == "" {
 			return l.errorf("render argument expected")
+		}
+		if n := l.peek(); n == '\\' || strings.HasSuffix(l.current(), ",") {
+			if n == '\\' {
+				l.skip()
+			}
+			l.acceptRun("\n\r")
+			return lexHamlCodeBlockIndent(l.indent+1, tRenderCommand)
 		}
 		l.emit(tRenderCommand)
 	case "children":
@@ -490,6 +533,8 @@ func lexHamlCommandCode(l *lexer) lexFn {
 			return l.errorf("children command does not accept arguments")
 		}
 		l.emit(tChildrenCommand)
+	default:
+		return l.errorf("unknown command: %s", l.current())
 	}
 	l.skipRun("\n\r")
 	return lexHamlLineStart
@@ -518,8 +563,9 @@ func lexHamlFilterStart(l *lexer) lexFn {
 		return lexHamlFilterLineStart(l.indent+1, tEscapedText)
 	case "preserve":
 		return lexHamlFilterLineStart(l.indent+1, tPreserveText)
+	default:
+		return l.errorf("unsupported filter: %s", filter)
 	}
-	return lexHamlLineEnd
 }
 
 func lexHamlFilterLineStart(indent int, textType tokenType) lexFn {
@@ -579,8 +625,8 @@ func lexHamlFilterDynamicText(textType tokenType, next lexFn) lexFn {
 		if l.current() != "" {
 			l.emit(textType)
 		}
-		l.skipRun("#{")
-		r := continueToMatchingBrace(l, '}')
+		l.skipAhead(2) // skip the hash and opening brace
+		r := continueToMatchingBrace(l, '}', false)
 		if r == scanner.EOF {
 			return l.errorf("dynamic text value was not closed: eof")
 		}

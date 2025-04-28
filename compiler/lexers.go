@@ -181,7 +181,7 @@ func continueToMatchingQuote(l *lexer, typ tokenType, captureQuotes bool) rune {
 	return quote
 }
 
-func continueToMatchingBrace(l *lexer, endBrace rune) rune {
+func continueToMatchingBrace(l *lexer, endBrace rune, allowNewlines bool) rune {
 	isEscaping := false
 	inQuotes := false
 	quotes := rune(0)
@@ -189,6 +189,10 @@ func continueToMatchingBrace(l *lexer, endBrace rune) rune {
 	for {
 		r := l.next()
 		if r == scanner.EOF {
+			return scanner.EOF
+		}
+
+		if !allowNewlines && r == '\n' || r == '\r' {
 			return scanner.EOF
 		}
 

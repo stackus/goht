@@ -1320,6 +1320,38 @@ func Test_HamlOutputCode(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"multiline": {
+			input: "@goht test() {\n\t= foo,\n\t\tbar",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tScript, lit: "foo,\nbar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiline with backslash": {
+			input: "@goht test() {\n\t= foo\\\n\t\tbar",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tScript, lit: "foo\nbar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiline and tag": {
+			input: "@goht test() {\n\t= foo,\n\t\tbar\n\t%p",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tScript, lit: "foo,\nbar\n"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "p"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"after tag": {
 			input: "@goht test() {\n\t%foo= bar",
 			want: []token{
@@ -1351,6 +1383,26 @@ func Test_HamlOutputCode(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"with missing command": {
+			input: "@goht test() {\n\t= @ foo(\"bar\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: "command code expected"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"with unknown command": {
+			input: "@goht test() {\n\t= @unknown foo(\"bar\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: "unknown command: unknown"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"with render command": {
 			input: "@goht test() {\n\t= @render foo(\"bar\")",
 			want: []token{
@@ -1358,6 +1410,16 @@ func Test_HamlOutputCode(t *testing.T) {
 				{typ: tKeepNewlines, lit: ""},
 				{typ: tIndent, lit: "\t"},
 				{typ: tRenderCommand, lit: "foo(\"bar\")"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"with multiline render command": {
+			input: "@goht test() {\n\t= @render foo(\"bar\",\n\t\tbaz)",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tRenderCommand, lit: "foo(\"bar\",\nbaz)"},
 				{typ: tEOF, lit: ""},
 			},
 		},
@@ -1447,6 +1509,48 @@ func Test_HamlExecuteCode(t *testing.T) {
 				{typ: tKeepNewlines, lit: ""},
 				{typ: tIndent, lit: "\t"},
 				{typ: tSilentScript, lit: "foo"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiline": {
+			input: "@goht test() {\n\t- foo,\n\t\tbar",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tSilentScript, lit: "foo,\nbar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiline with backslash": {
+			input: "@goht test() {\n\t- foo\\\n\t\tbar",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tSilentScript, lit: "foo\nbar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiline and tag": {
+			input: "@goht test() {\n\t- foo,\n\t\tbar\n\t%p",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tSilentScript, lit: "foo,\nbar\n"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "p"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiline error": {
+			input: "@goht test() {\n\t- foo,\n\t\tbar,\n\t%p",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: "expected continuation of code"},
 				{typ: tEOF, lit: ""},
 			},
 		},
@@ -1709,6 +1813,20 @@ func Test_HamlFilters(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"multiline css": {
+			input: "@goht test() {\n\t:css\n\t\tfoo\n\t\tbar\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tFilterStart, lit: "css"},
+				{typ: tPlainText, lit: "foo\n"},
+				{typ: tPlainText, lit: "bar\n"},
+				{typ: tFilterEnd, lit: ""},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"indented": {
 			input: "@goht test() {\n\t:javascript\n\t\tfoo\n}",
 			want: []token{
@@ -1722,6 +1840,36 @@ func Test_HamlFilters(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"missing filter": {
+			input: "@goht test() {\n\t:\n\t\tfoo\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: "filter name expected"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"unknown filter": {
+			input: "@goht test() {\n\t:unknown\n\t\tfoo\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: "unknown filter: unknown"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"eol": {
+			input: "@goht test() {\n\t:javascript\n",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tFilterStart, lit: "javascript"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"interpolation": {
 			input: "@goht test() {\n\t:javascript\n\t\tfoo #{bar}\n}",
 			want: []token{
@@ -1732,6 +1880,31 @@ func Test_HamlFilters(t *testing.T) {
 				{typ: tPlainText, lit: "foo "},
 				{typ: tDynamicText, lit: "bar"},
 				{typ: tPlainText, lit: "\n"},
+				{typ: tFilterEnd, lit: ""},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"interpolation not closed": {
+			input: "@goht test() {\n\t:javascript\n\t\tfoo #{bar\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tFilterStart, lit: "javascript"},
+				{typ: tPlainText, lit: "foo "},
+				{typ: tError, lit: "dynamic text value was not closed: eof"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"is not interpolation": {
+			input: "@goht test() {\n\t:javascript\n\t\tfoo # {bar}\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tFilterStart, lit: "javascript"},
+				{typ: tPlainText, lit: "foo # {bar}\n"},
 				{typ: tFilterEnd, lit: ""},
 				{typ: tTemplateEnd, lit: ""},
 				{typ: tEOF, lit: ""},

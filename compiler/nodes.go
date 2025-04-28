@@ -1078,7 +1078,7 @@ func writeFormattedText(tw *templateWriter, t token) error {
 		}
 		return nil
 	}
-	if r, err := tw.Write(t.lit); err != nil {
+	if r, err := tw.Write(strings.TrimSpace(strings.Replace(t.lit, "\n", " ", -1))); err != nil {
 		return err
 	} else {
 		tw.Add(t, r)
@@ -1207,7 +1207,7 @@ var openingStatements = []string{"if", "else if", "for", "switch"}
 var elseStatements = []string{"else", "else if"}
 
 func (n *SilentScriptNode) Source(tw *templateWriter) error {
-	code := strings.TrimSpace(n.code)
+	code := strings.TrimSpace(strings.Replace(n.code, "\n", " ", -1))
 
 	isOpening := false
 	for _, statement := range openingStatements {
@@ -1352,7 +1352,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 		if _, err := tw.WriteIndent("if __err = "); err != nil {
 			return err
 		}
-		if r, err := tw.Write(n.command); err != nil {
+		if r, err := tw.Write(strings.TrimSpace(strings.Replace(n.command, "\n", " ", -1))); err != nil {
 			return err
 		} else {
 			tw.Add(n.origin, r)

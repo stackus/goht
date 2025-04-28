@@ -117,6 +117,25 @@ var isAdmin = true
 		button View content
 }
 
+// Haml supported splitting long code lines across multiple lines
+// using a comma. Each line that continues the statement must be indented
+// one additional level. To keep continuing the statement, you can
+// end the line with a comma.
+
+@haml HamlLongStatement() {
+	.actions
+		- action := longType{\
+				title: "Edit content",
+				actions: "Edit content",
+			}
+	= fmt.Sprintf("Title: %s",
+			action.title,
+		)
+	- if action.title == "Edit content"\
+		&& action.actions == "Edit content"
+		%p= action.actions
+}
+
 // Slim supports splitting the control code across multiple lines which
 // is useful for long statements. The additional lines must be indented
 // one additional level.

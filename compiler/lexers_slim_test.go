@@ -1071,6 +1071,44 @@ func Test_SlimOutputCode(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"multiline": {
+			input: "@slim test() {\n\t= foo,\n\t\tbar",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tScript, lit: "foo,\nbar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiline with backslash": {
+			input: "@slim test() {\n\t= foo\\\n\t\tbar",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tScript, lit: "foo\nbar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiline and tag": {
+			input: "@slim test() {\n\t= foo,\n\t\tbar\n\tp",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tScript, lit: "foo,\nbar\n"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "p"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiline error": {
+			input: "@slim test() {\n\t- foo,\n\t\tbar,\n\tp",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: "expected continuation of code"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"after tag": {
 			input: "@slim test() {\n\tfoo= bar",
 			want: []token{
@@ -1205,12 +1243,21 @@ func Test_SlimSilentCode(t *testing.T) {
 			want: []token{
 				{typ: tTemplateStart, lit: "test()"},
 				{typ: tIndent, lit: "\t"},
-				{typ: tSilentScript, lit: "foo(bar,baz,)"},
+				{typ: tSilentScript, lit: "foo(\nbar,\nbaz,\n)\n"},
 				{typ: tIndent, lit: "\t"},
 				{typ: tTag, lit: "p"},
 				{typ: tPlainText, lit: "foo"},
 				{typ: tNewLine, lit: "\n"},
 				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiline with backslash": {
+			input: "@slim test() {\n\t= foo\\\n\t\tbar",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tScript, lit: "foo\nbar"},
 				{typ: tEOF, lit: ""},
 			},
 		},

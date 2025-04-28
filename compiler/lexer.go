@@ -11,13 +11,14 @@ import (
 type lexFn func(*lexer) lexFn
 
 type lexer struct {
-	reader *bytes.Reader
-	lex    lexFn
-	tokens chan token
-	s      string
-	width  int
-	pos    []int
-	indent int
+	reader  *bytes.Reader
+	lex     lexFn
+	tokens  chan token
+	s       string
+	skipped string // contains all skipped runes
+	width   int
+	pos     []int
+	indent  int
 }
 
 func newLexer(input []byte) *lexer {
@@ -102,6 +103,7 @@ func (l *lexer) peekAhead(length int) string {
 
 // ignore discards the current captured string.
 func (l *lexer) ignore() {
+	l.skipped += l.s
 	l.s = ""
 }
 
@@ -138,6 +140,7 @@ func (l *lexer) acceptAhead(length int) {
 // skip discards the next rune.
 func (l *lexer) skip() rune {
 	r := l.next()
+	l.skipped += string(r)
 	l.s = l.s[:len(l.s)-1]
 	return r
 }
@@ -145,6 +148,7 @@ func (l *lexer) skip() rune {
 // skipRun discards a contiguous run of runes from the skipRunes list.
 func (l *lexer) skipRun(skipRunes string) {
 	for strings.ContainsRune(skipRunes, l.next()) {
+		l.skipped += string(l.s[len(l.s)-1])
 		l.s = l.s[:len(l.s)-1]
 	}
 	l.backup()
@@ -153,6 +157,7 @@ func (l *lexer) skipRun(skipRunes string) {
 // skipUntil discards runes until it encounters a rune in the stopRunes list.
 func (l *lexer) skipUntil(stopRunes string) {
 	for r := l.next(); !strings.ContainsRune(stopRunes, r) && r != scanner.EOF; r = l.next() {
+		l.skipped += string(r)
 		l.s = l.s[:len(l.s)-1]
 	}
 	l.backup()
@@ -163,8 +168,8 @@ func (l *lexer) skipAhead(length int) {
 	for i := 0; i < length; i++ {
 		l.next()
 	}
+	l.skipped += l.s[len(l.s)-length:]
 	l.s = l.s[:len(l.s)-length]
-	// l.ignore()
 }
 
 // current returns the current captured string being built by the lexer.
@@ -177,6 +182,7 @@ func (l *lexer) emit(t tokenType) {
 	line, col := l.position()
 	l.tokens <- token{typ: t, lit: l.s, line: line, col: col}
 	l.s = ""
+	l.skipped = ""
 }
 
 // errorf creates a new error token with the formatted message and sends it to the tokens channel.
@@ -189,8 +195,9 @@ func (l *lexer) errorf(format string, args ...any) lexFn {
 // position returns the current line and column of the content being lexed.
 func (l *lexer) position() (int, int) {
 	newLinesInString := strings.Count(l.s, "\n")
+	parts := strings.SplitAfter(l.s, "\n")
 	line := len(l.pos) - newLinesInString
-	column := 1 + (l.pos[line-1]) - len(l.s)
+	column := 1 + (l.pos[line-1]) - len(parts[0])
 	return line, column
 }
 
