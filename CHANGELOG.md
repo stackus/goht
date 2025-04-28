@@ -8,6 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.6.3](https://github.com/stackus/goht/compare/v0.6.0...v0.6.3) - 2025-04-27
+
+### Added
+
+- Added support to split long code lines across multiple lines using `\` or `,`. to both Haml and Slim parsers.
+	- Works for all code tags (`- code`, `= code`, `=@render code`)
+
+### Fixed
+
+- Numerous Slim parsing bugs
+- Fixes some issues with the parsing of attributes with Haml and its whitespace handling
+
+## [v0.6.0](https://github.com/stackus/goht/compare/v0.5.0...v0.6.0) - 2025-04-26
+
+### Added
+
+- Added support for [Slim](https://slim-lang.com) templates.
+
 ## [v0.5.0](https://github.com/stackus/goht/compare/v0.4.5...v0.5.0) - 2024-06-26
 
 ### Changed

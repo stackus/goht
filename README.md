@@ -434,7 +434,8 @@ You would write this with Go (Go needs the `!= nil` check):
 ```
 There is minimal processing performed on the Go code you put into the templates, so it needs to be valid Go code sans braces.
 
-Long statements can be split over by ending a line with either a backslash `\` or a comma `,`.
+Long statements can be split across multiple lines by ending each line with either a backslash `\` or a comma `,`.
+The backslashes will be **stripped**, but the commas will be **kept**.
 
 ```haml
   - if user != nil && user.Name != ""\
