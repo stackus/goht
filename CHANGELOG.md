@@ -49,15 +49,15 @@ The closing tags that are supported are:
 - `$%>` - Closing tag with newline stripping (one newline)
   - Examples: `<% foo := "bar" $%>`, `<%= foo $%>`
 
-> Note: Opening and closing graces will be required for the Go code blocks when using EGO. Automatic brace insertion is not intentionally supported, and any support that might remain (all template engines use the same parser) may not continue to work in the future.
+> Note: Opening and closing braces will be required for the Go code blocks when using EGO. Automatic brace insertion is not intentionally supported, and any support that might remain (all template engines use the same parser) may not continue to work in the future.
 
 ### Added
 
-- Added a new template directive `ego`
+- Added a new template directive `@ego`
 
 ### Fixed
 
-- Fixed automatic closing of Go code in the generated Go code when two unrelated code blocks were siblings in the indented template engines.
+- Fixed automatic closing of Go code in the generated code when two unrelated code blocks were siblings in the indented template engines.
 
 ## [v0.6.3](https://github.com/stackus/goht/compare/v0.6.0...v0.6.3) - 2025-04-27
 
