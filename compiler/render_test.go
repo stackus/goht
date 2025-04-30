@@ -1,5 +1,3 @@
-//go:build render
-
 package compiler
 
 import (
@@ -78,6 +76,14 @@ func TestRender(t *testing.T) {
 		"nesting": {
 			template: testdata.NestedRenderTest(),
 			htmlFile: "nesting",
+		},
+		"slim template": {
+			template: testdata.SlimTemplate(),
+			htmlFile: "slim_template",
+		},
+		"ego template": {
+			template: testdata.EgoTemplate(),
+			htmlFile: "ego_template",
 		},
 	}
 	for name, tt := range tests {

@@ -280,7 +280,7 @@ func TestHamlExamples(t *testing.T) {
 			htmlFile: "tags_removeWhitespace",
 		},
 		"hello_world": {
-			template: hello.World(),
+			template: hello.HamlWorld(),
 			htmlFile: "hello_world",
 		},
 		"unescape_unescapeCode": {
@@ -545,6 +545,46 @@ func TestSlimExamples(t *testing.T) {
 
 			got := gotW.Bytes()
 			goldenFileName := filepath.Join("testdata", "slim", tt.htmlFile+".html")
+			want, err := goldenFile(t, goldenFileName, got, *update)
+			if err != nil {
+				t.Errorf("error reading golden file: %v", err)
+				return
+			}
+
+			if bytes.Equal(want, got) {
+				return
+			}
+
+			dmp := diffmatchpatch.New()
+			diffs := dmp.DiffMain(string(want), string(got), true)
+			if len(diffs) > 1 {
+				t.Errorf("diff:\n%s", dmp.DiffPrettyText(diffs))
+			}
+		})
+	}
+}
+
+func TestEgoExamples(t *testing.T) {
+	tests := map[string]struct {
+		template goht.Template
+		htmlFile string
+	}{
+		"hello_world": {
+			template: hello.EgoWorld(),
+			htmlFile: "hello_world",
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			var gotW bytes.Buffer
+			err := tt.template.Render(context.Background(), &gotW)
+			if err != nil {
+				t.Errorf("error generating template: %v", err)
+				return
+			}
+
+			got := gotW.Bytes()
+			goldenFileName := filepath.Join("testdata", "ego", tt.htmlFile+".html")
 			want, err := goldenFile(t, goldenFileName, got, *update)
 			if err != nil {
 				t.Errorf("error reading golden file: %v", err)

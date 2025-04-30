@@ -25,6 +25,7 @@ const (
 	nNewLine
 	nComment
 	nText
+	nRawText
 	nUnescape
 	nSilentScriptNode
 	nScriptNode
@@ -55,6 +56,8 @@ func (n nodeType) String() string {
 		return "Comment"
 	case nText:
 		return "Text"
+	case nRawText:
+		return "RawText"
 	case nUnescape:
 		return "Unescape"
 	case nSilentScriptNode:
@@ -190,6 +193,8 @@ func (n *node) handleNode(p *parser, indent int) error {
 		p.addNode(NewUnescapeNode(p.next(), indent))
 	case tPlainText, tPreserveText, tEscapedText, tDynamicText:
 		p.addChild(NewTextNode(p.next()))
+	case tRawText:
+		p.addNode(NewRawTextNode(p.next(), indent))
 	case tSilentScript:
 		p.addNode(NewSilentScriptNode(p.next(), indent, n.keepNewlines))
 	case tScript:
@@ -1151,6 +1156,41 @@ func (n *TextNode) Tree(buf *bytes.Buffer, indent int) string {
 	return buf.String()
 }
 
+type RawTextNode struct {
+	node
+	text string
+}
+
+func NewRawTextNode(t token, indent int) *RawTextNode {
+	return &RawTextNode{
+		node: newNode(nText, indent, t),
+		text: t.lit,
+	}
+}
+
+func (n *RawTextNode) Source(tw *templateWriter) error {
+	if n.text != "" {
+		s := n.text
+		s = strconv.Quote(n.text)
+		s = s[1 : len(s)-1]
+		if _, err := tw.WriteStringLiteral(s); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (n *RawTextNode) Tree(buf *bytes.Buffer, indent int) string {
+	lead := strings.Repeat("\t", indent)
+	buf.WriteString(lead + n.Type().String() + "\n")
+	return buf.String()
+}
+
+func (n *RawTextNode) parse(p *parser) error {
+	return p.backToParent()
+}
+
 type UnescapeNode struct {
 	node
 }
@@ -1188,6 +1228,7 @@ type SilentScriptNode struct {
 	node
 	code       string
 	needsClose bool
+	forRender  bool
 }
 
 func NewSilentScriptNode(t token, indent int, keepNewlines bool) *SilentScriptNode {
@@ -1206,7 +1247,36 @@ func NewSilentScriptNode(t token, indent int, keepNewlines bool) *SilentScriptNo
 var openingStatements = []string{"if", "else if", "for", "switch"}
 var elseStatements = []string{"else", "else if"}
 
+func (n *SilentScriptNode) allowChildren() bool {
+	code := strings.TrimSpace(strings.Replace(n.code, "\n", " ", -1))
+
+	allowChildren := false
+	for _, statement := range openingStatements {
+		if strings.HasPrefix(code, statement) {
+			allowChildren = true
+			break
+		}
+	}
+	if !allowChildren {
+		for _, statement := range elseStatements {
+			if strings.HasPrefix(code, statement) {
+				allowChildren = true
+				break
+			}
+		}
+	}
+	if strings.HasSuffix(code, "{") {
+		allowChildren = true
+	}
+
+	return allowChildren
+}
+
 func (n *SilentScriptNode) Source(tw *templateWriter) error {
+	if n.forRender {
+		return nil
+	}
+
 	code := strings.TrimSpace(strings.Replace(n.code, "\n", " ", -1))
 
 	isOpening := false
@@ -1255,14 +1325,20 @@ func (n *SilentScriptNode) Source(tw *templateWriter) error {
 		return err
 	}
 
-	if p, ok := n.nextSibling.(*SilentScriptNode); ok {
-		for _, statement := range elseStatements {
-			if strings.HasPrefix(p.code, statement) {
-				p.needsClose = true
-				break
+	// only do any of this when n is the opening statement
+	if isOpening {
+		if next, ok := n.nextSibling.(*SilentScriptNode); ok {
+			if strings.HasPrefix(strings.TrimSpace(next.code), "}") {
+				return nil
+			}
+			for _, stmt := range elseStatements {
+				if strings.HasPrefix(next.code, stmt) {
+					next.needsClose = true
+					return nil
+				}
 			}
 		}
-	} else if isOpening {
+		// either there's no next SilentScript, or it's not an else-type, so close now
 		if _, err := tw.WriteIndent("}\n"); err != nil {
 			return err
 		}
@@ -1277,6 +1353,9 @@ func (n *SilentScriptNode) parse(p *parser) error {
 		p.next()
 		return nil
 	default:
+		if !n.allowChildren() {
+			return p.backToParent()
+		}
 		return n.handleNode(p, n.indent+1)
 	}
 }
@@ -1410,7 +1489,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 	if _, err := tw.WriteIndent("if __err = "); err != nil {
 		return err
 	}
-	if r, err := tw.Write(n.command); err != nil {
+	if r, err := tw.Write(strings.TrimRight(n.command, " \t{")); err != nil {
 		return err
 	} else {
 		tw.Add(n.origin, r)
@@ -1419,6 +1498,12 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 		return err
 	}
 
+	if p, ok := n.nextSibling.(*SilentScriptNode); ok {
+		// skip the next sibling if it is a closing brace
+		if strings.TrimSpace(p.code) == "}" {
+			p.forRender = true
+		}
+	}
 	return nil
 }
 

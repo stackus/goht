@@ -114,14 +114,20 @@ func lexTemplate(l *lexer) lexFn {
 		return lexTemplateStart(l, true, lexHamlLineStart)
 	case "@slim":
 		return lexTemplateStart(l, false, lexSlimLineStart)
+	case "@ego":
+		return lexTemplateStart(l, false, lexEgoStart)
 	}
-	return nil
+	return l.errorf("unknown template type: %q", l.current())
 }
 
 func lexTemplateStart(l *lexer, keepNewlines bool, next lexFn) lexFn {
 	l.ignore()
 	l.skipRun(" ")
 	l.acceptUntil(")")
+
+	// reset the indent
+	l.indent = 0
+
 	if strings.HasPrefix(l.current(), "(") {
 		// we've only captured the receiver, so we need to capture the rest of the function signature
 		l.next()

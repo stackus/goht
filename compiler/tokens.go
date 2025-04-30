@@ -46,6 +46,7 @@ const (
 	tNukeOuterWhitespace
 	tAddWhitespaceBefore
 	tAddWhitespaceAfter
+	tRawText
 	tEscapedText
 	tDynamicText
 	tPlainText
@@ -116,6 +117,8 @@ func (t tokenType) String() string {
 		return "AddWhitespaceBefore"
 	case tAddWhitespaceAfter:
 		return "AddWhitespaceAfter"
+	case tRawText:
+		return "RawText"
 	case tEscapedText:
 		return "EscapedText"
 	case tDynamicText:

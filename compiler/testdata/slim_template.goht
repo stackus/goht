@@ -1,0 +1,16 @@
+package testdata
+
+@slim SlimTemplate() {
+	doctype
+	html{lang:"en"}
+		head
+			title Hello World
+		body
+			p Hello World
+			- for i := 0; i < 10; i++
+				p Iteration: #{%d i}
+			- if true
+				p Condition is true
+			- else if false
+				p Condition is false
+}

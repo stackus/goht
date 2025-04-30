@@ -58,6 +58,48 @@ var foo = "bar"
 	GoCode
 `,
 		},
+		"full ego document": {
+			input: `package testing
+var foo = "bar"
+@ego test(title string, err error) {
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<title><%= title %></title>
+		</head>
+		<body>
+			<p>some text <%= foo %></p>
+			<div id="main-content">
+				<p><%= "Hello World" %></p>
+			</div>
+			<% if err != nil { %>
+				<div class="error">
+					<p><%= "Something went wrong" %></p>
+				</div>
+			<% } %>
+		</body>
+	</html>
+}
+`,
+			want: `Root
+	GoCode
+	Template
+		Text
+		Script
+		Text
+		Script
+		Text
+		Script
+		Text
+		SilentScript
+			Text
+			Script
+			Text
+		SilentScript
+		Text
+	GoCode
+`,
+		},
 		"full slim document": {
 			input: `package testing
 
@@ -519,16 +561,16 @@ func Test_SilentScriptNode(t *testing.T) {
 `,
 		},
 		"nested content": {
-			input: "@goht test() {\n\t- var foo = \"bar\"\n\t\t%p= foo\n}",
+			input: "@goht test() {\n\t- var foo = \"bar\"\n\t%p= foo\n}",
 			want: `Root
 	Template
 		SilentScript
-			Element p()
-				Script
+		Element p()
+			Script
 `,
 		},
 		"mixed indents": {
-			input: "@goht test() {\n\t%p1 one\n\t- if foo {\n\t\t%p bar\n\t- }\n\t%p2 two\n}",
+			input: "@goht test() {\n\t%p1 one\n\t- if foo\n\t\t%p bar\n\t- }\n\t%p2 two\n}",
 			want: `Root
 	Template
 		Element p1()
@@ -558,6 +600,32 @@ func Test_SilentScriptNode(t *testing.T) {
 	Template
 		Element p()
 			Text(S)
+`,
+		},
+		"if else statement": {
+			input: "@goht test() {\n\t%p1 one\n\t- if foo\n\t\t%p bar\n\t- else\n\t%p2 two\n}",
+			want: `Root
+	Template
+		Element p1()
+			Text(S)
+		SilentScript
+			Element p()
+				Text(S)
+		SilentScript
+		Element p2()
+			Text(S)
+`,
+		},
+		"for and if statement": {
+			input: "@goht test() {\n\t- for i := 0; i < 10; i++\n\t\t%p foo\n\t- if true\n\t\t%p bar\n}",
+			want: `Root
+	Template
+		SilentScript
+			Element p()
+				Text(S)
+		SilentScript
+			Element p()
+				Text(S)
 `,
 		},
 	}
