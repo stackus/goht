@@ -8,12 +8,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.7.0](https://github.com/stackus/goht/compare/v0.6.0...v0.7.0) - 2025-04-29
+
+### New Template: EGO
+
+EGO is a new supported template style that is not whitespace based like the Haml and Slim templates.
+It has a syntax similar to [EJS](https://ejs.co/) or [ERB](https://docs.ruby-lang.org/en/2.3.0/ERB.html) template engines.
+
+```html
+@ego ExampleEgo(name string) {
+  <div>
+    <p>Hello <%= name %></p>
+    <% for i := 0; i < 10; i++ { %>
+      <p>Item <%=%d i %></p>
+    <% } -%>
+    <%@render ExampleChild() { %>
+      <p>Content rendered by child template</p>
+    <% } %>
+  </div>
+}
+```
+
+The opening tags that are supported are:
+- `<%` - Start of a Go code block
+  - Examples: `<% for k, v := range list { %>`, `<% foo := "bar" %>`, `<% if foo == "bar" { %>`
+- `<%-` - Start of a Go code block with whitespace stripping
+  - Examples: `<%- for k, v := range list { %>`, `<%- foo := "bar" %>`, `<%- if foo == "bar" { %>`
+- `<%=` - Start of a Go output block; supports the formatting directives like `%d`, `%v`, etc.
+  - Examples: `<%= unsafeHTML %>`, `<%= %t someBool %>`, `<%= props.Value %>`
+- `<%!` - Start of a Go unescaped output block; supports the formatting directives like `%d`, `%v`, etc.
+  - Examples: `<%! safeHTML %>`, `<%! %t someBool %>`, `<%! props.Value %>`
+- `<%@` - Start of a command block; Either `@render` or `@children`
+  - Examples: `<%@ render ExampleChild(props ChildProps) { %>`, `<%@ children %>`
+
+The closing tags that are supported are:
+- `%>` - Normal closing tag
+  - Examples: `<% foo := "bar" %>`, `<%= foo %>`
+- `-%>` - Closing tag with whitespace stripping
+  - Examples: `<% foo := "bar" -%>`, `<%= foo -%>`
+- `$%>` - Closing tag with newline stripping (one newline)
+  - Examples: `<% foo := "bar" $%>`, `<%= foo $%>`
+
+> Note: Opening and closing graces will be required for the Go code blocks when using EGO. Automatic brace insertion is not intentionally supported, and any support that might remain (all template engines use the same parser) may not continue to work in the future.
+
+### Added
+
+- Added a new template directive `ego`
+
+### Fixed
+
+- Fixed automatic closing of Go code in the generated Go code when two unrelated code blocks were siblings in the indented template engines.
+
 ## [v0.6.3](https://github.com/stackus/goht/compare/v0.6.0...v0.6.3) - 2025-04-27
 
 ### Added
 
 - Added support to split long code lines across multiple lines using `\` or `,`. to both Haml and Slim parsers.
-	- Works for all code tags (`- code`, `= code`, `=@render code`)
+  - Works for all code tags (`- code`, `= code`, `=@render code`)
 
 ### Fixed
 
@@ -63,7 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Helpers:
-	- `goht.If(condition bool, trueResult, falseResult string) string`
+  - `goht.If(condition bool, trueResult, falseResult string) string`
 
 
 ## [v0.4.2](https://github.com/stackus/goht/compare/v0.4.1...v0.4.2) - 2024-02-07
