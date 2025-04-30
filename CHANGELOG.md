@@ -40,6 +40,8 @@ The opening tags that are supported are:
   - Examples: `<%! safeHTML %>`, `<%! %t someBool %>`, `<%! props.Value %>`
 - `<%@` - Start of a command block; Either `@render` or `@children`
   - Examples: `<%@ render ExampleChild(props ChildProps) { %>`, `<%@ children %>`
+- `<%#` - Start of a comment; the content will be ignored
+  - Examples: `<%# This is a comment %>`
 
 The closing tags that are supported are:
 - `%>` - Normal closing tag
