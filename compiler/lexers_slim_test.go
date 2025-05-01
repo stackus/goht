@@ -1071,6 +1071,16 @@ func Test_SlimOutputCode(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"unescaped": {
+			input: "@slim test() {\n\t== foo bar",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tUnescaped, lit: ""},
+				{typ: tScript, lit: "foo bar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"multiline": {
 			input: "@slim test() {\n\t= foo,\n\t\tbar",
 			want: []token{
@@ -1164,6 +1174,24 @@ func Test_SlimOutputCode(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"with multiline render command": {
+			input: "@slim test() {\n\t= @render foo(\"bar\",\n\t\tbaz)",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tRenderCommand, lit: "foo(\"bar\",\nbaz)"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"with multiline render command slash": {
+			input: "@slim test() {\n\t= @render foo(\"bar\",\\\n\t\tbaz)",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tRenderCommand, lit: "foo(\"bar\",\nbaz)"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"with children command": {
 			input: "@slim test() {\n\t= @children",
 			want: []token{
@@ -1188,6 +1216,64 @@ func Test_SlimOutputCode(t *testing.T) {
 				{typ: tTemplateStart, lit: "test()"},
 				{typ: tIndent, lit: "\t"},
 				{typ: tError, lit: "children command does not accept arguments"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			l := newLexer([]byte(tt.input))
+			for _, want := range tt.want {
+				got := l.nextToken()
+				if got.typ != want.typ || got.lit != want.lit {
+					t.Errorf("want %v, got %v", want, got)
+				}
+			}
+		})
+	}
+}
+
+func Test_SlimSlotCommand(t *testing.T) {
+	tests := map[string]struct {
+		input string
+		want  []token
+	}{
+		"simple": {
+			input: "@slim test() {\n\t= @slot testing",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tSlotCommand, lit: "testing"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"with parens": {
+			input: "@slim test() {\n\t= @slot() testing",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tSlotCommand, lit: "testing"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"with default content": {
+			input: "@slim test() {\n\t= @slot testing\n\t\tp bar",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tSlotCommand, lit: "testing"},
+				{typ: tIndent, lit: "\t\t"},
+				{typ: tTag, lit: "p"},
+				{typ: tPlainText, lit: "bar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"missing name": {
+			input: "@slim test() {\n\t= @slot",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: "slot name expected"},
 				{typ: tEOF, lit: ""},
 			},
 		},

@@ -31,6 +31,7 @@ const (
 	nScriptNode
 	nRenderCommand
 	nChildrenCommand
+	nSlotCommand
 	nFilter
 )
 
@@ -68,6 +69,8 @@ func (n nodeType) String() string {
 		return "RenderCommand"
 	case nChildrenCommand:
 		return "ChildrenCommand"
+	case nSlotCommand:
+		return "SlotCommand"
 	case nFilter:
 		return "Filter"
 	default:
@@ -203,6 +206,8 @@ func (n *node) handleNode(p *parser, indent int) error {
 		p.addNode(NewRenderCommandNode(p.next(), indent, n.keepNewlines))
 	case tChildrenCommand:
 		p.addChild(NewChildrenCommandNode(p.next()))
+	case tSlotCommand:
+		p.addNode(NewSlotCommandNode(p.next(), indent, n.keepNewlines))
 	case tFilterStart:
 		t := p.next()
 		switch t.lit {
@@ -395,7 +400,7 @@ func NewTemplateNode(t token) *TemplateNode {
 
 func (n *TemplateNode) Source(tw *templateWriter) error {
 	entry := ` goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -1444,7 +1449,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 
 	vName := tw.GetVarName()
 
-	fnLine := vName + " := goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {\n"
+	fnLine := vName + " := goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {\n"
 
 	if _, err := tw.WriteIndent(fnLine); err != nil {
 		return err
@@ -1530,6 +1535,82 @@ func NewChildrenCommandNode(t token) *ChildrenCommandNode {
 func (n *ChildrenCommandNode) Source(tw *templateWriter) error {
 	_, err := tw.WriteIndent("if __err = __children.Render(ctx, __buf); __err != nil { return }\n")
 	return err
+}
+
+type SlotCommandNode struct {
+	node
+	slot string
+}
+
+func NewSlotCommandNode(t token, indent int, keepNewlines bool) *SlotCommandNode {
+	n := &SlotCommandNode{
+		node: newNode(nSlotCommand, indent, t),
+		slot: t.lit,
+	}
+
+	if keepNewlines {
+		n.keepNewlines = true
+	}
+
+	return n
+}
+
+func (n *SlotCommandNode) Source(tw *templateWriter) error {
+	if _, err := tw.WriteIndent("if __st := goht.GetSlottedTemplate(__sts, " + strconv.Quote(n.slot) + "); __st != nil {\n"); err != nil {
+		return err
+	}
+
+	itw := tw.Indent(1)
+
+	if _, err := itw.WriteIndent("if __err = __st.Render(ctx, __buf, __st.SlottedTemplates()...); __err != nil { return }\n"); err != nil {
+		return err
+	}
+
+	if _, err := itw.Close(); err != nil {
+		return err
+	}
+
+	if len(n.children) == 0 {
+		_, err := tw.WriteIndent("}\n")
+		return err
+	}
+
+	if _, err := tw.WriteIndent("} else {\n"); err != nil {
+		return err
+	}
+
+	itw = tw.Indent(1)
+	for _, c := range n.children {
+		if err := c.Source(itw); err != nil {
+			return err
+		}
+	}
+
+	if _, err := itw.Close(); err != nil {
+		return err
+	}
+
+	if next, ok := n.nextSibling.(*SilentScriptNode); ok {
+		if strings.TrimSpace(next.code) == "}" {
+			return nil
+		}
+	}
+	// either there's no next SilentScript, or it's not an else-type, so close now
+	if _, err := tw.WriteIndent("}\n"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (n *SlotCommandNode) parse(p *parser) error {
+	switch p.peek().Type() {
+	case tNewLine:
+		p.next()
+		return nil
+	default:
+		return n.handleNode(p, n.indent+1)
+	}
 }
 
 type JavaScriptFilterNode struct {

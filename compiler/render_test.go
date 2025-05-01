@@ -69,6 +69,14 @@ func TestRender(t *testing.T) {
 			template: testdata.RenderTest(),
 			htmlFile: "rendering",
 		},
+		"slots": {
+			template: testdata.SlotTest(),
+			htmlFile: "slots",
+		},
+		"slots with defaults": {
+			template: testdata.SlotWithDefaultTest(),
+			htmlFile: "slots_with_defaults",
+		},
 		"without children": {
 			template: testdata.ChildrenTest("passed-in"),
 			htmlFile: "without_children",

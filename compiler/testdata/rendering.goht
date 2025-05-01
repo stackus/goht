@@ -1,13 +1,13 @@
 package testdata
 
-@goht ChildrenTest(v string) {
+@haml ChildrenTest(v string) {
 	.passed-in= v
 	.children
 		=@children
 	.after After children
 }
 
-@goht RenderTest() {
+@haml RenderTest() {
 	.parent
 		.local This is local content
 		=@render ChildrenTest("This is passed-in content")
@@ -15,18 +15,35 @@ package testdata
 		.after After parent
 }
 
-@goht WrapperTest() {
+@haml WrapperTest() {
 	.wrapper
 		.list
 			=@children
 }
 
-@goht WrappedTest(v string) {
+@haml WrappedTest(v string) {
 	.item= v
 }
 
-@goht NestedRenderTest() {
+@haml NestedRenderTest() {
 	=@render WrapperTest()
 		=@render WrappedTest("first")
 		=@render WrappedTest("second")
+}
+
+@haml SlotTest() {
+	.wrapper
+		=@slot first
+		=@slot second
+		=@slot third
+}
+
+@haml SlotWithDefaultTest() {
+	.wrapper
+		=@slot first
+			%p Default first
+		=@slot second
+			%p Default second
+		=@slot third
+			%p Default third
 }

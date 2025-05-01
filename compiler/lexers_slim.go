@@ -84,8 +84,6 @@ func lexSlimContent(l *lexer) lexFn {
 		return lexSlimClass
 	case '{':
 		return lexSlimAttributesStart
-	case '-':
-		return lexSlimControlCode
 	case '=':
 		return lexSlimOutputCode
 	case '/':
@@ -95,12 +93,12 @@ func lexSlimContent(l *lexer) lexFn {
 	case ':':
 		return lexSlimInlineTag
 	case ' ', '\t':
-		l.skip()
+		l.skipRun(" \t")
 		return lexSlimTextBlockContent(l.indent+1, 0, tPlainText)
 	case scanner.EOF, '\n', '\r':
 		return lexSlimLineEnd
 	default:
-		return lexSlimTextBlockContent(l.indent+1, 0, tPlainText)
+		return l.errorf("unexpected character: %q", l.peek())
 	}
 }
 
@@ -370,6 +368,14 @@ func lexSlimCommandCode(l *lexer) lexFn {
 			return l.errorf("children command does not accept arguments")
 		}
 		l.emit(tChildrenCommand)
+	case "slot":
+		l.acceptRun("() \t")
+		l.ignore()
+		l.acceptUntil("\n\r")
+		if l.current() == "" {
+			return l.errorf("slot name expected")
+		}
+		l.emit(tSlotCommand)
 	}
 	l.skipRun("\n\r")
 	return lexSlimLineStart

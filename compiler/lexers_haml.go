@@ -89,8 +89,6 @@ func lexHamlContent(l *lexer) lexFn {
 		return lexHamlAttributesStart
 	case '!':
 		return lexHamlUnescaped
-	case '-':
-		return lexHamlSilentScript
 	case '=':
 		return lexHamlOutputCode
 	case '/':
@@ -533,6 +531,14 @@ func lexHamlCommandCode(l *lexer) lexFn {
 			return l.errorf("children command does not accept arguments")
 		}
 		l.emit(tChildrenCommand)
+	case "slot":
+		l.acceptRun("() \t")
+		l.ignore()
+		l.acceptUntil("\n\r")
+		if l.current() == "" {
+			return l.errorf("slot name expected")
+		}
+		l.emit(tSlotCommand)
 	default:
 		return l.errorf("unknown command: %s", l.current())
 	}

@@ -56,6 +56,7 @@ const (
 	tSilentScript
 	tRenderCommand
 	tChildrenCommand
+	tSlotCommand
 	tAttributesCommand
 	tFilterStart
 	tFilterEnd
@@ -137,6 +138,8 @@ func (t tokenType) String() string {
 		return "RenderCommand"
 	case tChildrenCommand:
 		return "ChildrenCommand"
+	case tSlotCommand:
+		return "SlotCommand"
 	case tAttributesCommand:
 		return "AttributesCommand"
 	case tFilterStart:

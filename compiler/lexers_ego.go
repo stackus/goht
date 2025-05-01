@@ -252,6 +252,8 @@ func lexEgoCommandStart(l *lexer) lexFn {
 		return lexEgoRenderStart
 	case "children":
 		return lexEgoChildrenStart
+	case "slot":
+		return lexEgoSlotStart
 	default:
 		return l.errorf("unknown command: %q", l.current())
 	}
@@ -285,6 +287,28 @@ func lexEgoChildrenStart(l *lexer) lexFn {
 		}
 		l.ignore()
 		l.emit(tChildrenCommand)
+		return nil
+	})
+}
+
+func lexEgoSlotStart(l *lexer) lexFn {
+	l.skipRun(" \t") // skip whitespace
+	l.ignore()       // ignore the command keyword and the whitespace
+
+	return findClosingTag(l, func(l *lexer) lexFn {
+		l.s = strings.TrimSpace(l.s)
+		s := l.current()
+		l.s = strings.TrimRight(l.s, " \t{") // remove trailing whitespace and '{'
+		if l.current() == "" {
+			return l.errorf("slot name expected")
+		}
+		l.emit(tSlotCommand)
+		// if the content originally ends with a '{' then increase the indent (after emitting)
+		if strings.HasSuffix(s, "{") {
+			if err := increaseEgoIndent(l); err != nil {
+				return err
+			}
+		}
 		return nil
 	})
 }

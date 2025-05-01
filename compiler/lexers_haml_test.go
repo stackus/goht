@@ -1423,6 +1423,16 @@ func Test_HamlOutputCode(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"with multiline render command slash": {
+			input: "@goht test() {\n\t= @render foo(\"bar\",\\\n\t\tbaz)",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tRenderCommand, lit: "foo(\"bar\",\nbaz)"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"with render command and parens": {
 			input: "@goht test() {\n\t= @render() foo(\"bar\")",
 			want: []token{
@@ -1470,6 +1480,68 @@ func Test_HamlOutputCode(t *testing.T) {
 				{typ: tKeepNewlines, lit: ""},
 				{typ: tIndent, lit: "\t"},
 				{typ: tError, lit: "children command does not accept arguments"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			l := newLexer([]byte(tt.input))
+			for _, want := range tt.want {
+				got := l.nextToken()
+				if got.typ != want.typ || got.lit != want.lit {
+					t.Errorf("want %v, got %v", want, got)
+				}
+			}
+		})
+	}
+}
+
+func Test_HamlSlotCommand(t *testing.T) {
+	tests := map[string]struct {
+		input string
+		want  []token
+	}{
+		"simple": {
+			input: "@goht test() {\n\t= @slot testing",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tSlotCommand, lit: "testing"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"with parens": {
+			input: "@goht test() {\n\t= @slot() testing",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tSlotCommand, lit: "testing"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"with default content": {
+			input: "@goht test() {\n\t= @slot testing\n\t\t%p bar",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tSlotCommand, lit: "testing"},
+				{typ: tIndent, lit: "\t\t"},
+				{typ: tTag, lit: "p"},
+				{typ: tPlainText, lit: "bar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"missing name": {
+			input: "@goht test() {\n\t= @slot",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: "slot name expected"},
 				{typ: tEOF, lit: ""},
 			},
 		},

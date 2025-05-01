@@ -629,6 +629,55 @@ func Test_EgoChildrenCommand(t *testing.T) {
 	}
 }
 
+func Test_EgoSlotCommand(t *testing.T) {
+	tests := map[string]struct {
+		input string
+		want  []token
+	}{
+		"simple": {
+			input: "@ego test() {\n\t<%@slot testing %>",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tSlotCommand, lit: "testing"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"with default content": {
+			input: "@ego test() {\n\t<%@slot testing { %>\n\t\t<p>bar</p>\n\t<% } %>\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tSlotCommand, lit: "testing"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tRawText, lit: "\n\t<p>bar</p>\n"},
+				{typ: tIndent, lit: ""},
+				{typ: tSilentScript, lit: "}"},
+				{typ: tRawText, lit: ""},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"missing name": {
+			input: "@ego test() {\n\t<%@slot %>",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tError, lit: "slot name expected"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			l := newLexer([]byte(tt.input))
+			for _, want := range tt.want {
+				got := l.nextToken()
+				if got.typ != want.typ || got.lit != want.lit {
+					t.Errorf("want %v, got %v", want, got)
+				}
+			}
+		})
+	}
+}
+
 func Test_EgoTrimWhitespace(t *testing.T) {
 	tests := map[string]struct {
 		input string

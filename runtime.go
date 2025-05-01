@@ -15,13 +15,54 @@ import (
 
 // Template is a template that can be rendered into a writer.
 type Template interface {
-	Render(ctx context.Context, w io.Writer) error
+	Render(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error
+	Slot(slotName string, slottedTemplates ...SlottedTemplate) SlottedTemplate
 }
 
-type TemplateFunc func(ctx context.Context, w io.Writer) error
+type SlottedTemplate interface {
+	Template
+	SlotName() string
+	SlottedTemplates() []SlottedTemplate
+}
 
-func (f TemplateFunc) Render(ctx context.Context, w io.Writer) error {
-	return f(ctx, w)
+type slottedTemplate struct {
+	slotName         string
+	slottedTemplates []SlottedTemplate
+}
+
+type TemplateFunc func(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error
+
+func (f TemplateFunc) Render(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error {
+	return f(ctx, w, slottedTemplates...)
+}
+
+func (f TemplateFunc) Slot(slotName string, slottedTemplates ...SlottedTemplate) SlottedTemplate {
+	return &slottedTemplate{
+		slotName:         slotName,
+		slottedTemplates: slottedTemplates,
+	}
+}
+
+func (f *slottedTemplate) Render(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error {
+	if err := f.Render(ctx, w, slottedTemplates...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (f *slottedTemplate) Slot(slotName string, slottedTemplates ...SlottedTemplate) SlottedTemplate {
+	return &slottedTemplate{
+		slotName:         slotName,
+		slottedTemplates: slottedTemplates,
+	}
+}
+
+func (f *slottedTemplate) SlotName() string {
+	return f.slotName
+}
+
+func (f *slottedTemplate) SlottedTemplates() []SlottedTemplate {
+	return f.slottedTemplates
 }
 
 // little nuke alligators that eat whitespace; silly but important
@@ -69,7 +110,7 @@ func PopChildren(ctx context.Context) (context.Context, Template) {
 	var value *ctxValue
 	ctx, value = getContext(ctx)
 	if value.children == nil {
-		return ctx, TemplateFunc(func(ctx context.Context, w io.Writer) error { return nil })
+		return ctx, TemplateFunc(func(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error { return nil })
 	}
 	children := *value.children
 	value.children = nil
@@ -80,6 +121,15 @@ func PushChildren(ctx context.Context, children Template) context.Context {
 	value := ctx.Value(ctxKey).(*ctxValue)
 	value.children = &children
 	return ctx
+}
+
+func GetSlottedTemplate(slottedTemplates []SlottedTemplate, slotName string) SlottedTemplate {
+	for _, st := range slottedTemplates {
+		if st.SlotName() == slotName {
+			return st
+		}
+	}
+	return nil
 }
 
 func initContext(ctx context.Context) context.Context {

@@ -1,0 +1,78 @@
+package commands
+// GoHT templates can be built with a slot based architecture.
+// This allows for a more modular approach to building templates.
+//
+// Any Template can be used as slotted content.
+//
+// The following two "Name" templates can be rendered like normal in the
+// application code with something like:
+//
+// err := AdminName("SuperAdminUser").Render(ctx, w)
+
+@haml Name(userName string) {
+	.user
+		%span= userName
+}
+
+@haml AdminName(adminName string) {
+	.admin
+		%span= adminName
+}
+
+// In your application code, you can also slot in either of the two "Name"
+// templates by passing in the template as an optional third argument to
+// the `Render` call for the main "parent" template.
+//
+// err := SlotTemplate().Render(ctx, w,
+// 	AdminName("SuperAdminUser").Slot("name"),
+// )
+//
+// All we did was swap out a call to `Render()` with a call to `Slot()` to
+// reuse an existing template as a slotted template. We need to pass in the
+// name of the slot we want to use, which in this case is "name".
+//
+// The following SlotTemplate has no idea what content will ultimately be
+// passed in. If it receives a Template for its `name` slot, it will render the
+// templates content into that slot.
+
+// Slots can also have default content. A slot that does not receive any content
+// will not be rendered in the final output. However, if we provide default content
+// then we can have a fallback to use if no content is passed in.
+
+@slim SlotTemplate() {
+	.name-content
+		=@slot name
+	.actions
+		=@slot actions
+			| No available actions.
+}
+
+@ego SlotWithDefaultTemplate() {
+	<div class="name-content">
+		<%@slot name { -%>
+			<span>No user name has been set.</span>
+		<%- } -%>
+	</div>
+	<div class="actions">
+		<%@slot actions { -%>
+			<span>No actions have been set.</span>
+		<%- } -%>
+	</div>
+}
+
+// When you pass in a template to a slot, that template can also have its own
+// slots. This is done by adding one templates to the optional second parameter
+// to the `Slot` method.
+//
+// err := Layout(layoutProps).Render(ctx, w,
+//   Sidebar(sidebarProps).Slot("sidebar"),
+//   Header(headerProps).Slot("header"),
+//   UserDetailsPage(userProps).Slot("main",
+//     LastActionResults(resultsProps).Slot("notifications"),
+//   ),
+//   Footer(footerProps).Slot("footer"),
+// )
+
+//
+// The above example shows how you can pass in a template to a slot, and that
+// template can also have its own slots.
