@@ -8,6 +8,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.8.0](https://github.com/stackus/goht/compare/v0.7.0...v0.8.0) - 2025-04-30
+
+**BREAKING CHANGE**: The signature of the generated Go code has changed. Regenerate all templates prior to this version.
+
+### New Template Composition Feature: Named Slots
+
+Named slots are a new feature that allows you to define places in your templates that you want to populate with any template content. This allows you to create more complex templates that can be reused in different contexts.
+
+```haml
+@haml HamlSlots() {
+  .basic
+    =@slot basic
+  .with-default-content
+    =@slot defaults
+      %span Displayed when nothing is passed in for "defaults"
+}
+```
+
+```slim
+@slim SlimSlots() {
+  .basic
+    =@slot basic
+  .with-default-content
+    =@slot defaults
+      span Displayed when nothing is passed in for "defaults"
+}
+```
+
+```html
+@ego EgoSlots() {
+  <div>
+    <%@slot basic %>
+  </div>
+  <div>
+    <%@slot defaults { %>
+      <span>Displayed when nothing is passed in for "defaults"</span>
+    <% } %>
+  </div>
+}
+```
+
+In the above examples, the slot for "basic" will only be rendered if content is passed in for it.
+The slot for "defaults" will fall back to the default content if no content is passed in for it.
+
+#### Using slots in your program
+Making use of slots in your program is a simple process:
+
+```go
+err := SomeTemplate().Render(ctx, w, 
+  OtherTemplate().Slot("basic"),
+)
+```
+
+Pass in one or more templates into the optional third parameter of the `Render` method.
+Then instead of calling `Render` on the slotted template, call `Slot` with the name of the slot you want it to fill.
+
+The slotted templates can be any template, and any template can be used as slotted content, including templates that have their own slots.
+
+```go
+err := Layout().Render(ctx, w,
+  Sidebar().Slot("sidebar"),
+  Header(headerProps).Slot("header"),
+  UserDetailsPage(userProps).Slot("main",
+    LastActionResults(resultsProps).Slot("notifications"),
+  ),
+  Footer().Slot("footer"),
+)
+```
+
+Templates can use slots, `@slot <name>` and the internally rendered templates, `@render SomeTemplate()`
+and `@children`, to create templates with incredible levels of reuse and composition.
+
+
 ## [v0.7.0](https://github.com/stackus/goht/compare/v0.6.0...v0.7.0) - 2025-04-29
 
 ### New Template: EGO

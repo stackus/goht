@@ -37,6 +37,7 @@ A [Haml](http://haml.info/), [Slim](https://slim-template.github.io/), and EGO t
     - [Inlined Tags](#inlined-tags)
     - [Filters](#filters)
     - [Template nesting](#template-nesting)
+    - [Named Slots](#named-slots)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -73,11 +74,11 @@ var siteTitle = "GoHT"
 }
 
 @ego ListItemFragment(item Item) {
-	<li>
-		<a href="<%= item.URL %>">
-			<%= item.Name %>
-		</a>
-	</li>
+  <li>
+    <a href="<%= item.URL %>">
+      <%= item.Name %>
+    </a>
+  </li>
 }
 ```
 
@@ -167,25 +168,25 @@ The basic EGO syntax is to start tags and with `<%` and end with `%>`.
 
 The opening tags that are supported are:
 - `<%` - Start of a Go code block
-	- Examples: `<% for k, v := range list { %>`, `<% foo := "bar" %>`, `<% if foo == "bar" { %>`
+  - Examples: `<% for k, v := range list { %>`, `<% foo := "bar" %>`, `<% if foo == "bar" { %>`
 - `<%-` - Start of a Go code block with whitespace stripping
-	- Examples: `<%- for k, v := range list { %>`, `<%- foo := "bar" %>`, `<%- if foo == "bar" { %>`
+  - Examples: `<%- for k, v := range list { %>`, `<%- foo := "bar" %>`, `<%- if foo == "bar" { %>`
 - `<%=` - Start of a Go output block; supports the formatting directives like `%d`, `%v`, etc.
-	- Examples: `<%= unsafeHTML %>`, `<%= %t someBool %>`, `<%= props.Value %>`
+  - Examples: `<%= unsafeHTML %>`, `<%= %t someBool %>`, `<%= props.Value %>`
 - `<%!` - Start of a Go unescaped output block; supports the formatting directives like `%d`, `%v`, etc.
-	- Examples: `<%! safeHTML %>`, `<%! %t someBool %>`, `<%! props.Value %>`
+  - Examples: `<%! safeHTML %>`, `<%! %t someBool %>`, `<%! props.Value %>`
 - `<%@` - Start of a command block; Either `@render` or `@children`
-	- Examples: `<%@ render ExampleChild(props ChildProps) { %>`, `<%@ children %>`
+  - Examples: `<%@ render ExampleChild(props ChildProps) { %>`, `<%@ children %>`
 - `<%#` - Start of a comment; the content will be ignored
-	- Examples: `<%# This is a comment %>`
+  - Examples: `<%# This is a comment %>`
 
 The closing tags that are supported are:
 - `%>` - Normal closing tag
-	- Examples: `<% foo := "bar" %>`, `<%= foo %>`
+  - Examples: `<% foo := "bar" %>`, `<%= foo %>`
 - `-%>` - Closing tag with whitespace stripping
-	- Examples: `<% foo := "bar" -%>`, `<%= foo -%>`
+  - Examples: `<% foo := "bar" -%>`, `<%= foo -%>`
 - `$%>` - Closing tag with newline stripping (one newline)
-	- Examples: `<% foo := "bar" $%>`, `<%= foo $%>`
+  - Examples: `<% foo := "bar" $%>`, `<%= foo $%>`
 
 ## GoHT CLI
 
@@ -428,14 +429,14 @@ The same applies to Slim templates:
 And to the EGO templates:
 ```html
 @ego SiteLayout(title string) {
-	<html lang="en">
-		<head>
-			<title><%= title %></title>
-		</head>
-		<body>
-			<!-- ... the rest of the template -->
-		</body>
-	</html>
+  <html lang="en">
+    <head>
+      <title><%= title %></title>
+    </head>
+    <body>
+      <!-- ... the rest of the template -->
+    </body>
+  </html>
 }
 ```
 
@@ -485,14 +486,14 @@ Slim:
 EGO:
 ```html
 @ego SiteLayout() {
-	<html>
-		<head>
-			<title>GoHT</title>
-		</head>
-		<body>
-			<h1>GoHT</h1>
-		</body>
-	</html>
+  <html>
+    <head>
+      <title>GoHT</title>
+    </head>
+    <body>
+      <h1>GoHT</h1>
+    </body>
+  </html>
 }
 ```
 
@@ -530,10 +531,10 @@ Take care that the code is valid Go code because the entire statement, with newl
 
 ```html
 @ego SiteLayout() {
-	<% if user != nil && 
-		user.Name != "" { %>
-		<strong>The user is not empty</strong>
-	<% } %>
+  <% if user != nil && 
+    user.Name != "" { %>
+    <strong>The user is not empty</strong>
+  <% } %>
 }
 ```
 
@@ -700,19 +701,57 @@ GoHT supports the addition of whitespace between tags. This is done by adding a 
 - `>` will add whitespace after the tag
 
 ### Template nesting
-The biggest departure from Haml is how templates can be combined. When working Haml you could use `= render :partial_name` or `= haml :partial_name` to render a partial. The `render` and `haml` functions are not available in GoHT, instead you can use the `@render` directive.
+The biggest departure from Haml and Slim is how templates can be combined.
+When working Haml you could use `= render :partial_name` or `= haml :partial_name` to render a partial.
+
+
+The `render` and `haml` functions are not available in GoHT, instead you can use the `@render` directive.
+
+**Haml:**
 ```haml
 @haml HomePage() {
   = @render SiteLayout()
 }
 ```
-The above would render the `SiteLayout` template, and you would call it with any parameters that it needs. You can also call it and provide it with a block of content to render where it chooses.
+**Slim:**
+```slim
+@slim HomePage() {
+  = @render SiteLayout()
+}
+```
+**EGO:**
+```html
+@ego HomePage() {
+  <%@render SiteLayout() %>
+}
+```
+
+The above examples would render the `SiteLayout` template, and you would call it with any parameters that it needs.
+You can also call it and provide it with a block of content to render where the rendered template chooses.
+
+***Haml:**
 ```haml
 @haml HomePage() {
   = @render SiteLayout()
     %p This is the home page for GoHT.
 }
 ```
+**Slim:**
+```slim
+@slim HomePage() {
+  = @render SiteLayout()
+    p This is the home page for GoHT.
+}
+```
+**EGO:**
+```html
+@ego HomePage() {
+  <%@render SiteLayout() { %>
+    <p>This is the home page for GoHT.</p>
+  <% } %>
+}
+```
+
 Any content nested under the `@render` directive will be passed into the template that it can render where it wants using the `@children` directive.
 ```haml
 @haml SiteLayout() {
@@ -726,6 +765,78 @@ Any content nested under the `@render` directive will be passed into the templat
       = @children
 }
 ```
+
+### Named Slots
+
+Named slots are a feature that allows you to define places in your templates that you want to populate with any template content.
+This allows you to create more complex templates that can be reused in different contexts.
+
+**Haml:**
+```haml
+@haml HamlSlots() {
+  .basic
+    =@slot basic
+  .with-default-content
+    =@slot defaults
+      %span Displayed when nothing is passed in for "defaults"
+}
+```
+
+**Slim:**
+```slim
+@slim SlimSlots() {
+  .basic
+    =@slot basic
+  .with-default-content
+    =@slot defaults
+      span Displayed when nothing is passed in for "defaults"
+}
+```
+
+**EGO:**
+```html
+@ego EgoSlots() {
+  <div>
+    <%@slot basic %>
+  </div>
+  <div>
+    <%@slot defaults { %>
+      <span>Displayed when nothing is passed in for "defaults"</span>
+    <% } %>
+  </div>
+}
+```
+
+In the above examples, the slot for "basic" will only be rendered if content is passed in for it.
+The slot for "defaults" will fall back to the default content if no content is passed in for it.
+
+#### Using slots in your program
+Making use of slots in your program is a simple process:
+
+```go
+err := SomeTemplate().Render(ctx, w, 
+  OtherTemplate().Slot("basic"),
+)
+```
+
+Start by passing in one or more templates into the optional third parameter of the `Render` method.
+Then instead of calling `Render` on the slotted template, call `Slot` with the name of the slot you want it to fill.
+
+The slotted templates can be any template, and any template can be used as slotted content, including templates that have their own slots.
+
+```go
+err := Layout().Render(ctx, w,
+  Sidebar().Slot("sidebar"),
+  Header(headerProps).Slot("header"),
+  UserDetailsPage(userProps).Slot("main",
+    LastActionResults(resultsProps).Slot("notifications"),
+  ),
+  Footer().Slot("footer"),
+)
+```
+
+Templates can use slots, `@slot <name>` and the internally rendered templates, `@render SomeTemplate()`
+and `@children`, to create templates with incredible levels of reuse and composition.
 
 ## Contributing
 Contributions are welcome. Please see the [contributing guide](CONTRIBUTING.md) for more information.
