@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.8.1](https://github.com/stackus/goht/compare/v0.8.0...v0.8.1) - 2025-05-06
+
+### Fixed
+
+- Addressed a stack overflow caused by slotted templates incorrectly calling `Render` on themselves and not the original template.
+
 ## [v0.8.0](https://github.com/stackus/goht/compare/v0.7.0...v0.8.0) - 2025-04-30
 
 **BREAKING CHANGE**: The signature of the generated Go code has changed. Regenerate all templates prior to this version.
