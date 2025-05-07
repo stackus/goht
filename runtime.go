@@ -26,6 +26,7 @@ type SlottedTemplate interface {
 }
 
 type slottedTemplate struct {
+	template         TemplateFunc
 	slotName         string
 	slottedTemplates []SlottedTemplate
 }
@@ -38,31 +39,32 @@ func (f TemplateFunc) Render(ctx context.Context, w io.Writer, slottedTemplates 
 
 func (f TemplateFunc) Slot(slotName string, slottedTemplates ...SlottedTemplate) SlottedTemplate {
 	return &slottedTemplate{
+		template:         f,
 		slotName:         slotName,
 		slottedTemplates: slottedTemplates,
 	}
 }
 
-func (f *slottedTemplate) Render(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error {
-	if err := f.Render(ctx, w, slottedTemplates...); err != nil {
+func (st *slottedTemplate) Render(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error {
+	if err := st.template.Render(ctx, w, slottedTemplates...); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (f *slottedTemplate) Slot(slotName string, slottedTemplates ...SlottedTemplate) SlottedTemplate {
+func (st *slottedTemplate) Slot(slotName string, slottedTemplates ...SlottedTemplate) SlottedTemplate {
 	return &slottedTemplate{
 		slotName:         slotName,
 		slottedTemplates: slottedTemplates,
 	}
 }
 
-func (f *slottedTemplate) SlotName() string {
-	return f.slotName
+func (st *slottedTemplate) SlotName() string {
+	return st.slotName
 }
 
-func (f *slottedTemplate) SlottedTemplates() []SlottedTemplate {
-	return f.slottedTemplates
+func (st *slottedTemplate) SlottedTemplates() []SlottedTemplate {
+	return st.slottedTemplates
 }
 
 // little nuke alligators that eat whitespace; silly but important
