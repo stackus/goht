@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.8.2](https://github.com/stackus/goht/compare/v0.8.1...v0.8.2) - 2025-07-23
+
+### Fixed
+
+- Accessing slotted templates were inaccessible inside a `@render` command.
+
+### Added
+
+- Slotted templates from a parent template will not be passed down into the child templates. Slotted templates with their own set of slotted templates will take precedence over the parent template's slotted templates.
+
 ## [v0.8.1](https://github.com/stackus/goht/compare/v0.8.0...v0.8.1) - 2025-05-06
 
 ### Fixed

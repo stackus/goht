@@ -228,7 +228,7 @@ func (n *node) handleNode(p *parser, indent int) error {
 		return PositionalError{
 			Line:   t.line,
 			Column: t.col,
-			Err:    fmt.Errorf(t.lit),
+			Err:    fmt.Errorf("%s", t.lit),
 		}
 	default:
 		return n.errorf("unexpected: %s", p.peek())
@@ -1449,7 +1449,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 
 	vName := tw.GetVarName()
 
-	fnLine := vName + " := goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {\n"
+	fnLine := vName + " := goht.TemplateFunc(func(ctx context.Context, __w io.Writer, _ ...goht.SlottedTemplate) (__err error) {\n"
 
 	if _, err := tw.WriteIndent(fnLine); err != nil {
 		return err
@@ -1499,7 +1499,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 	} else {
 		tw.Add(n.origin, r)
 	}
-	if _, err := tw.Write(".Render(goht.PushChildren(ctx, " + vName + "), __buf); __err != nil { return }\n"); err != nil {
+	if _, err := tw.Write(".Render(goht.PushChildren(ctx, " + vName + "), __buf, __sts...); __err != nil { return }\n"); err != nil {
 		return err
 	}
 
@@ -1533,7 +1533,7 @@ func NewChildrenCommandNode(t token) *ChildrenCommandNode {
 }
 
 func (n *ChildrenCommandNode) Source(tw *templateWriter) error {
-	_, err := tw.WriteIndent("if __err = __children.Render(ctx, __buf); __err != nil { return }\n")
+	_, err := tw.WriteIndent("if __err = __children.Render(ctx, __buf, __sts...); __err != nil { return }\n")
 	return err
 }
 
@@ -1562,7 +1562,17 @@ func (n *SlotCommandNode) Source(tw *templateWriter) error {
 
 	itw := tw.Indent(1)
 
-	if _, err := itw.WriteIndent("if __err = __st.Render(ctx, __buf, __st.SlottedTemplates()...); __err != nil { return }\n"); err != nil {
+	// lines := []string{
+	// 			"__sts := append(__st.SlottedTemplates(), __sts...)\n",
+	// 			"_ = __sts\n",
+	// }
+	// for _, line := range lines {
+	// 	if _, err := itw.WriteIndent(line); err != nil {
+	// 		return err
+	// 	}
+	// }
+
+	if _, err := itw.WriteIndent("if __err = __st.Render(ctx, __buf, append(__st.SlottedTemplates(), __sts...)...); __err != nil { return }\n"); err != nil {
 		return err
 	}
 
