@@ -241,6 +241,15 @@ func Test_Package(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"package with crlf newline": {
+			input: "package foo\r\nvar x = 1",
+			want: []token{
+				{typ: tPackage, lit: "foo"},
+				{typ: tNewLine, lit: "\r\n"},
+				{typ: tGoCode, lit: "var x = 1"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"package with comments": {
 			input: "// comment for package\npackage foo",
 			want: []token{

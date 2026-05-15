@@ -30,7 +30,7 @@ func lexGoLineEnd(l *lexer) lexFn {
 	switch l.peek() {
 	case '\n', '\r':
 		l.next()
-		if l.peek() == '\r' {
+		if l.current() == "\r" && l.peek() == '\n' {
 			l.next()
 		}
 		l.emit(tNewLine)
@@ -44,14 +44,14 @@ func lexGoLineEnd(l *lexer) lexFn {
 }
 
 func lexPackage(l *lexer) lexFn {
-	l.acceptUntil(" (\n")
+	l.acceptUntil(" (\r\n")
 	if l.current() != "package" {
 		return lexGoCode
 	}
 	l.ignore()
 	l.skipRun(" ")
 
-	l.acceptUntil("\n")
+	l.acceptUntil("\r\n")
 	if l.current() == "" {
 		return l.errorf("package name expected")
 	}
@@ -60,7 +60,7 @@ func lexPackage(l *lexer) lexFn {
 }
 
 func lexImportStart(l *lexer) lexFn {
-	l.acceptUntil(" \"(\n")
+	l.acceptUntil(" \"(\r\n")
 	if l.current() != "import" {
 		return lexGoCode
 	}
@@ -70,27 +70,27 @@ func lexImportStart(l *lexer) lexFn {
 	switch l.peek() {
 	case '(':
 		l.skip()
-		l.skipRun(" \t\n\r")
+		l.skipRun(" \t\r\n")
 		return lexImports
 	default:
-		l.acceptUntil("\n\r")
+		l.acceptUntil("\r\n")
 		l.emit(tImport)
-		l.skipRun("\n\r")
+		l.skipRun("\r\n")
 		return lexGoLineStart
 	}
 }
 
 func lexImports(l *lexer) lexFn {
 	for {
-		l.skipRun(" \t\n\r")
+		l.skipRun(" \t\r\n")
 		switch l.peek() {
 		case ')':
-			l.skipRun(")\n\r")
+			l.skipRun(")\r\n")
 			return lexGoLineStart
 		case scanner.EOF:
 			return l.errorf("import expected")
 		default:
-			l.acceptUntil("\n\r")
+			l.acceptUntil("\r\n")
 			if l.current() == "" {
 				return l.errorf("import expected")
 			}
@@ -100,7 +100,7 @@ func lexImports(l *lexer) lexFn {
 }
 
 func lexGoCode(l *lexer) lexFn {
-	l.acceptUntil("\n\r")
+	l.acceptUntil("\r\n")
 	if l.current() != "" {
 		l.emit(tGoCode)
 	}
@@ -169,12 +169,16 @@ func continueToMatchingQuote(l *lexer, typ tokenType, captureQuotes bool) rune {
 		if r == scanner.EOF {
 			return scanner.EOF
 		}
+		if escaping {
+			escaping = false
+			continue
+		}
+		if quote != '`' && r == '\\' {
+			escaping = true
+			continue
+		}
 		if r == quote && !escaping {
 			break
-		}
-		escaping = false
-		if r == '\\' {
-			escaping = true
 		}
 	}
 	if captureQuotes {
@@ -188,9 +192,10 @@ func continueToMatchingQuote(l *lexer, typ tokenType, captureQuotes bool) rune {
 }
 
 func continueToMatchingBrace(l *lexer, endBrace rune, allowNewlines bool) rune {
-	isEscaping := false
-	inQuotes := false
-	quotes := rune(0)
+	startBrace := matchingStartBrace(endBrace)
+	depth := 1
+	escaping := false
+	quote := rune(0)
 
 	for {
 		r := l.next()
@@ -202,25 +207,45 @@ func continueToMatchingBrace(l *lexer, endBrace rune, allowNewlines bool) rune {
 			return scanner.EOF
 		}
 
-		if r == '"' || r == '\'' {
-			if r == quotes && !isEscaping {
-				inQuotes = !inQuotes
-				quotes = rune(0)
-			} else {
-				inQuotes = true
-				quotes = r
+		if quote != 0 {
+			if quote != '`' && escaping {
+				escaping = false
+				continue
 			}
-			isEscaping = false
+			if quote != '`' && r == '\\' {
+				escaping = true
+				continue
+			}
+			if r == quote {
+				quote = 0
+			}
 			continue
 		}
 
-		if r == endBrace && !inQuotes {
-			return r
+		switch r {
+		case '"', '\'', '`':
+			quote = r
+		case startBrace:
+			depth++
+		case endBrace:
+			depth--
+			if depth == 0 {
+				return r
+			}
 		}
+	}
+}
 
-		if r == '\\' && inQuotes {
-			isEscaping = true
-		}
+func matchingStartBrace(endBrace rune) rune {
+	switch endBrace {
+	case '}':
+		return '{'
+	case ']':
+		return '['
+	case ')':
+		return '('
+	default:
+		return 0
 	}
 }
 
@@ -232,9 +257,6 @@ func ignoreIndentedLines(indent int, next lexFn) lexFn {
 			return ignoreIndentedLines(indent, next)
 		case ' ', '\t':
 			priorIndents := l.peekAhead(indent)
-			// if err != nil {
-			// 	return l.errorf("unexpected error while evaluating indents: %s", err)
-			// }
 			if len(strings.TrimSpace(priorIndents)) != 0 {
 				return next
 			}
@@ -243,35 +265,6 @@ func ignoreIndentedLines(indent int, next lexFn) lexFn {
 				return lexErr
 			}
 			l.skipUntil("\n\r")
-			return ignoreIndentedLines(indent, next)
-		case scanner.EOF:
-			l.emit(tEOF)
-			return nil
-		default:
-			return next
-		}
-	}
-}
-
-func acceptIndentedLines(indent int, next lexFn) lexFn {
-	return func(l *lexer) lexFn {
-		switch l.peek() {
-		case '\n', '\r':
-			l.next()
-			return ignoreIndentedLines(indent, next)
-		case ' ', '\t':
-			priorIndents := l.peekAhead(indent)
-			// if err != nil {
-			// 	return l.errorf("unexpected error while evaluating indents: %s", err)
-			// }
-			if len(strings.TrimSpace(priorIndents)) != 0 {
-				return next
-			}
-			// validate we have the correct indents
-			if lexErr := l.validateIndent(priorIndents); lexErr != nil {
-				return lexErr
-			}
-			l.acceptUntil("\n\r")
 			return ignoreIndentedLines(indent, next)
 		case scanner.EOF:
 			l.emit(tEOF)

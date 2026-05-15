@@ -881,6 +881,31 @@ func Test_HamlAttributes(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"dynamic value with nested braces": {
+			input: "@goht test() {\n\tfoo #{map[string]string{\"a\": \"b\"}} baz",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tPlainText, lit: "foo "},
+				{typ: tDynamicText, lit: `map[string]string{"a": "b"}`},
+				{typ: tPlainText, lit: " baz"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"static value ending with escaped backslash": {
+			input: "@goht test() {\n\t%foo{path:\"C:\\\\\"}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "path"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: `"C:\\"`},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"boolean attribute": {
 			input: "@goht test() {\n\t%foo{bar}",
 			want: []token{
