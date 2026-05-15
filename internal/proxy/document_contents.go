@@ -49,12 +49,20 @@ func (dc *DocumentContents) URIs() (uris []string) {
 	return uris
 }
 
-func (dc *DocumentContents) Apply(uri string, changes []protocol.TextDocumentContentChangeEvent) (*Document, error) {
+func (dc *DocumentContents) Apply(uri string, changes []protocol.TextDocumentContentChangeEvent, encoding protocol.PositionEncodingKind) (*Document, error) {
 	dc.mu.Lock()
 	defer dc.mu.Unlock()
 	d, ok := dc.documents[uri]
 	if !ok {
 		return nil, fmt.Errorf("document %q not found", uri)
+	}
+
+	if encoding != protocol.UTF8 {
+		for _, change := range changes {
+			if change.Range != nil && !d.isWholeDocument(change.Range) {
+				return nil, fmt.Errorf("ranged document changes require utf-8 position encoding")
+			}
+		}
 	}
 
 	for _, change := range changes {

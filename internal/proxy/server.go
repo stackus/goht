@@ -17,25 +17,27 @@ import (
 
 type Server struct {
 	protocol.Server
-	c      protocol.Client
-	smc    *SourceMapCache
-	dc     *DiagnosticsCache
-	srcs   *DocumentContents
-	goSrcs map[string]string
-	logger zerolog.Logger
+	c                protocol.Client
+	smc              *SourceMapCache
+	dc               *DiagnosticsCache
+	srcs             *DocumentContents
+	goSrcs           map[string]string
+	positionEncoding protocol.PositionEncodingKind
+	logger           zerolog.Logger
 }
 
 var _ protocol.Server = (*Server)(nil)
 
 func NewServer(s protocol.Server, c protocol.Client, smc *SourceMapCache, dc *DiagnosticsCache, srcs *DocumentContents, logger zerolog.Logger) *Server {
 	return &Server{
-		Server: s,
-		c:      c,
-		smc:    smc,
-		dc:     dc,
-		srcs:   srcs,
-		goSrcs: make(map[string]string),
-		logger: logger,
+		Server:           s,
+		c:                c,
+		smc:              smc,
+		dc:               dc,
+		srcs:             srcs,
+		goSrcs:           make(map[string]string),
+		positionEncoding: protocol.UTF16,
+		logger:           logger,
 	}
 }
 
@@ -70,9 +72,18 @@ func (s *Server) Initialize(ctx context.Context, params *protocol.ParamInitializ
 	resp.Capabilities.DocumentFormattingProvider = &protocol.Or_ServerCapabilities_documentFormattingProvider{Value: false}
 	resp.Capabilities.DocumentRangeFormattingProvider = &protocol.Or_ServerCapabilities_documentRangeFormattingProvider{Value: false}
 	resp.Capabilities.SemanticTokensProvider = nil
+	syncKind := protocol.Full
+	if clientSupportsUTF8(params) {
+		s.positionEncoding = protocol.UTF8
+		resp.Capabilities.PositionEncoding = new(protocol.UTF8)
+		syncKind = protocol.Incremental
+	} else {
+		s.positionEncoding = protocol.UTF16
+		resp.Capabilities.PositionEncoding = nil
+	}
 	resp.Capabilities.TextDocumentSync = protocol.TextDocumentSyncOptions{
 		OpenClose:         true,
-		Change:            protocol.Full,
+		Change:            syncKind,
 		WillSave:          false,
 		WillSaveWaitUntil: false,
 		Save: &protocol.SaveOptions{
@@ -330,15 +341,17 @@ func (s *Server) DidChange(ctx context.Context, params *protocol.DidChangeTextDo
 		return nil
 	}
 
-	doc, err := s.srcs.Apply(string(params.TextDocument.URI), params.ContentChanges)
+	gohtURI := params.TextDocument.URI
+	doc, err := s.srcs.Apply(string(gohtURI), params.ContentChanges, s.positionEncoding)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to apply changes")
 		return err
 	}
 
-	template, err := s.parseTemplate(ctx, params.TextDocument.URI, doc.String())
+	template, err := s.parseTemplate(ctx, gohtURI, doc.String())
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to parse template")
+		return nil
 	}
 	buf := bytes.Buffer{}
 	sm, err := template.Compose(&buf)
@@ -346,8 +359,24 @@ func (s *Server) DidChange(ctx context.Context, params *protocol.DidChangeTextDo
 		logger.Error().Err(err).Msg("unable to compose template")
 		return err
 	}
-	s.smc.Set(string(params.TextDocument.URI), sm)
-	s.goSrcs[string(params.TextDocument.URI)] = buf.String()
+	_, alreadyOpen := s.goSrcs[string(gohtURI)]
+	s.smc.Set(string(gohtURI), sm)
+	s.goSrcs[string(gohtURI)] = buf.String()
+	if !alreadyOpen {
+		openParams := &protocol.DidOpenTextDocumentParams{
+			TextDocument: protocol.TextDocumentItem{
+				URI:        goURI,
+				LanguageID: "go",
+				Version:    params.TextDocument.Version,
+				Text:       buf.String(),
+			},
+		}
+		err = s.Server.DidOpen(ctx, openParams)
+		if err != nil {
+			logger.Error().Err(err).Msg("unable to open document")
+		}
+		return err
+	}
 	params.TextDocument.URI = goURI
 	params.TextDocument.TextDocumentIdentifier.URI = goURI
 	params.ContentChanges = []protocol.TextDocumentContentChangeEvent{
@@ -371,6 +400,8 @@ func (s *Server) DidClose(ctx context.Context, params *protocol.DidCloseTextDocu
 	}
 	s.srcs.Delete(string(params.TextDocument.URI))
 	delete(s.goSrcs, string(params.TextDocument.URI))
+	s.smc.Delete(string(params.TextDocument.URI))
+	s.dc.Delete(string(params.TextDocument.URI))
 	params.TextDocument.URI = goURI
 	err := s.Server.DidClose(ctx, params)
 	if err != nil {
@@ -800,47 +831,65 @@ func (s *Server) InlayHint(_ context.Context, _ *protocol.InlayHintParams) ([]pr
 }
 
 func (s *Server) goRangeToGohtRange(uri protocol.DocumentURI, goRange protocol.Range) protocol.Range {
-	gohtRange := goRange
-	sm, ok := s.smc.Get(string(uri))
-	if !ok {
-		return gohtRange
-	}
-
-	if start, ok := sm.SourcePositionFromTarget(int(goRange.Start.Line), int(goRange.Start.Character)); ok {
-		s.logger.Info().Msgf("goRangeToGohtRange: %s: START [%d,%d] -> [%d,%d]", uri, goRange.Start.Line, goRange.Start.Character, start.Line, start.Col)
-		gohtRange.Start.Line = uint32(start.Line)
-		gohtRange.Start.Character = uint32(start.Col)
-	}
-
-	if end, ok := sm.SourcePositionFromTarget(int(goRange.End.Line), int(goRange.End.Character)); ok {
-		s.logger.Info().Msgf("goRangeToGohtRange: %s: END [%d,%d] -> [%d,%d]", uri, goRange.End.Line, goRange.End.Character, end.Line, end.Col)
-		gohtRange.End.Line = uint32(end.Line)
-		gohtRange.End.Character = uint32(end.Col)
-	}
-
-	return gohtRange
-}
-
-func (s *Server) gohtRangeToGoRange(uri protocol.DocumentURI, gohtRange protocol.Range) protocol.Range {
-	goRange := gohtRange
 	sm, ok := s.smc.Get(string(uri))
 	if !ok {
 		return goRange
 	}
 
-	if start, ok := sm.TargetPositionFromSource(int(gohtRange.Start.Line), int(gohtRange.Start.Character)); ok {
-		s.logger.Info().Msgf("gohtRangeToGoRange: %s: START [%d,%d] -> [%d,%d]", uri, gohtRange.Start.Line, gohtRange.Start.Character, start.Line, start.Col)
-		goRange.Start.Line = uint32(start.Line)
-		goRange.Start.Character = uint32(start.Col)
+	start, ok := sm.SourcePositionFromTarget(int(goRange.Start.Line), int(goRange.Start.Character))
+	if !ok {
+		return goRange
 	}
 
-	if end, ok := sm.TargetPositionFromSource(int(gohtRange.End.Line), int(gohtRange.End.Character)); ok {
-		s.logger.Info().Msgf("gohtRangeToGoRange: %s: END [%d,%d] -> [%d,%d]", uri, gohtRange.End.Line, gohtRange.End.Character, end.Line, end.Col)
-		goRange.End.Line = uint32(end.Line)
-		goRange.End.Character = uint32(end.Col)
+	end, ok := sm.SourcePositionFromTarget(int(goRange.End.Line), int(goRange.End.Character))
+	if !ok {
+		return goRange
 	}
 
-	return goRange
+	s.logger.Info().Msgf("goRangeToGohtRange: %s: START [%d,%d] -> [%d,%d]", uri, goRange.Start.Line, goRange.Start.Character, start.Line, start.Col)
+	s.logger.Info().Msgf("goRangeToGohtRange: %s: END [%d,%d] -> [%d,%d]", uri, goRange.End.Line, goRange.End.Character, end.Line, end.Col)
+
+	return protocol.Range{
+		Start: protocol.Position{
+			Line:      uint32(start.Line),
+			Character: uint32(start.Col),
+		},
+		End: protocol.Position{
+			Line:      uint32(end.Line),
+			Character: uint32(end.Col),
+		},
+	}
+}
+
+func (s *Server) gohtRangeToGoRange(uri protocol.DocumentURI, gohtRange protocol.Range) protocol.Range {
+	sm, ok := s.smc.Get(string(uri))
+	if !ok {
+		return gohtRange
+	}
+
+	start, ok := sm.TargetPositionFromSource(int(gohtRange.Start.Line), int(gohtRange.Start.Character))
+	if !ok {
+		return gohtRange
+	}
+
+	end, ok := sm.TargetPositionFromSource(int(gohtRange.End.Line), int(gohtRange.End.Character))
+	if !ok {
+		return gohtRange
+	}
+
+	s.logger.Info().Msgf("gohtRangeToGoRange: %s: START [%d,%d] -> [%d,%d]", uri, gohtRange.Start.Line, gohtRange.Start.Character, start.Line, start.Col)
+	s.logger.Info().Msgf("gohtRangeToGoRange: %s: END [%d,%d] -> [%d,%d]", uri, gohtRange.End.Line, gohtRange.End.Character, end.Line, end.Col)
+
+	return protocol.Range{
+		Start: protocol.Position{
+			Line:      uint32(start.Line),
+			Character: uint32(start.Col),
+		},
+		End: protocol.Position{
+			Line:      uint32(end.Line),
+			Character: uint32(end.Col),
+		},
+	}
 }
 
 func (s *Server) updatePosition(uri protocol.DocumentURI, pos protocol.Position) (protocol.DocumentURI, protocol.Position, error) {
@@ -880,13 +929,13 @@ func (s *Server) parseTemplate(ctx context.Context, uri protocol.DocumentURI, co
 
 	template, err := compiler.ParseString(contents)
 	if err != nil {
+		parseErr := err
 		diagnostic := protocol.Diagnostic{
 			Severity: protocol.SeverityError,
 			Source:   "goht",
 			Message:  err.Error(),
 		}
-		var posErr compiler.PositionalError
-		if errors.As(err, &posErr) {
+		if posErr, ok := errors.AsType[compiler.PositionalError](err); ok {
 			diagnostic.Range = protocol.Range{
 				Start: protocol.Position{
 					Line:      uint32(posErr.Line),
@@ -901,7 +950,7 @@ func (s *Server) parseTemplate(ctx context.Context, uri protocol.DocumentURI, co
 		diagnostics := []protocol.Diagnostic{
 			diagnostic,
 		}
-		diagnostics = s.dc.WithGoDiagnostics(string(uri), diagnostics)
+		diagnostics = s.dc.WithParserDiagnostics(string(uri), diagnostics)
 		err = s.c.PublishDiagnostics(ctx, &protocol.PublishDiagnosticsParams{
 			URI:         uri,
 			Diagnostics: diagnostics,
@@ -909,17 +958,29 @@ func (s *Server) parseTemplate(ctx context.Context, uri protocol.DocumentURI, co
 		if err != nil {
 			logger.Error().Err(err).Msg("unable to publish diagnostics")
 		}
-		return template, err
+		return template, parseErr
 	}
-	s.dc.ClearGohtDiagnostics(string(uri))
+	diagnostics := s.dc.ClearParserDiagnostics(string(uri))
 	err = s.c.PublishDiagnostics(ctx, &protocol.PublishDiagnosticsParams{
 		URI:         uri,
-		Diagnostics: []protocol.Diagnostic{},
+		Diagnostics: diagnostics,
 	})
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to publish diagnostics")
 	}
 	return template, nil
+}
+
+func clientSupportsUTF8(params *protocol.ParamInitialize) bool {
+	if params == nil || params.Capabilities.General == nil {
+		return false
+	}
+	for _, encoding := range params.Capabilities.General.PositionEncodings {
+		if encoding == protocol.UTF8 {
+			return true
+		}
+	}
+	return false
 }
 
 var completionWithImport = regexp.MustCompile(`^.*\(from\s(".+")\)$`)

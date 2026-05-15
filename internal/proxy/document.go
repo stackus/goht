@@ -44,8 +44,9 @@ func (d *Document) isWholeDocument(r *protocol.Range) bool {
 	if r.Start.Line != 0 || r.Start.Character != 0 {
 		return false
 	}
-	l, c := len(d.lines), len(d.lines[len(d.lines)-1])
-	return r.End.Line >= uint32(l) || r.End.Character >= uint32(c)
+	lastLine := len(d.lines) - 1
+	lastCol := len(d.lines[lastLine])
+	return r.End.Line > uint32(lastLine) || r.End.Line == uint32(lastLine) && r.End.Character >= uint32(lastCol)
 }
 
 func (d *Document) isInsert(r *protocol.Range) bool {
@@ -53,13 +54,7 @@ func (d *Document) isInsert(r *protocol.Range) bool {
 }
 
 func (d *Document) insert(line, col int, lines []string) {
-	before := d.lines[line][:col]
-	after := d.lines[line][col:]
-	d.lines[line] = before + lines[0]
-	if len(lines) > 1 {
-		d.lines = append(d.lines[:line+1], append(lines[1:], d.lines[:line+1]...)...)
-	}
-	d.lines[line+len(lines)-1] = lines[len(lines)-1] + after
+	d.replace(line, col, line, col, lines)
 }
 
 func (d *Document) isReplace(r *protocol.Range) bool {
@@ -67,21 +62,25 @@ func (d *Document) isReplace(r *protocol.Range) bool {
 }
 
 func (d *Document) delete(startLine, startCol, endLine, endCol int) {
-	if startLine == endLine {
-		d.lines[startLine] = d.lines[startLine][:startCol] + d.lines[startLine][endCol:]
-		return
-	}
-	d.lines[startLine] = d.lines[startLine][:startCol]
-	d.lines[endLine] = d.lines[endLine][endCol:]
-	d.lines = append(d.lines[:startLine+1], d.lines[endLine:]...)
+	d.replace(startLine, startCol, endLine, endCol, []string{""})
 }
 
 func (d *Document) overwrite(startLine, startCol, endLine, endCol int, lines []string) {
-	if startLine == endLine {
-		d.lines[startLine] = d.lines[startLine][:startCol] + lines[0] + d.lines[startLine][endCol:]
-		return
-	}
-	d.lines[startLine] = d.lines[startLine][:startCol] + lines[0]
-	d.lines[endLine] = lines[len(lines)-1] + d.lines[endLine][endCol:]
-	d.lines = append(d.lines[:startLine+1], append(lines[1:], d.lines[endLine:]...)...)
+	d.replace(startLine, startCol, endLine, endCol, lines)
+}
+
+func (d *Document) replace(startLine, startCol, endLine, endCol int, lines []string) {
+	before := d.lines[startLine][:startCol]
+	after := d.lines[endLine][endCol:]
+
+	replacement := make([]string, len(lines))
+	copy(replacement, lines)
+	replacement[0] = before + replacement[0]
+	replacement[len(replacement)-1] = replacement[len(replacement)-1] + after
+
+	next := make([]string, 0, len(d.lines)-endLine+startLine+len(replacement))
+	next = append(next, d.lines[:startLine]...)
+	next = append(next, replacement...)
+	next = append(next, d.lines[endLine+1:]...)
+	d.lines = next
 }

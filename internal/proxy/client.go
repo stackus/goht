@@ -37,7 +37,11 @@ func (c *Client) PublishDiagnostics(ctx context.Context, params *protocol.Publis
 
 	logger.Debug().Msg("SERVER -> CLIENT: PublishDiagnostics")
 
-	_, gohtURI := toGohtURI(params.URI)
+	isGohtGoFile, gohtURI := toGohtURI(params.URI)
+	if !isGohtGoFile {
+		return c.Client.PublishDiagnostics(ctx, params)
+	}
+
 	sm, ok := c.smc.Get(string(gohtURI))
 	if !ok {
 		c.logger.Warn().Msgf("unable to complete because the sourcemap for %q doesn't exist in the cache, has the didOpen notification been sent yet", gohtURI)
@@ -46,21 +50,12 @@ func (c *Client) PublishDiagnostics(ctx context.Context, params *protocol.Publis
 
 	// update the uri to the original
 	params.URI = gohtURI
-	for i, diagnostic := range params.Diagnostics {
+	mappedDiagnostics := make([]protocol.Diagnostic, 0, len(params.Diagnostics))
+	for _, diagnostic := range params.Diagnostics {
 		var start, end compiler.Position
 		start, ok = sm.SourcePositionFromTarget(int(diagnostic.Range.Start.Line), int(diagnostic.Range.Start.Character))
 		if !ok {
 			logger.Warn().Any("diagnostic", diagnostic).Msg("unable to map start position")
-			continue
-		}
-
-		if diagnostic.Range.Start.Line == diagnostic.Range.End.Line {
-			length := diagnostic.Range.End.Character - diagnostic.Range.Start.Character
-			diagnostic.Range.Start.Line = uint32(start.Line)
-			diagnostic.Range.Start.Character = uint32(start.Col)
-			diagnostic.Range.End.Line = uint32(start.Line)
-			diagnostic.Range.End.Character = uint32(start.Col) + length
-			params.Diagnostics[i] = diagnostic
 			continue
 		}
 
@@ -74,9 +69,9 @@ func (c *Client) PublishDiagnostics(ctx context.Context, params *protocol.Publis
 		diagnostic.Range.Start.Character = uint32(start.Col)
 		diagnostic.Range.End.Line = uint32(end.Line)
 		diagnostic.Range.End.Character = uint32(end.Col)
-		params.Diagnostics[i] = diagnostic
+		mappedDiagnostics = append(mappedDiagnostics, diagnostic)
 	}
-	params.Diagnostics = c.dc.WithGohtDiagnostics(string(gohtURI), params.Diagnostics)
+	params.Diagnostics = c.dc.WithGeneratedGoDiagnostics(string(gohtURI), mappedDiagnostics)
 	return c.Client.PublishDiagnostics(ctx, params)
 }
 
