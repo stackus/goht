@@ -65,13 +65,7 @@ func (s *Server) Initialize(ctx context.Context, params *protocol.ParamInitializ
 	if resp.Capabilities.CompletionProvider == nil {
 		resp.Capabilities.CompletionProvider = &protocol.CompletionOptions{}
 	}
-	if resp.Capabilities.ExecuteCommandProvider == nil {
-		resp.Capabilities.ExecuteCommandProvider = &protocol.ExecuteCommandOptions{}
-	}
-	resp.Capabilities.ExecuteCommandProvider.Commands = []string{}
-	resp.Capabilities.DocumentFormattingProvider = &protocol.Or_ServerCapabilities_documentFormattingProvider{Value: false}
-	resp.Capabilities.DocumentRangeFormattingProvider = &protocol.Or_ServerCapabilities_documentRangeFormattingProvider{Value: false}
-	resp.Capabilities.SemanticTokensProvider = nil
+	s.sanitizeCapabilities(&resp.Capabilities)
 	syncKind := protocol.Full
 	if clientSupportsUTF8(params) {
 		s.positionEncoding = protocol.UTF8
@@ -95,6 +89,23 @@ func (s *Server) Initialize(ctx context.Context, params *protocol.ParamInitializ
 	resp.ServerInfo.Version = goht.Version()
 
 	return resp, err
+}
+
+func (s *Server) sanitizeCapabilities(capabilities *protocol.ServerCapabilities) {
+	capabilities.ExecuteCommandProvider = nil
+	capabilities.DocumentHighlightProvider = nil
+	capabilities.DocumentLinkProvider = nil
+	capabilities.DocumentSymbolProvider = nil
+	capabilities.FoldingRangeProvider = nil
+	capabilities.InlayHintProvider = nil
+
+	// Go formatting edits target generated Go and do not preserve GoHT/Haml layout.
+	capabilities.DocumentFormattingProvider = &protocol.Or_ServerCapabilities_documentFormattingProvider{Value: false}
+	capabilities.DocumentRangeFormattingProvider = &protocol.Or_ServerCapabilities_documentRangeFormattingProvider{Value: false}
+	capabilities.DocumentOnTypeFormattingProvider = nil
+
+	// Semantic token delta streams cannot be reliably remapped across mixed GoHT source.
+	capabilities.SemanticTokensProvider = nil
 }
 
 // CodeAction is called when the client requests code actions.
@@ -237,27 +248,7 @@ func (s *Server) Completion(ctx context.Context, params *protocol.CompletionPara
 			completionItem.TextEdit.Range = s.goRangeToGohtRange(gohtURI, completionItem.TextEdit.Range)
 		}
 		if len(completionItem.AdditionalTextEdits) > 0 {
-			doc, ok := s.srcs.Get(string(gohtURI))
-			if !ok {
-				continue
-			}
-			pkg := getPackageFromItemDetail(completionItem.Detail)
-			insert := addImport(doc.lines, pkg)
-			completionItem.AdditionalTextEdits = []protocol.TextEdit{
-				{
-					Range: protocol.Range{
-						Start: protocol.Position{
-							Line:      uint32(insert.line),
-							Character: 0,
-						},
-						End: protocol.Position{
-							Line:      uint32(insert.line),
-							Character: 0,
-						},
-					},
-					NewText: insert.text,
-				},
-			}
+			completionItem.AdditionalTextEdits = s.mapCompletionAdditionalTextEdits(gohtURI, completionItem)
 		}
 		resp.Items[i] = completionItem
 	}
@@ -319,14 +310,7 @@ func (s *Server) Definition(ctx context.Context, params *protocol.DefinitionPara
 		logger.Error().Err(err).Msg("unable to perform definition lookup")
 		return resp, err
 	}
-	for i, location := range resp {
-		if isGohtGoFile, goURI := toGohtURI(location.URI); isGohtGoFile {
-			location.URI = goURI
-			location.Range = s.goRangeToGohtRange(location.URI, location.Range)
-			resp[i] = location
-		}
-	}
-	return resp, nil
+	return s.mapLocations(resp), nil
 }
 
 func (s *Server) DidChange(ctx context.Context, params *protocol.DidChangeTextDocumentParams) error {
@@ -582,12 +566,7 @@ func (s *Server) Implementation(ctx context.Context, params *protocol.Implementa
 		}
 		return resp, err
 	}
-	for i, location := range resp {
-		location.URI = gohtURI
-		location.Range = s.goRangeToGohtRange(gohtURI, location.Range)
-		resp[i] = location
-	}
-	return resp, nil
+	return s.mapLocations(resp), nil
 }
 
 func (s *Server) OnTypeFormatting(ctx context.Context, params *protocol.DocumentOnTypeFormattingParams) ([]protocol.TextEdit, error) {
@@ -674,12 +653,11 @@ func (s *Server) References(ctx context.Context, params *protocol.ReferenceParam
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	gohtURI := params.TextDocument.URI
-	var isGohtURI bool
-	isGohtURI, params.TextDocument.URI = toGohtGoURI(params.TextDocument.URI)
-	if !isGohtURI {
-		logger.Warn().Msg("not a goht file")
-		return []protocol.Location{}, fmt.Errorf("not a goht file")
+	var err error
+	params.TextDocument.URI, params.Position, err = s.updatePosition(params.TextDocument.URI, params.Position)
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to update position")
+		return []protocol.Location{}, nil
 	}
 	resp, err := s.Server.References(ctx, params)
 	if err != nil || resp == nil {
@@ -688,12 +666,7 @@ func (s *Server) References(ctx context.Context, params *protocol.ReferenceParam
 		}
 		return resp, err
 	}
-	for i, location := range resp {
-		location.URI = gohtURI
-		location.Range = s.goRangeToGohtRange(gohtURI, location.Range)
-		resp[i] = location
-	}
-	return resp, nil
+	return s.mapLocations(resp), nil
 }
 
 func (s *Server) SignatureHelp(ctx context.Context, params *protocol.SignatureHelpParams) (*protocol.SignatureHelp, error) {
@@ -731,7 +704,7 @@ func (s *Server) TypeDefinition(ctx context.Context, params *protocol.TypeDefini
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to perform type definition lookup")
 	}
-	return resp, err
+	return s.mapLocations(resp), err
 }
 
 func (s *Server) WillSave(ctx context.Context, params *protocol.WillSaveTextDocumentParams) error {
@@ -830,20 +803,89 @@ func (s *Server) InlayHint(_ context.Context, _ *protocol.InlayHintParams) ([]pr
 	return []protocol.InlayHint{}, nil
 }
 
+func (s *Server) mapLocations(locations []protocol.Location) []protocol.Location {
+	for i, location := range locations {
+		locations[i] = s.mapLocation(location)
+	}
+	return locations
+}
+
+func (s *Server) mapLocation(location protocol.Location) protocol.Location {
+	isGohtGoFile, gohtURI := toGohtURI(location.URI)
+	if !isGohtGoFile {
+		return location
+	}
+	location.URI = gohtURI
+	location.Range = s.goRangeToGohtRange(gohtURI, location.Range)
+	return location
+}
+
+func (s *Server) mapTextEdit(uri protocol.DocumentURI, edit protocol.TextEdit) (protocol.TextEdit, bool) {
+	mappedRange, ok := s.tryGoRangeToGohtRange(uri, edit.Range)
+	if !ok {
+		return edit, false
+	}
+	edit.Range = mappedRange
+	return edit, true
+}
+
+func (s *Server) mapCompletionAdditionalTextEdits(uri protocol.DocumentURI, item protocol.CompletionItem) []protocol.TextEdit {
+	edits := make([]protocol.TextEdit, 0, len(item.AdditionalTextEdits))
+	for _, edit := range item.AdditionalTextEdits {
+		if mapped, ok := s.mapTextEdit(uri, edit); ok {
+			edits = append(edits, mapped)
+			continue
+		}
+		if !isGeneratedImportEdit(edit, item.Detail) {
+			s.logger.Warn().Str("newText", edit.NewText).Msg("dropping unmapped completion additional text edit")
+			continue
+		}
+		doc, ok := s.srcs.Get(string(uri))
+		if !ok {
+			s.logger.Warn().Str("uri", string(uri)).Msg("dropping unmapped completion import edit without source document")
+			continue
+		}
+		insert := addImport(doc.lines, getPackageFromItemDetail(item.Detail))
+		edits = append(edits, protocol.TextEdit{
+			Range: protocol.Range{
+				Start: protocol.Position{Line: uint32(insert.line), Character: 0},
+				End:   protocol.Position{Line: uint32(insert.line), Character: 0},
+			},
+			NewText: insert.text,
+		})
+	}
+	return edits
+}
+
+func isGeneratedImportEdit(edit protocol.TextEdit, detail string) bool {
+	if strings.HasPrefix(strings.TrimSpace(edit.NewText), "import ") {
+		return true
+	}
+	return completionWithImport.MatchString(detail)
+}
+
 func (s *Server) goRangeToGohtRange(uri protocol.DocumentURI, goRange protocol.Range) protocol.Range {
-	sm, ok := s.smc.Get(string(uri))
+	mappedRange, ok := s.tryGoRangeToGohtRange(uri, goRange)
 	if !ok {
 		return goRange
+	}
+	return mappedRange
+}
+
+func (s *Server) tryGoRangeToGohtRange(uri protocol.DocumentURI, goRange protocol.Range) (protocol.Range, bool) {
+	sm, ok := s.smc.Get(string(uri))
+	if !ok {
+		return goRange, false
 	}
 
 	start, ok := sm.SourcePositionFromTarget(int(goRange.Start.Line), int(goRange.Start.Character))
 	if !ok {
-		return goRange
+		return goRange, false
 	}
 
 	end, ok := sm.SourcePositionFromTarget(int(goRange.End.Line), int(goRange.End.Character))
 	if !ok {
-		return goRange
+		return goRange, false
 	}
 
 	s.logger.Info().Msgf("goRangeToGohtRange: %s: START [%d,%d] -> [%d,%d]", uri, goRange.Start.Line, goRange.Start.Character, start.Line, start.Col)
@@ -858,7 +900,7 @@ func (s *Server) goRangeToGohtRange(uri protocol.DocumentURI, goRange protocol.R
 			Line:      uint32(end.Line),
 			Character: uint32(end.Col),
 		},
-	}
+	}, true
 }
 
 func (s *Server) gohtRangeToGoRange(uri protocol.DocumentURI, gohtRange protocol.Range) protocol.Range {
@@ -992,7 +1034,7 @@ func getPackageFromItemDetail(pkg string) string {
 	return pkg
 }
 
-var nonImportKeywordRegexp = regexp.MustCompile(`^(?:goht|func|var|const|type)\s`)
+var nonImportKeywordRegexp = regexp.MustCompile(`^(?:@?goht|func|var|const|type)\s`)
 
 type importInsert struct {
 	line int
@@ -1023,7 +1065,7 @@ func addImport(lines []string, pkg string) importInsert {
 	}
 	var suffix string
 	if lastSingleLineImport == -1 {
-		lastSingleLineImport = 1
+		lastSingleLineImport = 0
 		suffix = "\n"
 	}
 	return importInsert{

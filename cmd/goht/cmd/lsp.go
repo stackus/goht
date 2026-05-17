@@ -73,14 +73,7 @@ func runLsp() error {
 			r: os.Stdin,
 			w: os.Stdout,
 		})
-		if lspOptions.traceClient {
-			stream = logging.LoggedStream{
-				Label:  "GOHT-LSP",
-				Stream: stream,
-				Logger: logger,
-			}
-		}
-		return stream
+		return newTraceableStream(stream, lspOptions.traceClient, "GOHT-LSP", logger)
 	}())
 	defer func(conn jsonrpc2.Conn) {
 		err := conn.Close()
@@ -98,14 +91,7 @@ func runLsp() error {
 	}
 	goConn := jsonrpc2.NewConn(func() jsonrpc2.Stream {
 		stream := jsonrpc2.NewStream(goPlsRWC)
-		if lspOptions.traceClient {
-			stream = logging.LoggedStream{
-				Label:  "GO-LSP",
-				Stream: stream,
-				Logger: logger,
-			}
-		}
-		return stream
+		return newTraceableStream(stream, lspOptions.traceGoPls, "GO-LSP", logger)
 	}())
 	defer func(goConn jsonrpc2.Conn) {
 		err := goConn.Close()
@@ -151,6 +137,17 @@ func runLsp() error {
 			logger.Error().Err(err).Msg("error: conn with gopls closed")
 		}
 		return goConn.Err()
+	}
+}
+
+func newTraceableStream(stream jsonrpc2.Stream, enabled bool, label string, logger zerolog.Logger) jsonrpc2.Stream {
+	if !enabled {
+		return stream
+	}
+	return logging.LoggedStream{
+		Label:  label,
+		Stream: stream,
+		Logger: logger,
 	}
 }
 
