@@ -40,7 +40,7 @@ type fileInfo struct {
 }
 
 type fileInfos struct {
-	files map[string]*fileInfo
+	files map[string]fileInfo
 	mu    sync.Mutex
 }
 
@@ -51,6 +51,7 @@ var maxWorkers = runtime.NumCPU()
 var generateCmd = &cobra.Command{
 	Use:   "generate",
 	Short: "Generates Go code from Goht files",
+	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runGenerate()
 	},
@@ -70,6 +71,17 @@ func init() {
 }
 
 func runGenerate() error {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	defer stop()
+
+	return runGenerateContext(ctx)
+}
+
+func runGenerateContext(ctx context.Context) error {
+	if maxWorkers < 1 {
+		return fmt.Errorf("--max-workers must be at least 1")
+	}
+
 	// check that the path is absolute
 	if !filepath.IsAbs(generateOptions.path) {
 		var err error
@@ -80,6 +92,9 @@ func runGenerate() error {
 	}
 
 	var files = newFileInfos()
+	var processingErrs []error
+	var processingErrsMu sync.Mutex
+	var walkErrs []error
 
 	wg := sync.WaitGroup{}
 	queue := make(chan string)
@@ -90,59 +105,75 @@ func runGenerate() error {
 			defer wg.Done()
 			for fileName := range queue {
 				start := time.Now()
-				fileHash, err := processFile(generateOptions.path, fileName, files.get(fileName).lastHash)
+				fileHash, wrote, err := processFile(generateOptions.path, fileName, files.get(fileName).lastHash)
 				if err != nil {
 					log.Errorf("failed to process: '%s': %s", fileName, err)
+					if !generateOptions.watch {
+						processingErrsMu.Lock()
+						processingErrs = append(processingErrs, fmt.Errorf("%s: %w", fileName, err))
+						processingErrsMu.Unlock()
+					}
 					continue
 				}
 				files.setHash(fileName, fileHash)
-				log.Infof("processed: '%s' in %s", fileName, time.Since(start))
+				if wrote {
+					log.Infof("processed: '%s' in %s", fileName, time.Since(start))
+				} else {
+					log.Infof("unchanged: '%s' in %s", fileName, time.Since(start))
+				}
 			}
 		}()
 	}
 
-	go func() {
-		b := backoff.NewExponentialBackOff()
-		b.MaxElapsedTime = 0
-		b.MaxInterval = 5 * time.Second
-		b.Reset()
-		timer := time.NewTimer(b.NextBackOff())
+	b := backoff.NewExponentialBackOff()
+	b.MaxElapsedTime = 0
+	b.MaxInterval = 5 * time.Second
+	b.Reset()
 
-		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-		defer stop()
+	if generateOptions.watch {
+		log.Infof("watching path: '%s'", generateOptions.path)
+	} else {
+		log.Infof("processing path: '%s'", generateOptions.path)
+	}
 
-		if generateOptions.watch {
-			log.Infof("watching path: '%s'", generateOptions.path)
-		} else {
-			log.Infof("processing path: '%s'", generateOptions.path)
-		}
-		for {
-			changes, err := walkDir(ctx, queue, files)
-			if err != nil {
-				if errors.Is(err, context.Canceled) {
-					break
-				}
-				log.Errorf("error processing path '%s': %v", generateOptions.path, err)
+	for {
+		changes, err := walkDir(ctx, queue, files)
+		if err != nil {
+			if errors.Is(err, context.Canceled) {
+				break
 			}
+			log.Errorf("error processing path '%s': %v", generateOptions.path, err)
 			if !generateOptions.watch {
+				walkErrs = append(walkErrs, err)
 				break
-			}
-			if changes > 0 {
-				b.Reset()
-			}
-			timer.Reset(b.NextBackOff())
-			select {
-			case <-ctx.Done():
-				timer.Stop()
-				stop()
-				break
-			case <-timer.C:
 			}
 		}
-		close(queue)
-	}()
+		if !generateOptions.watch {
+			break
+		}
+		if changes > 0 {
+			b.Reset()
+		}
 
+		// Watch mode is intentionally a portable polling scanner. It uses
+		// backoff to avoid hot-looping when no files have changed.
+		timer := time.NewTimer(b.NextBackOff())
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			close(queue)
+			wg.Wait()
+			return nil
+		case <-timer.C:
+		}
+	}
+
+	close(queue)
 	wg.Wait()
+
+	if !generateOptions.watch {
+		return errors.Join(append(walkErrs, processingErrs...)...)
+	}
 
 	return nil
 }
@@ -162,11 +193,15 @@ func walkDir(ctx context.Context, queue chan<- string, files *fileInfos) (change
 		}
 
 		if entry.IsDir() {
-			if strings.HasPrefix(entryName, ".") || strings.HasPrefix(entryName, "_") {
+			if entryName == generateOptions.path {
+				return nil
+			}
+			name := entry.Name()
+			if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "_") {
 				return filepath.SkipDir
 			}
 			for _, skipDir := range generateOptions.skipDirs {
-				if skipDir == entryName {
+				if skipDir == name {
 					return filepath.SkipDir
 				}
 			}
@@ -216,13 +251,17 @@ func walkDir(ctx context.Context, queue chan<- string, files *fileInfos) (change
 
 		files.setModified(fileName, info.ModTime())
 
-		queue <- fileName
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case queue <- fileName:
+		}
 		changes++
 		return nil
 	})
 }
 
-func processFile(path, fileName string, lastHash [sha256.Size]byte) (fileHash [sha256.Size]byte, err error) {
+func processFile(path, fileName string, lastHash [sha256.Size]byte) (fileHash [sha256.Size]byte, wrote bool, err error) {
 	var t *compiler.Template
 
 	t, err = compiler.ParseFile(filepath.Join(path, fileName))
@@ -244,23 +283,26 @@ func processFile(path, fileName string, lastHash [sha256.Size]byte) (fileHash [s
 	} else {
 		fileHash = sha256.Sum256(contents)
 		if lastHash == fileHash {
+			fileHash = lastHash
 			return
 		}
-		return fileHash, os.WriteFile(filepath.Join(path, fileName+".go"), contents, 0644)
+		err = os.WriteFile(filepath.Join(path, fileName+".go"), contents, 0644)
+		wrote = err == nil
+		return
 	}
 }
 
 func newFileInfos() *fileInfos {
 	return &fileInfos{
-		files: make(map[string]*fileInfo),
+		files: make(map[string]fileInfo),
 	}
 }
 
-func (f *fileInfos) get(fileName string) *fileInfo {
+func (f *fileInfos) get(fileName string) fileInfo {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	if _, ok := f.files[fileName]; !ok {
-		f.files[fileName] = &fileInfo{}
+		f.files[fileName] = fileInfo{}
 	}
 
 	return f.files[fileName]
@@ -271,9 +313,10 @@ func (f *fileInfos) setHash(fileName string, hash [sha256.Size]byte) {
 	defer f.mu.Unlock()
 	if info, ok := f.files[fileName]; ok {
 		info.lastHash = hash
+		f.files[fileName] = info
 		return
 	}
-	info := &fileInfo{
+	info := fileInfo{
 		lastHash: hash,
 	}
 	f.files[fileName] = info
@@ -284,9 +327,10 @@ func (f *fileInfos) setModified(fileName string, modified time.Time) {
 	defer f.mu.Unlock()
 	if info, ok := f.files[fileName]; ok {
 		info.lastModified = modified
+		f.files[fileName] = info
 		return
 	}
-	info := &fileInfo{
+	info := fileInfo{
 		lastModified: modified,
 	}
 	f.files[fileName] = info
