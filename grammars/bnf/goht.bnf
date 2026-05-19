@@ -1,0 +1,81 @@
+// Grammar-Kit BNF grammar for the GoHT template language.
+// Token names map 1-to-1 to the tokenType constants in compiler/tokens.go.
+// Update the package/class names below when the JetBrains plugin project is named.
+{
+  parserClass="com.github.stackus.goht.parser.GoHTParser"
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="GoHT"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.github.stackus.goht.psi"
+  psiImplPackage="com.github.stackus.goht.psi.impl"
+
+  elementTypeHolderClass="com.github.stackus.goht.psi.GoHTTypes"
+  elementTypeClass="com.github.stackus.goht.psi.GoHTElementType"
+  tokenTypeClass="com.github.stackus.goht.psi.GoHTTokenType"
+
+  tokens=[
+    // ── structure ─────────────────────────────────────────────────────────────
+    EOF             ='tEOF'
+    NEW_LINE        ='tNewLine'
+    INDENT          ='tIndent'
+
+    // ── go-level ──────────────────────────────────────────────────────────────
+    PACKAGE         ='tPackage'
+    IMPORT          ='tImport'
+    GO_CODE         ='tGoCode'
+
+    // ── template boundaries ───────────────────────────────────────────────────
+    TEMPLATE_START  ='tTemplateStart'
+    TEMPLATE_END    ='tTemplateEnd'
+    KEEP_NEWLINES   ='tKeepNewlines'
+
+    // ── html structural ───────────────────────────────────────────────────────
+    DOCTYPE         ='tDoctype'
+    TAG             ='tTag'
+    ID              ='tId'
+    CLASS           ='tClass'
+    OBJECT_REF      ='tObjectRef'
+    VOID_TAG        ='tVoidTag'
+
+    // ── attributes ────────────────────────────────────────────────────────────
+    ATTR_NAME           ='tAttrName'
+    ATTR_OPERATOR       ='tAttrOperator'
+    ATTR_ESCAPED_VALUE  ='tAttrEscapedValue'
+    ATTR_DYNAMIC_VALUE  ='tAttrDynamicValue'
+
+    // ── text content ──────────────────────────────────────────────────────────
+    RAW_TEXT        ='tRawText'
+    ESCAPED_TEXT    ='tEscapedText'
+    DYNAMIC_TEXT    ='tDynamicText'
+    PLAIN_TEXT      ='tPlainText'
+    PRESERVE_TEXT   ='tPreserveText'
+
+    // ── comments ──────────────────────────────────────────────────────────────
+    COMMENT         ='tComment'
+    RUBY_COMMENT    ='tRubyComment'
+
+    // ── whitespace modifiers (haml) ───────────────────────────────────────────
+    NUKE_INNER_WHITESPACE ='tNukeInnerWhitespace'
+    NUKE_OUTER_WHITESPACE ='tNukeOuterWhitespace'
+
+    // ── whitespace modifiers (slim) ───────────────────────────────────────────
+    ADD_WHITESPACE_BEFORE ='tAddWhitespaceBefore'
+    ADD_WHITESPACE_AFTER  ='tAddWhitespaceAfter'
+
+    // ── code output ───────────────────────────────────────────────────────────
+    UNESCAPED       ='tUnescaped'
+    SCRIPT          ='tScript'
+    SILENT_SCRIPT   ='tSilentScript'
+
+    // ── commands ──────────────────────────────────────────────────────────────
+    RENDER_COMMAND      ='tRenderCommand'
+    CHILDREN_COMMAND    ='tChildrenCommand'
+    SLOT_COMMAND        ='tSlotCommand'
+    ATTRIBUTES_COMMAND  ='tAttributesCommand'
+
+    // ── filters ───────────────────────────────────────────────────────────────
+    FILTER_START    ='tFilterStart'
+    FILTER_END      ='tFilterEnd'
+  ]
+}
