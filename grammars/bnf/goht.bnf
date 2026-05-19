@@ -242,3 +242,85 @@ hamlSilentScript ::= SILENT_SCRIPT
 
 // Plain text possibly containing #{...} interpolation spans
 hamlInlineText ::= (PLAIN_TEXT | DYNAMIC_TEXT)+
+
+// ════════════════════════════════════════════════════════════════════════════
+// Slim body  (compiler/lexers_slim.go)
+//
+// Syntax overview:
+//   tagname[#id][.class][{attrs}][(html-attrs)][modifiers] [content]
+//   #id  .class  (shortcuts)
+//   - control code (silent Go)
+//   = expr   (escaped output)
+//   == expr  (unescaped output — lexer emits UNESCAPED then SCRIPT)
+//   /  Ruby comment (discarded by lexer)
+//   /! HTML comment
+//   : filtername  (javascript|css)
+//   | text block
+//   doctype [type]
+//
+// Inline nesting: `li: a href="/" Home`
+// Tab-only indentation; each content line starts with one INDENT token.
+// ════════════════════════════════════════════════════════════════════════════
+
+slimBody ::= (slimLine | NEW_LINE)*
+
+slimLine ::= INDENT slimNode
+
+slimNode ::=
+    slimDoctype
+  | slimComment
+  | slimRubyComment
+  | slimFilter
+  | slimElement
+  | slimOutput
+  | slimControlCode
+  | slimTextBlock
+
+// doctype [type]  (tag name "doctype" is special-cased by the lexer)
+slimDoctype ::= DOCTYPE
+
+// /! HTML comment (content stored as COMMENT token)
+slimComment ::= COMMENT
+
+// / Ruby comment (content discarded by lexer, only RUBY_COMMENT token emitted)
+slimRubyComment ::= RUBY_COMMENT
+
+// :filtername followed by indented content block
+slimFilter ::= FILTER_START slimFilterBody FILTER_END
+
+slimFilterBody ::= (slimFilterLine | NEW_LINE)*
+
+slimFilterLine ::= INDENT slimFilterContent+
+
+// Slim filters support plain text and #{...} interpolation
+slimFilterContent ::= PLAIN_TEXT | DYNAMIC_TEXT
+
+// tagname, #id, or .class — with optional modifiers
+slimElement ::= slimElementHead slimElementMod* slimWhitespaceModifier? slimTagContent?
+
+slimElementHead ::= TAG | ID | CLASS
+
+slimElementMod ::= ID | CLASS | attrList | htmlAttrList
+
+// > adds space after; < adds space before
+slimWhitespaceModifier ::= ADD_WHITESPACE_AFTER | ADD_WHITESPACE_BEFORE
+
+slimTagContent ::=
+    VOID_TAG                  // self-closing: /
+  | slimOutput                // = or == expr / command
+  | slimInlineElement         // : nested-tag (inline)
+  | slimInlineText            // plain text after space
+
+// Inline nesting: the rest of the line is parsed as another slimNode
+slimInlineElement ::= slimNode
+
+// == expr (unescaped) or = expr or = @command
+slimOutput ::= UNESCAPED? (SCRIPT | gohtCommand)
+
+// - code (no output)
+slimControlCode ::= SILENT_SCRIPT
+
+// | text … (multi-line; each continuation line emits NEW_LINE + INDENT + content)
+slimTextBlock ::= (PLAIN_TEXT | DYNAMIC_TEXT | NEW_LINE | INDENT)*
+
+slimInlineText ::= (PLAIN_TEXT | DYNAMIC_TEXT)+
