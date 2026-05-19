@@ -124,3 +124,32 @@ slimTemplate ::= TEMPLATE_START slimBody TEMPLATE_END
 
 // @ego
 egoTemplate ::= TEMPLATE_START egoBody TEMPLATE_END
+
+// ════════════════════════════════════════════════════════════════════════════
+// Shared attribute rules
+// (compiler/lexers_haml.go: lexHamlAttributesStart … lexHamlHtmlAttributesEnd)
+// (compiler/lexers_slim.go: same structure)
+//
+// The { } and ( ) delimiters are consumed by the lexer; only the attribute
+// content tokens reach the parser.
+// ════════════════════════════════════════════════════════════════════════════
+
+// One or more attribute entries from a { ... } block.
+attrList ::= attr+
+
+// A single attribute: name + optional operator + value, OR @attributes command.
+attr ::= ATTR_NAME ATTR_OPERATOR attrValue
+       | ATTR_NAME                           // boolean attribute (no value)
+       | ATTRIBUTES_COMMAND
+
+attrValue ::= ATTR_ESCAPED_VALUE | ATTR_DYNAMIC_VALUE
+
+// HTML-style (parenthesis) attributes — same token stream, distinct PSI nodes.
+htmlAttrList ::= htmlAttr+
+
+htmlAttr ::= ATTR_NAME ATTR_OPERATOR attrValue
+           | ATTR_NAME
+           | ATTRIBUTES_COMMAND
+
+// A command token produced by = @render(...), = @children(), = @slot(...)
+gohtCommand ::= RENDER_COMMAND | CHILDREN_COMMAND | SLOT_COMMAND
