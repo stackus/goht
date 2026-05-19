@@ -79,3 +79,48 @@
     FILTER_END      ='tFilterEnd'
   ]
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// Root
+// ════════════════════════════════════════════════════════════════════════════
+
+// A GoHT file begins with a package declaration, followed by any number of
+// imports, free Go code lines, or template declarations (in any order).
+gohtFile ::= packageDecl (importDecl | goCodeLine | template | NEW_LINE)* {
+  recoverWhile="gohtFile_recover"
+}
+
+private gohtFile_recover ::= !<<eof>>
+
+// ════════════════════════════════════════════════════════════════════════════
+// Go-level constructs  (compiler/lexers.go: lexPackage, lexImports, lexGoCode)
+// ════════════════════════════════════════════════════════════════════════════
+
+// lexPackage: skips "package" keyword, emits tPackage for the package name.
+packageDecl ::= PACKAGE
+
+// lexImportStart / lexImports: emits one tImport token per import path.
+// Both single-line ("import \"foo\"") and block ("import (\n...\n)") forms
+// collapse to one IMPORT token each — the lexer strips the parens and whitespace.
+importDecl ::= IMPORT+
+
+// lexGoCode: one tGoCode token per non-blank, non-special line.
+goCodeLine ::= GO_CODE
+
+// ════════════════════════════════════════════════════════════════════════════
+// Template declarations  (compiler/lexers.go: lexTemplate, lexTemplateStart)
+// ════════════════════════════════════════════════════════════════════════════
+
+// lexTemplate dispatches on @goht/@haml/@slim/@ego.
+// lexTemplateStart emits: TEMPLATE_START (function signature), then
+//   KEEP_NEWLINES only for @haml/@goht (preserves blank lines between tags).
+template ::= hamlTemplate | slimTemplate | egoTemplate
+
+// @haml / @goht
+hamlTemplate ::= TEMPLATE_START KEEP_NEWLINES hamlBody TEMPLATE_END
+
+// @slim
+slimTemplate ::= TEMPLATE_START slimBody TEMPLATE_END
+
+// @ego
+egoTemplate ::= TEMPLATE_START egoBody TEMPLATE_END
