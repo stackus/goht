@@ -805,7 +805,7 @@
       ]
     },
     "ego-command": {
-      "begin": "<(%@)(render|children|slot)\\b.+?",
+      "begin": "<(%@)(render|children|slot)\\b",
       "beginCaptures": {
         "0": {
           "name": "punctuation.definition.tag.begin.html"
