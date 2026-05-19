@@ -1,0 +1,13 @@
+package testdata
+
+@goht HtmlAttributesTest() {
+	%p(class="static") Static paren attr
+	%p(id="a" class="b") Multiple paren attrs
+	- dynVal := "dynamic"
+	%p(id=#{dynVal}) Dynamic paren attr
+	%button(disabled) Boolean paren attr
+	%p(
+		class="multiline"
+		id="paren"
+	) Multiline paren attrs
+}

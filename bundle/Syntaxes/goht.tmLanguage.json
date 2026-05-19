@@ -829,6 +829,14 @@
       "name": "keyword.operator.go",
       "patterns": [
         {
+          "name": "punctuation.section.block.begin.bracket.curly.go",
+          "match": "\\{"
+        },
+        {
+          "name": "punctuation.section.block.end.bracket.curly.go",
+          "match": "\\}"
+        },
+        {
           "include": "source.go"
         }
       ]
