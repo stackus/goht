@@ -100,8 +100,7 @@ private gohtFile_recover ::= !<<eof>>
 packageDecl ::= PACKAGE
 
 // lexImportStart / lexImports: emits one tImport token per import path.
-// Both single-line ("import \"foo\"") and block ("import (\n...\n)") forms
-// collapse to one IMPORT token each — the lexer strips the parens and whitespace.
+// Each import path produces one IMPORT token; the lexer strips parens and whitespace from block imports.
 importDecl ::= IMPORT+
 
 // lexGoCode: one tGoCode token per non-blank, non-special line.
@@ -231,8 +230,8 @@ hamlTagContent ::=
   | hamlOutput                // = expr or = @command
   | hamlInlineText            // plain text (possibly with interpolation)
 
-// != expr  or  ! (bare unescaped marker, content on same line)
-hamlUnescapedOutput ::= UNESCAPED SCRIPT?
+// != expr  or  ! Foo (plain text)  or  ! #{x} (dynamic text)
+hamlUnescapedOutput ::= UNESCAPED (SCRIPT | hamlInlineText)?
 
 // = expr  or  = @render(...) / @children() / @slot(...)
 hamlOutput ::= SCRIPT | gohtCommand
@@ -320,8 +319,8 @@ slimOutput ::= UNESCAPED? (SCRIPT | gohtCommand)
 // - code (no output)
 slimControlCode ::= SILENT_SCRIPT
 
-// | text … (multi-line; each continuation line emits NEW_LINE + INDENT + content)
-slimTextBlock ::= (PLAIN_TEXT | DYNAMIC_TEXT | NEW_LINE | INDENT)*
+// | text … (multi-line; each continuation line emits NEW_LINE + content; INDENT is skipped by the lexer via skipAhead)
+slimTextBlock ::= (PLAIN_TEXT | DYNAMIC_TEXT | NEW_LINE)*
 
 slimInlineText ::= (PLAIN_TEXT | DYNAMIC_TEXT)+
 
@@ -352,8 +351,7 @@ slimInlineText ::= (PLAIN_TEXT | DYNAMIC_TEXT)+
 egoBody ::= egoItem*
 
 egoItem ::=
-    RAW_TEXT              // literal template text between tags
-  | NEW_LINE              // line boundary
+    RAW_TEXT              // literal template text between tags (includes newlines — EGO lexer folds them into RAW_TEXT)
   | INDENT               // Go block depth change (emitted around { / })
   | egoOutput            // <%= expr %>
   | egoUnescapedOutput   // <%! expr %>
