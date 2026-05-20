@@ -324,3 +324,51 @@ slimControlCode ::= SILENT_SCRIPT
 slimTextBlock ::= (PLAIN_TEXT | DYNAMIC_TEXT | NEW_LINE | INDENT)*
 
 slimInlineText ::= (PLAIN_TEXT | DYNAMIC_TEXT)+
+
+// ════════════════════════════════════════════════════════════════════════════
+// EGO body  (compiler/lexers_ego.go)
+//
+// ERB-style tags embedded in raw text:
+//   <% code %>          silent script (no output)
+//   <%= expr %>         escaped output
+//   <%! expr %>         unescaped output
+//   <%# comment %>      comment (discarded by lexer, no token emitted)
+//   <%@ render … %>     render command
+//   <%@ children %>     children command
+//   <%@ slot name %>    slot command
+//
+// Closing tag variants (consumed by lexer):
+//   %>    standard close
+//   -%>   close + strip trailing whitespace
+//   $%>   close + consume following newline
+//
+// Brace tracking: when a script or command opens/closes a Go block ({ / }),
+// the lexer emits INDENT (value = current tab depth) before/after the token
+// so the parser can reconstruct block nesting.
+//
+// All lines inside an EGO template must begin with a tab (enforced by lexer).
+// ════════════════════════════════════════════════════════════════════════════
+
+egoBody ::= egoItem*
+
+egoItem ::=
+    RAW_TEXT              // literal template text between tags
+  | NEW_LINE              // line boundary
+  | INDENT               // Go block depth change (emitted around { / })
+  | egoOutput            // <%= expr %>
+  | egoUnescapedOutput   // <%! expr %>
+  | egoScript            // <% code %>
+  | egoCommand           // <%@ ... %>
+
+// <%= expr %>  — lexer emits SCRIPT only
+egoOutput ::= SCRIPT
+
+// <%! expr %>  — lexer emits UNESCAPED then SCRIPT
+egoUnescapedOutput ::= UNESCAPED SCRIPT
+
+// <% code %>  — lexer emits SILENT_SCRIPT
+// Surrounding INDENT tokens (if any) are captured as sibling egoItems.
+egoScript ::= SILENT_SCRIPT
+
+// <%@ render|children|slot ... %>
+egoCommand ::= RENDER_COMMAND | CHILDREN_COMMAND | SLOT_COMMAND
