@@ -793,23 +793,14 @@ func (s *Server) SemanticTokensFull(ctx context.Context, params *protocol.Semant
 	return s.mapSemanticTokens(gohtURI, resp), nil
 }
 
-func (s *Server) SemanticTokensFullDelta(ctx context.Context, params *protocol.SemanticTokensDeltaParams) (any, error) {
+func (s *Server) SemanticTokensFullDelta(_ context.Context, params *protocol.SemanticTokensDeltaParams) (any, error) {
 	logger := s.logger.With().
 		Str("method", "SemanticTokensFullDelta").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
-	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
-	if !isGohtFile {
-		logger.Warn().Msg("not a goht file")
-		return nil, nil
-	}
-	params.TextDocument.URI = goURI
-	resp, err := s.Server.SemanticTokensFullDelta(ctx, params)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to perform semantic tokens full delta")
-	}
-	return resp, err
+	logger.Warn().Msg("delta not supported; client should request full tokens")
+	return nil, nil
 }
 
 func (s *Server) SemanticTokensRange(ctx context.Context, params *protocol.SemanticTokensRangeParams) (*protocol.SemanticTokens, error) {
