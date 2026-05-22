@@ -35,6 +35,8 @@ type recordingServer struct {
 	didCloseCalls             []protocol.DidCloseTextDocumentParams
 	semanticTokensFullResult  *protocol.SemanticTokens
 	semanticTokensFullCalls   []protocol.SemanticTokensParams
+	semanticTokensRangeResult *protocol.SemanticTokens
+	semanticTokensRangeCalls  []protocol.SemanticTokensRangeParams
 }
 
 func (s *recordingServer) Initialize(context.Context, *protocol.ParamInitialize) (*protocol.InitializeResult, error) {
@@ -89,6 +91,11 @@ func (s *recordingServer) DidClose(_ context.Context, params *protocol.DidCloseT
 func (s *recordingServer) SemanticTokensFull(_ context.Context, params *protocol.SemanticTokensParams) (*protocol.SemanticTokens, error) {
 	s.semanticTokensFullCalls = append(s.semanticTokensFullCalls, *params)
 	return s.semanticTokensFullResult, nil
+}
+
+func (s *recordingServer) SemanticTokensRange(_ context.Context, params *protocol.SemanticTokensRangeParams) (*protocol.SemanticTokens, error) {
+	s.semanticTokensRangeCalls = append(s.semanticTokensRangeCalls, *params)
+	return s.semanticTokensRangeResult, nil
 }
 
 type recordingClient struct {
@@ -876,6 +883,103 @@ func TestServerSemanticTokensFull(t *testing.T) {
 			for i := range got.Data {
 				if got.Data[i] != tc.want.Data[i] {
 					t.Errorf("SemanticTokensFull() Data[%d] = %d, want %d", i, got.Data[i], tc.want.Data[i])
+				}
+			}
+		})
+	}
+}
+
+func TestServerSemanticTokensRange(t *testing.T) {
+	type testcase struct {
+		args         struct{ params *protocol.SemanticTokensRangeParams }
+		serverResult *protocol.SemanticTokens
+		want         *protocol.SemanticTokens
+		wantCalls    int
+	}
+	// testSourceMap maps: GoHT(1,2)→Go(10,20), GoHT(1,4)→Go(10,22)
+	// So range GoHT(1,2)→(1,4) maps to Go(10,20)→(10,22)
+	tests := map[string]testcase{
+		"non-goht file returns nil": {
+			args: struct{ params *protocol.SemanticTokensRangeParams }{
+				params: &protocol.SemanticTokensRangeParams{
+					TextDocument: protocol.TextDocumentIdentifier{URI: "file:///tmp/other.go"},
+					Range:        rangeOf(1, 2, 1, 4),
+				},
+			},
+			want:      nil,
+			wantCalls: 0,
+		},
+		"unmappable range returns nil": {
+			args: struct{ params *protocol.SemanticTokensRangeParams }{
+				params: &protocol.SemanticTokensRangeParams{
+					TextDocument: protocol.TextDocumentIdentifier{URI: testGohtURI},
+					Range:        rangeOf(99, 0, 99, 5),
+				},
+			},
+			want:      nil,
+			wantCalls: 0,
+		},
+		"maps range and token positions to goht space": {
+			args: struct{ params *protocol.SemanticTokensRangeParams }{
+				params: &protocol.SemanticTokensRangeParams{
+					TextDocument: protocol.TextDocumentIdentifier{URI: testGohtURI},
+					Range:        rangeOf(1, 2, 1, 4),
+				},
+			},
+			serverResult: &protocol.SemanticTokens{
+				Data: []uint32{10, 20, 2, 0, 0},
+			},
+			want: &protocol.SemanticTokens{
+				Data: []uint32{1, 2, 2, 0, 0},
+			},
+			wantCalls: 1,
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			server := &recordingServer{
+				semanticTokensRangeResult: tc.serverResult,
+			}
+			client := &recordingClient{}
+			proxy := newTestServer(server, client)
+			proxy.smc.Set(string(testGohtURI), testSourceMap())
+
+			got, err := proxy.SemanticTokensRange(context.Background(), tc.args.params)
+			if err != nil {
+				t.Fatalf("SemanticTokensRange() error = %v", err)
+			}
+
+			if len(server.semanticTokensRangeCalls) != tc.wantCalls {
+				t.Fatalf("SemanticTokensRange() gopls calls = %d, want %d",
+					len(server.semanticTokensRangeCalls), tc.wantCalls)
+			}
+
+			if tc.wantCalls > 0 {
+				call := server.semanticTokensRangeCalls[0]
+				if call.TextDocument.URI != testGohtGoURI {
+					t.Errorf("SemanticTokensRange() forwarded URI = %q, want %q", call.TextDocument.URI, testGohtGoURI)
+				}
+				wantRange := rangeOf(10, 20, 10, 22)
+				if call.Range != wantRange {
+					t.Errorf("SemanticTokensRange() forwarded range = %+v, want %+v", call.Range, wantRange)
+				}
+			}
+
+			if tc.want == nil {
+				if got != nil {
+					t.Fatalf("SemanticTokensRange() = %+v, want nil", got)
+				}
+				return
+			}
+			if got == nil {
+				t.Fatal("SemanticTokensRange() = nil, want non-nil")
+			}
+			if len(got.Data) != len(tc.want.Data) {
+				t.Fatalf("SemanticTokensRange() Data = %v, want %v", got.Data, tc.want.Data)
+			}
+			for i := range got.Data {
+				if got.Data[i] != tc.want.Data[i] {
+					t.Errorf("SemanticTokensRange() Data[%d] = %d, want %d", i, got.Data[i], tc.want.Data[i])
 				}
 			}
 		})

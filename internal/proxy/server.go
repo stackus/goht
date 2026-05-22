@@ -818,17 +818,26 @@ func (s *Server) SemanticTokensRange(ctx context.Context, params *protocol.Seman
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	gohtURI := params.TextDocument.URI
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
 	if !isGohtFile {
 		logger.Warn().Msg("not a goht file")
 		return nil, nil
 	}
+
+	goRange, ok := s.tryGohtRangeToGoRange(gohtURI, params.Range)
+	if !ok {
+		return nil, nil
+	}
+
 	params.TextDocument.URI = goURI
+	params.Range = goRange
 	resp, err := s.Server.SemanticTokensRange(ctx, params)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to perform semantic tokens range")
+		return resp, err
 	}
-	return resp, err
+	return s.mapSemanticTokens(gohtURI, resp), nil
 }
 
 func (s *Server) Moniker(ctx context.Context, params *protocol.MonikerParams) ([]protocol.Moniker, error) {
