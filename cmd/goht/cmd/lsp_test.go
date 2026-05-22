@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/rs/zerolog"
-	"go.lsp.dev/jsonrpc2"
+	"github.com/stackus/protocol/jsonrpc2"
 
 	"github.com/stackus/goht/internal/logging"
 )

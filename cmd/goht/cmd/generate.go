@@ -34,6 +34,13 @@ type generateFlags struct {
 	watch    bool
 }
 
+type generateTarget struct {
+	path        string
+	displayPath string
+	fileName    string
+	singleFile  bool
+}
+
 type fileInfo struct {
 	lastModified time.Time
 	lastHash     [sha256.Size]byte
@@ -60,7 +67,7 @@ var generateCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(generateCmd)
 
-	generateCmd.Flags().StringVar(&generateOptions.path, "path", ".", "The path to the templates directory.")
+	generateCmd.Flags().StringVar(&generateOptions.path, "path", ".", "The path to the templates directory or .goht file.")
 	generateCmd.Flags().StringSliceVar(&generateOptions.skipDirs, "skip-dirs", []string{
 		"vendor", "node_modules",
 	}, "The directories to skip.")
@@ -82,14 +89,11 @@ func runGenerateContext(ctx context.Context) error {
 		return fmt.Errorf("--max-workers must be at least 1")
 	}
 
-	// check that the path is absolute
-	if !filepath.IsAbs(generateOptions.path) {
-		var err error
-		generateOptions.path, err = filepath.Abs(generateOptions.path)
-		if err != nil {
-			return err
-		}
+	target, err := resolveGenerateTarget(generateOptions.path)
+	if err != nil {
+		return err
 	}
+	generateOptions.path = target.displayPath
 
 	var files = newFileInfos()
 	var processingErrs []error
@@ -105,7 +109,7 @@ func runGenerateContext(ctx context.Context) error {
 			defer wg.Done()
 			for fileName := range queue {
 				start := time.Now()
-				fileHash, wrote, err := processFile(generateOptions.path, fileName, files.get(fileName).lastHash)
+				fileHash, wrote, err := processFile(target.path, fileName, files.get(fileName).lastHash)
 				if err != nil {
 					log.Errorf("failed to process: '%s': %s", fileName, err)
 					if !generateOptions.watch {
@@ -137,7 +141,7 @@ func runGenerateContext(ctx context.Context) error {
 	}
 
 	for {
-		changes, err := walkDir(ctx, queue, files)
+		changes, err := scanTarget(ctx, target, queue, files)
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
 				break
@@ -178,9 +182,87 @@ func runGenerateContext(ctx context.Context) error {
 	return nil
 }
 
-func walkDir(ctx context.Context, queue chan<- string, files *fileInfos) (changes int, err error) {
+func resolveGenerateTarget(path string) (generateTarget, error) {
+	if !filepath.IsAbs(path) {
+		absPath, err := filepath.Abs(path)
+		if err != nil {
+			return generateTarget{}, err
+		}
+		path = absPath
+	}
+
+	info, err := os.Stat(path)
+	if err != nil {
+		return generateTarget{}, err
+	}
+	if info.IsDir() {
+		return generateTarget{
+			path:        path,
+			displayPath: path,
+		}, nil
+	}
+	if !strings.HasSuffix(path, GohtFileExtension) {
+		return generateTarget{}, fmt.Errorf("--path file must have %s extension: %s", GohtFileExtension, path)
+	}
+	if generateOptions.watch {
+		return generateTarget{}, fmt.Errorf("--watch requires --path to be a directory")
+	}
+
+	return generateTarget{
+		path:        filepath.Dir(path),
+		displayPath: path,
+		fileName:    filepath.Base(path),
+		singleFile:  true,
+	}, nil
+}
+
+func scanTarget(ctx context.Context, target generateTarget, queue chan<- string, files *fileInfos) (changes int, err error) {
+	if target.singleFile {
+		return scanFile(ctx, target, queue, files)
+	}
+	return walkDir(ctx, target.path, queue, files)
+}
+
+func scanFile(ctx context.Context, target generateTarget, queue chan<- string, files *fileInfos) (changes int, err error) {
+	select {
+	case <-ctx.Done():
+		return 0, ctx.Err()
+	default:
+	}
+
+	path := filepath.Join(target.path, target.fileName)
+	if !generateOptions.force && files.get(target.fileName).lastModified.IsZero() {
+		goFile, err := os.Stat(path + ".go")
+		if err != nil && !os.IsNotExist(err) {
+			return 0, err
+		}
+		if goFile != nil {
+			files.setModified(target.fileName, goFile.ModTime())
+		}
+	}
+
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0, err
+	}
+
+	if !info.ModTime().After(files.get(target.fileName).lastModified) {
+		return 0, nil
+	}
+
+	files.setModified(target.fileName, info.ModTime())
+
+	select {
+	case <-ctx.Done():
+		return 0, ctx.Err()
+	case queue <- target.fileName:
+	}
+	return 1, nil
+}
+
+func walkDir(ctx context.Context, path string, queue chan<- string, files *fileInfos) (changes int, err error) {
 	// walk the file tree
-	return changes, filepath.WalkDir(generateOptions.path, func(entryName string, entry os.DirEntry, err error) error {
+	return changes, filepath.WalkDir(path, func(entryName string, entry os.DirEntry, err error) error {
 		// nope out if there was an error
 		if err != nil {
 			return err
@@ -193,7 +275,7 @@ func walkDir(ctx context.Context, queue chan<- string, files *fileInfos) (change
 		}
 
 		if entry.IsDir() {
-			if entryName == generateOptions.path {
+			if entryName == path {
 				return nil
 			}
 			name := entry.Name()
@@ -222,7 +304,7 @@ func walkDir(ctx context.Context, queue chan<- string, files *fileInfos) (change
 			return nil
 		}
 
-		fileName, err := filepath.Rel(generateOptions.path, entryName)
+		fileName, err := filepath.Rel(path, entryName)
 		if err != nil {
 			return err
 		}

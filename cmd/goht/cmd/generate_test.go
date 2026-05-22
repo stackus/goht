@@ -91,6 +91,139 @@ func TestGenerateReturnsOneShotProcessingErrors(t *testing.T) {
 	})
 }
 
+func TestGeneratePathAcceptsSingleGohtFile(t *testing.T) {
+	root := t.TempDir()
+	example := filepath.Join(root, "pages", "example.goht")
+	other := filepath.Join(root, "pages", "other.goht")
+	writeGohtFile(t, example, "example")
+	writeGohtFile(t, other, "other")
+
+	withGenerateState(t, generateFlags{path: example}, 2, func() {
+		if err := runGenerateContext(context.Background()); err != nil {
+			t.Fatalf("runGenerateContext() error = %v", err)
+		}
+	})
+
+	assertFileExists(t, example+".go")
+	assertFileMissing(t, other+".go")
+}
+
+func TestGeneratePathAcceptsRelativeSingleGohtFile(t *testing.T) {
+	originalDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.Chdir(originalDir); err != nil {
+			t.Fatalf("restore working directory: %v", err)
+		}
+	})
+
+	root := t.TempDir()
+	example := filepath.Join(root, "pages", "example.goht")
+	writeGohtFile(t, example, "relative")
+	if err := os.Chdir(root); err != nil {
+		t.Fatal(err)
+	}
+
+	withGenerateState(t, generateFlags{path: filepath.Join("pages", "example.goht")}, 2, func() {
+		if err := runGenerateContext(context.Background()); err != nil {
+			t.Fatalf("runGenerateContext() error = %v", err)
+		}
+	})
+
+	assertFileExists(t, example+".go")
+}
+
+func TestGenerateSingleFileSkipsWhenGeneratedIsCurrent(t *testing.T) {
+	root := t.TempDir()
+	example := filepath.Join(root, "example.goht")
+	writeGohtFile(t, example, "current")
+
+	withGenerateState(t, generateFlags{path: example}, 2, func() {
+		if err := runGenerateContext(context.Background()); err != nil {
+			t.Fatalf("first runGenerateContext() error = %v", err)
+		}
+	})
+
+	generated := example + ".go"
+	firstInfo := statFile(t, generated)
+
+	time.Sleep(20 * time.Millisecond)
+	withGenerateState(t, generateFlags{path: example}, 2, func() {
+		if err := runGenerateContext(context.Background()); err != nil {
+			t.Fatalf("second runGenerateContext() error = %v", err)
+		}
+	})
+
+	secondInfo := statFile(t, generated)
+	if !secondInfo.ModTime().Equal(firstInfo.ModTime()) {
+		t.Fatalf("generated file was rewritten without a source change")
+	}
+}
+
+func TestGenerateSingleFileForceRegeneratesCurrentFile(t *testing.T) {
+	root := t.TempDir()
+	example := filepath.Join(root, "example.goht")
+	writeGohtFile(t, example, "forced")
+
+	withGenerateState(t, generateFlags{path: example}, 2, func() {
+		if err := runGenerateContext(context.Background()); err != nil {
+			t.Fatalf("first runGenerateContext() error = %v", err)
+		}
+	})
+
+	generated := example + ".go"
+	firstInfo := statFile(t, generated)
+
+	time.Sleep(20 * time.Millisecond)
+	withGenerateState(t, generateFlags{path: example, force: true}, 2, func() {
+		if err := runGenerateContext(context.Background()); err != nil {
+			t.Fatalf("second runGenerateContext() error = %v", err)
+		}
+	})
+
+	secondInfo := statFile(t, generated)
+	if !secondInfo.ModTime().After(firstInfo.ModTime()) {
+		t.Fatalf("generated file mod time did not advance after force")
+	}
+}
+
+func TestGenerateSingleFileRejectsWatch(t *testing.T) {
+	root := t.TempDir()
+	example := filepath.Join(root, "example.goht")
+	writeGohtFile(t, example, "watch")
+
+	withGenerateState(t, generateFlags{path: example, watch: true}, 2, func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+		defer cancel()
+
+		err := runGenerateContext(ctx)
+		if err == nil {
+			t.Fatal("runGenerateContext() error = nil")
+		}
+		if !strings.Contains(err.Error(), "--watch") || !strings.Contains(err.Error(), "directory") {
+			t.Fatalf("error = %q, want watch directory validation", err)
+		}
+	})
+}
+
+func TestGenerateSingleFileRejectsNonGohtFile(t *testing.T) {
+	root := t.TempDir()
+	example := filepath.Join(root, "example.txt")
+	writeFile(t, example, "not a goht template")
+
+	withGenerateState(t, generateFlags{path: example}, 2, func() {
+		err := runGenerateContext(context.Background())
+		if err == nil {
+			t.Fatal("runGenerateContext() error = nil")
+		}
+		if !strings.Contains(err.Error(), GohtFileExtension) {
+			t.Fatalf("error = %q, want .goht validation", err)
+		}
+	})
+}
+
 func TestProcessFileReturnsLastHashWhenUnchanged(t *testing.T) {
 	root := t.TempDir()
 	writeGohtFile(t, filepath.Join(root, "example.goht"), "same")
