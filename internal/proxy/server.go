@@ -1150,6 +1150,63 @@ type importInsert struct {
 	text string
 }
 
+type semanticToken struct {
+	line, char, length, tokenType, tokenModifiers uint32
+}
+
+func decodeSemanticTokens(data []uint32) []semanticToken {
+	if len(data) == 0 {
+		return nil
+	}
+	tokens := make([]semanticToken, 0, len(data)/5)
+	var prevLine, prevChar uint32
+	for i := 0; i+4 < len(data); i += 5 {
+		deltaLine := data[i]
+		deltaChar := data[i+1]
+		length := data[i+2]
+		tokenType := data[i+3]
+		tokenMods := data[i+4]
+
+		var line, char uint32
+		if deltaLine == 0 {
+			line = prevLine
+			char = prevChar + deltaChar
+		} else {
+			line = prevLine + deltaLine
+			char = deltaChar
+		}
+
+		tokens = append(tokens, semanticToken{
+			line:           line,
+			char:           char,
+			length:         length,
+			tokenType:      tokenType,
+			tokenModifiers: tokenMods,
+		})
+		prevLine = line
+		prevChar = char
+	}
+	return tokens
+}
+
+func encodeSemanticTokens(tokens []semanticToken) []uint32 {
+	data := make([]uint32, 0, len(tokens)*5)
+	var prevLine, prevChar uint32
+	for _, t := range tokens {
+		deltaLine := t.line - prevLine
+		var deltaChar uint32
+		if deltaLine == 0 {
+			deltaChar = t.char - prevChar
+		} else {
+			deltaChar = t.char
+		}
+		data = append(data, deltaLine, deltaChar, t.length, t.tokenType, t.tokenModifiers)
+		prevLine = t.line
+		prevChar = t.char
+	}
+	return data
+}
+
 func addImport(lines []string, pkg string) importInsert {
 	var inMultilineImport bool
 	lastSingleLineImport := -1

@@ -785,3 +785,93 @@ func didChangeParams(text string) *protocol.DidChangeTextDocumentParams {
 		},
 	}
 }
+
+func TestDecodeSemanticTokens(t *testing.T) {
+	type testcase struct {
+		args struct{ data []uint32 }
+		want []semanticToken
+	}
+	tests := map[string]testcase{
+		"empty data": {
+			args: struct{ data []uint32 }{data: []uint32{}},
+			want: nil,
+		},
+		"single token": {
+			args: struct{ data []uint32 }{data: []uint32{3, 5, 4, 1, 0}},
+			want: []semanticToken{{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0}},
+		},
+		"two tokens same line": {
+			args: struct{ data []uint32 }{data: []uint32{3, 5, 4, 1, 0, 0, 6, 2, 0, 1}},
+			want: []semanticToken{
+				{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0},
+				{line: 3, char: 11, length: 2, tokenType: 0, tokenModifiers: 1},
+			},
+		},
+		"two tokens different lines": {
+			args: struct{ data []uint32 }{data: []uint32{3, 5, 4, 1, 0, 2, 3, 2, 0, 1}},
+			want: []semanticToken{
+				{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0},
+				{line: 5, char: 3, length: 2, tokenType: 0, tokenModifiers: 1},
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := decodeSemanticTokens(tc.args.data)
+			if len(got) != len(tc.want) {
+				t.Fatalf("decodeSemanticTokens() len = %d, want %d", len(got), len(tc.want))
+			}
+			for i := range got {
+				if got[i] != tc.want[i] {
+					t.Errorf("decodeSemanticTokens()[%d] = %+v, want %+v", i, got[i], tc.want[i])
+				}
+			}
+		})
+	}
+}
+
+func TestEncodeSemanticTokens(t *testing.T) {
+	type testcase struct {
+		args struct{ tokens []semanticToken }
+		want []uint32
+	}
+	tests := map[string]testcase{
+		"empty tokens": {
+			args: struct{ tokens []semanticToken }{tokens: nil},
+			want: []uint32{},
+		},
+		"single token": {
+			args: struct{ tokens []semanticToken }{tokens: []semanticToken{
+				{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0},
+			}},
+			want: []uint32{3, 5, 4, 1, 0},
+		},
+		"two tokens same line": {
+			args: struct{ tokens []semanticToken }{tokens: []semanticToken{
+				{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0},
+				{line: 3, char: 11, length: 2, tokenType: 0, tokenModifiers: 1},
+			}},
+			want: []uint32{3, 5, 4, 1, 0, 0, 6, 2, 0, 1},
+		},
+		"two tokens different lines": {
+			args: struct{ tokens []semanticToken }{tokens: []semanticToken{
+				{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0},
+				{line: 5, char: 3, length: 2, tokenType: 0, tokenModifiers: 1},
+			}},
+			want: []uint32{3, 5, 4, 1, 0, 2, 3, 2, 0, 1},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := encodeSemanticTokens(tc.args.tokens)
+			if len(got) != len(tc.want) {
+				t.Fatalf("encodeSemanticTokens() len = %d, want %d\ngot:  %v\nwant: %v", len(got), len(tc.want), got, tc.want)
+			}
+			for i := range got {
+				if got[i] != tc.want[i] {
+					t.Errorf("encodeSemanticTokens()[%d] = %d, want %d", i, got[i], tc.want[i])
+				}
+			}
+		})
+	}
+}
