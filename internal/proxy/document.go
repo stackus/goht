@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/stackus/goht/internal/protocol"
+	"github.com/stackus/protocol"
 )
 
 type Document struct {

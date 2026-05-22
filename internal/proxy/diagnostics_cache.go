@@ -3,7 +3,7 @@ package proxy
 import (
 	"sync"
 
-	"github.com/stackus/goht/internal/protocol"
+	"github.com/stackus/protocol"
 )
 
 type DiagnosticsCache struct {

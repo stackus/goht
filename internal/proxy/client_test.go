@@ -6,8 +6,9 @@ import (
 
 	"github.com/rs/zerolog"
 
+	"github.com/stackus/protocol"
+
 	"github.com/stackus/goht/compiler"
-	"github.com/stackus/goht/internal/protocol"
 )
 
 const testGohtGoURI = protocol.DocumentURI("file:///tmp/test.goht.go")

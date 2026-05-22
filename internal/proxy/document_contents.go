@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/stackus/goht/internal/protocol"
+	"github.com/stackus/protocol"
 )
 
 type DocumentContents struct {

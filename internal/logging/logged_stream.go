@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	"go.lsp.dev/jsonrpc2"
+	"github.com/stackus/protocol/jsonrpc2"
 )
 
 // Majority of this logging has been lifted from: github.com/golang/tools/internal/lsp/protocol/log.go

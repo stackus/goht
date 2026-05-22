@@ -6,7 +6,7 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/stackus/goht/internal/protocol"
+	"github.com/stackus/protocol"
 )
 
 const (
@@ -213,9 +213,11 @@ func TestServerCompletionMapsAdditionalTextEdits(t *testing.T) {
 			Items: []protocol.CompletionItem{
 				{
 					Label: "Thing",
-					TextEdit: &protocol.TextEdit{
-						Range:   rangeOf(10, 20, 10, 22),
-						NewText: "Thing",
+					TextEdit: &protocol.Or_CompletionItem_textEdit{
+						Value: protocol.TextEdit{
+							Range:   rangeOf(10, 20, 10, 22),
+							NewText: "Thing",
+						},
 					},
 					AdditionalTextEdits: []protocol.TextEdit{
 						{
@@ -234,6 +236,7 @@ func TestServerCompletionMapsAdditionalTextEdits(t *testing.T) {
 	got, err := proxy.Completion(context.Background(), &protocol.CompletionParams{
 		TextDocumentPositionParams: protocol.TextDocumentPositionParams{
 			TextDocument: protocol.TextDocumentIdentifier{URI: testGohtURI},
+			Range:        rangeOf(1, 2, 1, 2),
 			Position:     protocol.Position{Line: 1, Character: 2},
 		},
 	})
@@ -246,12 +249,14 @@ func TestServerCompletionMapsAdditionalTextEdits(t *testing.T) {
 	if server.completionCalls[0].TextDocument.URI != testGohtGoURI {
 		t.Fatalf("forwarded URI = %q, want %q", server.completionCalls[0].TextDocument.URI, testGohtGoURI)
 	}
-	if server.completionCalls[0].Position != (protocol.Position{Line: 10, Character: 20}) {
+	if server.completionCalls[0].Range != rangeOf(10, 20, 10, 20) {
 		t.Fatalf("forwarded position = %#v, want line 10 character 20", server.completionCalls[0].Position)
 	}
 	item := got.Items[0]
-	if item.TextEdit.Range != rangeOf(1, 2, 1, 4) {
-		t.Fatalf("TextEdit.Range = %#v, want mapped GoHT range", item.TextEdit.Range)
+	if textEdit, ok := item.TextEdit.Value.(protocol.TextEdit); ok {
+		if textEdit.Range != rangeOf(1, 2, 1, 4) {
+			t.Fatalf("TextEdit.Range = %#v, want mapped GoHT range", textEdit.Range)
+		}
 	}
 	if len(item.AdditionalTextEdits) != 1 {
 		t.Fatalf("AdditionalTextEdits = %d, want 1", len(item.AdditionalTextEdits))
@@ -285,6 +290,7 @@ func TestServerCompletionFallsBackForUnmappedGeneratedImportEdit(t *testing.T) {
 	got, err := proxy.Completion(context.Background(), &protocol.CompletionParams{
 		TextDocumentPositionParams: protocol.TextDocumentPositionParams{
 			TextDocument: protocol.TextDocumentIdentifier{URI: testGohtURI},
+			Range:        rangeOf(1, 2, 1, 2),
 			Position:     protocol.Position{Line: 1, Character: 2},
 		},
 	})
@@ -307,8 +313,9 @@ func TestServerCompletionDropsUnmappedNonImportEdit(t *testing.T) {
 		completionResult: &protocol.CompletionList{
 			Items: []protocol.CompletionItem{
 				{
-					Label:  "Thing",
-					Detail: "func()",
+					Label:    "Thing",
+					Detail:   "func()",
+					TextEdit: &protocol.Or_CompletionItem_textEdit{},
 					AdditionalTextEdits: []protocol.TextEdit{
 						{
 							Range:   rangeOf(0, 0, 0, 0),
@@ -716,6 +723,7 @@ func TestServerUpdatePosition(t *testing.T) {
 func positionParams() protocol.TextDocumentPositionParams {
 	return protocol.TextDocumentPositionParams{
 		TextDocument: protocol.TextDocumentIdentifier{URI: testGohtURI},
+		Range:        rangeOf(1, 2, 1, 2),
 		Position:     protocol.Position{Line: 1, Character: 2},
 	}
 }

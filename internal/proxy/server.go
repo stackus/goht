@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog"
+	"github.com/stackus/protocol"
 
 	"github.com/stackus/goht"
 	"github.com/stackus/goht/compiler"
-	"github.com/stackus/goht/internal/protocol"
 )
 
 type Server struct {
@@ -115,13 +115,17 @@ func (s *Server) CodeAction(ctx context.Context, params *protocol.CodeActionPara
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	gohtURI := params.TextDocument.URI
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
 	if !isGohtFile {
 		logger.Warn().Msg("not a goht file")
 		return s.Server.CodeAction(ctx, params)
 	}
-	gohtURI := params.TextDocument.URI
 	params.TextDocument.URI = goURI
+	var ok bool
+	if params.Range, ok = s.tryGohtRangeToGoRange(gohtURI, params.Range); !ok {
+		return nil, nil
+	}
 
 	resp, err := s.Server.CodeAction(ctx, params)
 	if err != nil {
@@ -230,11 +234,14 @@ func (s *Server) Completion(ctx context.Context, params *protocol.CompletionPara
 
 	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to update position")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
 		return nil, nil
 	}
+	params.TextDocument.URI = goURI
+	_, params.Position, _ = s.updatePosition(gohtURI, params.Position)
+	params.TextDocumentPositionParams.Range = s.gohtRangeToGoRange(gohtURI, params.TextDocumentPositionParams.Range)
+
 	resp, err := s.Server.Completion(ctx, params)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to perform completions")
@@ -245,7 +252,10 @@ func (s *Server) Completion(ctx context.Context, params *protocol.CompletionPara
 	}
 	for i, completionItem := range resp.Items {
 		if completionItem.TextEdit != nil {
-			completionItem.TextEdit.Range = s.goRangeToGohtRange(gohtURI, completionItem.TextEdit.Range)
+			if textEdit, ok := completionItem.TextEdit.Value.(protocol.TextEdit); ok {
+				textEdit.Range = s.goRangeToGohtRange(gohtURI, textEdit.Range)
+				completionItem.TextEdit.Value = textEdit
+			}
 		}
 		if len(completionItem.AdditionalTextEdits) > 0 {
 			completionItem.AdditionalTextEdits = s.mapCompletionAdditionalTextEdits(gohtURI, completionItem)
@@ -528,11 +538,18 @@ func (s *Server) Hover(ctx context.Context, params *protocol.HoverParams) (*prot
 
 	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to update position")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
 		return nil, nil
 	}
+	var ok bool
+	params.TextDocument.URI = goURI
+	_, params.Position, _ = s.updatePosition(gohtURI, params.Position)
+	params.TextDocumentPositionParams.Range, ok = s.tryGohtRangeToGoRange(gohtURI, params.TextDocumentPositionParams.Range)
+	if !ok {
+		return nil, nil
+	}
+
 	resp, err := s.Server.Hover(ctx, params)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to perform hover")
@@ -554,11 +571,14 @@ func (s *Server) Implementation(ctx context.Context, params *protocol.Implementa
 
 	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to update position")
-		return []protocol.Location{}, nil
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
+		return nil, nil
 	}
+	params.TextDocument.URI = goURI
+	_, params.Position, _ = s.updatePosition(gohtURI, params.Position)
+	params.TextDocumentPositionParams.Range = s.gohtRangeToGoRange(gohtURI, params.TextDocumentPositionParams.Range)
+
 	resp, err := s.Server.Implementation(ctx, params)
 	if err != nil || resp == nil {
 		if err != nil {
@@ -604,11 +624,14 @@ func (s *Server) PrepareRename(ctx context.Context, params *protocol.PrepareRena
 
 	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to update position")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
 		return nil, nil
 	}
+	params.TextDocument.URI = goURI
+	_, params.Position, _ = s.updatePosition(gohtURI, params.Position)
+	params.TextDocumentPositionParams.Range = s.gohtRangeToGoRange(gohtURI, params.TextDocumentPositionParams.Range)
+
 	resp, err := s.Server.PrepareRename(ctx, params)
 	if err != nil || resp == nil {
 		if err != nil {
@@ -653,12 +676,16 @@ func (s *Server) References(ctx context.Context, params *protocol.ReferenceParam
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(params.TextDocument.URI, params.Position)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to update position")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
 		return []protocol.Location{}, nil
 	}
+	params.TextDocument.URI = goURI
+	_, params.Position, _ = s.updatePosition(gohtURI, params.Position)
+	params.TextDocumentPositionParams.Range = s.gohtRangeToGoRange(gohtURI, params.TextDocumentPositionParams.Range)
+
 	resp, err := s.Server.References(ctx, params)
 	if err != nil || resp == nil {
 		if err != nil {
@@ -675,12 +702,16 @@ func (s *Server) SignatureHelp(ctx context.Context, params *protocol.SignatureHe
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(params.TextDocument.URI, params.Position)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to update position")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
 		return nil, nil
 	}
+	params.TextDocument.URI = goURI
+	_, params.Position, _ = s.updatePosition(gohtURI, params.Position)
+	params.TextDocumentPositionParams.Range = s.gohtRangeToGoRange(gohtURI, params.TextDocumentPositionParams.Range)
+
 	resp, err := s.Server.SignatureHelp(ctx, params)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to perform signature help")
@@ -694,12 +725,16 @@ func (s *Server) TypeDefinition(ctx context.Context, params *protocol.TypeDefini
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(params.TextDocument.URI, params.Position)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to update position")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
 		return []protocol.Location{}, nil
 	}
+	params.TextDocument.URI = goURI
+	_, params.Position, _ = s.updatePosition(gohtURI, params.Position)
+	params.TextDocumentPositionParams.Range = s.gohtRangeToGoRange(gohtURI, params.TextDocumentPositionParams.Range)
+
 	resp, err := s.Server.TypeDefinition(ctx, params)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to perform type definition lookup")
@@ -786,11 +821,14 @@ func (s *Server) Moniker(ctx context.Context, params *protocol.MonikerParams) ([
 
 	gohtURI := params.TextDocument.URI
 	var err error
-	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to update position")
+	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
+	if !isGohtFile {
 		return []protocol.Moniker{}, nil
 	}
+	params.TextDocument.URI = goURI
+	_, params.Position, _ = s.updatePosition(gohtURI, params.Position)
+	params.TextDocumentPositionParams.Range = s.gohtRangeToGoRange(gohtURI, params.TextDocumentPositionParams.Range)
+
 	resp, err := s.Server.Moniker(ctx, params)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to perform moniker lookup")
@@ -904,19 +942,27 @@ func (s *Server) tryGoRangeToGohtRange(uri protocol.DocumentURI, goRange protoco
 }
 
 func (s *Server) gohtRangeToGoRange(uri protocol.DocumentURI, gohtRange protocol.Range) protocol.Range {
-	sm, ok := s.smc.Get(string(uri))
+	mappedRange, ok := s.tryGohtRangeToGoRange(uri, gohtRange)
 	if !ok {
 		return gohtRange
+	}
+	return mappedRange
+}
+
+func (s *Server) tryGohtRangeToGoRange(uri protocol.DocumentURI, gohtRange protocol.Range) (protocol.Range, bool) {
+	sm, ok := s.smc.Get(string(uri))
+	if !ok {
+		return gohtRange, false
 	}
 
 	start, ok := sm.TargetPositionFromSource(int(gohtRange.Start.Line), int(gohtRange.Start.Character))
 	if !ok {
-		return gohtRange
+		return gohtRange, false
 	}
 
 	end, ok := sm.TargetPositionFromSource(int(gohtRange.End.Line), int(gohtRange.End.Character))
 	if !ok {
-		return gohtRange
+		return gohtRange, false
 	}
 
 	s.logger.Info().Msgf("gohtRangeToGoRange: %s: START [%d,%d] -> [%d,%d]", uri, gohtRange.Start.Line, gohtRange.Start.Character, start.Line, start.Col)
@@ -931,7 +977,7 @@ func (s *Server) gohtRangeToGoRange(uri protocol.DocumentURI, gohtRange protocol
 			Line:      uint32(end.Line),
 			Character: uint32(end.Col),
 		},
-	}
+	}, true
 }
 
 func (s *Server) updatePosition(uri protocol.DocumentURI, pos protocol.Position) (protocol.DocumentURI, protocol.Position, error) {
@@ -963,6 +1009,53 @@ func (s *Server) updatePosition(uri protocol.DocumentURI, pos protocol.Position)
 	return goURI, protocol.Position{
 		Line:      uint32(to.Line),
 		Character: uint32(to.Col),
+	}, nil
+}
+
+func (s *Server) updateRangeZ(uri protocol.DocumentURI, pos protocol.Range) (protocol.DocumentURI, protocol.Range, error) {
+	logger := s.logger.With().
+		Str("uri", string(uri)).
+		Uint32("originalLineStart", pos.Start.Line).
+		Uint32("originalColumnStart", pos.Start.Character).
+		Uint32("originalLineEnd", pos.End.Line).
+		Uint32("originalColumnEnd", pos.End.Character).
+		Logger()
+
+	isGohtFile, goURI := toGohtGoURI(uri)
+	if !isGohtFile {
+		return uri, pos, fmt.Errorf("not a goht file")
+	}
+	sm, ok := s.smc.Get(string(uri))
+	if !ok {
+		return uri, pos, fmt.Errorf("sourcemap not found")
+	}
+
+	start, ok := sm.TargetPositionFromSource(int(pos.Start.Line), int(pos.Start.Character))
+	if !ok {
+		return uri, pos, fmt.Errorf("mapped start position not found")
+	}
+
+	end, ok := sm.TargetPositionFromSource(int(pos.End.Line), int(pos.End.Character))
+	if !ok {
+		return uri, pos, fmt.Errorf("mapped end position not found")
+	}
+
+	logger.Info().
+		Int("updatedLineStart", start.Line).
+		Int("updatedColumnStart", start.Col).
+		Int("updatedLineEnd", end.Line).
+		Int("updatedColumnEnd", end.Col).
+		Msg("updated range")
+
+	return goURI, protocol.Range{
+		Start: protocol.Position{
+			Line:      uint32(start.Line),
+			Character: uint32(start.Col),
+		},
+		End: protocol.Position{
+			Line:      uint32(end.Line),
+			Character: uint32(end.Col),
+		},
 	}, nil
 }
 

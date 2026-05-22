@@ -3,7 +3,7 @@ package proxy
 import (
 	"testing"
 
-	"github.com/stackus/goht/internal/protocol"
+	"github.com/stackus/protocol"
 )
 
 func TestDiagnosticsCacheMergesSources(t *testing.T) {

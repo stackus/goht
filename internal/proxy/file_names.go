@@ -3,7 +3,7 @@ package proxy
 import (
 	"strings"
 
-	"github.com/stackus/goht/internal/protocol"
+	"github.com/stackus/protocol"
 )
 
 // toGohtURI converts a Goht Go URI to a Goht URI.
