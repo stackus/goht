@@ -129,7 +129,7 @@ Which would serve the following HTML:
 ## Supported Haml Syntax & Features
 - [x] Doctypes (`!!!`)
 - [x] Tags (`%tag`)
-- [x] Attributes (`{name: value}`) [(more info)](#attributes)
+- [x] Attributes styles (`{name: value}`, `(name="value")`) [(more info)](#attributes)
 - [x] Classes and IDs (`.class`, `#id`) [(more info)](#classes)
 - [x] Object References (`[obj]`) [(more info)](#object-references)
 - [x] Unescaped Text (`!` `!=`)
@@ -148,7 +148,7 @@ Which would serve the following HTML:
 ## Supported Slim Syntax & Features
 - [x] Doctypes (`doctype`)
 - [x] Tags (`tag`)
-- [x] Attributes (`{name: value}`) [(more info)](#attributes)
+- [x] Attributes styles (`{name: value}`, `(name="value")`) [(more info)](#attributes)
 - [x] Classes and IDs (`.class`, `#id`) [(more info)](#classes)
 - [x] Inline Tags (`tag: othertag`)
 - [x] Unescaped Text (`|`)
@@ -204,11 +204,15 @@ that are new or newer than the generated Go files, in the current directory and 
 ```sh
 goht generate
 ```
-Use the `--path` flag to specify a path to generate code for:
+Use the `--path` flag to specify a directory to generate code for:
 ```sh
 goht generate --path=./templates
 ```
-In both examples, the generated code will be placed in the same directory as the template files.
+You can also pass a single `.goht` file:
+```sh
+goht generate --path=./templates/example.goht
+```
+In all examples, the generated code will be placed in the same directory as the template files.
 
 Use the `--force` to generate code for all GoHT template files, even if they are older than the generated Go files:
 ```sh
@@ -413,7 +417,7 @@ Important differences are:
 - [Indents](#indents): GoHT follows the rules of GoFMT for indents.
 - [Inlined code](#inlined-code): You won't be using Ruby here, you'll be using Go.
 - [Rendering code](#rendering-code): The catch is what is being outputted will need to be a string in all cases.
-- [Attributes](#attributes): Haml and Slim only. Only the Ruby 1.9 (`{...}`) style of attributes is supported.
+- [Attributes](#attributes): Haml and Slim only. Supports Ruby 1.9 (`{...}`) and HTML (`(...)`) style attributes. Slim also supports inline paren-free HTML attributes.
 - [Classes](#classes): Haml and Slim only. Multiple sources of classes are supported.
 - [Object References](#object-references): Haml Only: Limited support for object references.
 - [Filters](#filters): Haml and Slim only. Partial list of supported filters.
@@ -611,7 +615,9 @@ When formatting a value into a string `fmt.Sprintf` is used under the hood, so y
 ### Attributes
 **Haml and Slim Only**
 
-**Only the Ruby 1.9 style of attributes is supported.**
+GoHT supports two styles of attributes: Ruby 1.9 style and HTML style.
+
+#### Ruby 1.9 Style
 
 This syntax is closest to the Go syntax, and is the most readable.
 Between the attribute name, operator, and value you can include or leave out as much whitespace as you like.
@@ -661,6 +667,30 @@ This directive takes a list of arguments which comes in two forms:
     @attributes: #{myAttrs},
   } Click me
 ```
+
+#### HTML Style
+
+HTML style attributes use `=` as the operator and parentheses as delimiters.
+Attributes are separated by whitespace; commas are not used.
+```haml
+  %a(href="https://github.com/stackus/goht" target="_blank") GoHT
+```
+Dynamic values use the same `#{...}` interpolation syntax.
+```haml
+  %a(href=#{url}) GoHT
+```
+Boolean attributes (no value) are written as just the attribute name.
+```slim
+  button(disabled) Click me
+```
+Multiline HTML style attributes are supported within the parentheses.
+```haml
+  %a(
+    href="..."
+    target="_blank"
+  ) GoHT
+```
+
 ### Classes
 **Haml and Slim Only**
 
@@ -699,7 +729,7 @@ type ObjectClasser interface {
 }
 ```
 The result of these methods will be used
-to populate the id and class attributes in a similar way to how Haml would apply the Ruby object references.
+to populate the id and class attributes similarly to how Haml would apply the Ruby object references.
 An object reference may also include a prefix, such as `[obj, prefixVar]`. When a prefix is present, GoHT includes it before the object class and id values when building the generated `class` and `id` attributes.
 
 Example:
