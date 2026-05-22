@@ -30,9 +30,11 @@ type recordingServer struct {
 	referencesCalls      []protocol.ReferenceParams
 	typeDefinitionResult []protocol.Location
 	typeDefinitionCalls  []protocol.TypeDefinitionParams
-	didOpenCalls         []protocol.DidOpenTextDocumentParams
-	didChangeCalls       []protocol.DidChangeTextDocumentParams
-	didCloseCalls        []protocol.DidCloseTextDocumentParams
+	didOpenCalls              []protocol.DidOpenTextDocumentParams
+	didChangeCalls            []protocol.DidChangeTextDocumentParams
+	didCloseCalls             []protocol.DidCloseTextDocumentParams
+	semanticTokensFullResult  *protocol.SemanticTokens
+	semanticTokensFullCalls   []protocol.SemanticTokensParams
 }
 
 func (s *recordingServer) Initialize(context.Context, *protocol.ParamInitialize) (*protocol.InitializeResult, error) {
@@ -82,6 +84,11 @@ func (s *recordingServer) DidChange(_ context.Context, params *protocol.DidChang
 func (s *recordingServer) DidClose(_ context.Context, params *protocol.DidCloseTextDocumentParams) error {
 	s.didCloseCalls = append(s.didCloseCalls, *params)
 	return nil
+}
+
+func (s *recordingServer) SemanticTokensFull(_ context.Context, params *protocol.SemanticTokensParams) (*protocol.SemanticTokens, error) {
+	s.semanticTokensFullCalls = append(s.semanticTokensFullCalls, *params)
+	return s.semanticTokensFullResult, nil
 }
 
 type recordingClient struct {
@@ -783,6 +790,95 @@ func didChangeParams(text string) *protocol.DidChangeTextDocumentParams {
 		ContentChanges: []protocol.TextDocumentContentChangeEvent{
 			{Text: text},
 		},
+	}
+}
+
+func TestServerSemanticTokensFull(t *testing.T) {
+	type testcase struct {
+		args         struct{ params *protocol.SemanticTokensParams }
+		serverResult *protocol.SemanticTokens
+		want         *protocol.SemanticTokens
+		wantCalls    int
+	}
+	tests := map[string]testcase{
+		"non-goht file returns nil": {
+			args: struct{ params *protocol.SemanticTokensParams }{
+				params: &protocol.SemanticTokensParams{
+					TextDocument: protocol.TextDocumentIdentifier{URI: "file:///tmp/other.go"},
+				},
+			},
+			want:      nil,
+			wantCalls: 0,
+		},
+		"maps token positions to goht space": {
+			args: struct{ params *protocol.SemanticTokensParams }{
+				params: &protocol.SemanticTokensParams{
+					TextDocument: protocol.TextDocumentIdentifier{URI: testGohtURI},
+				},
+			},
+			serverResult: &protocol.SemanticTokens{
+				Data: []uint32{10, 20, 2, 0, 0, 0, 2, 3, 1, 0},
+			},
+			want: &protocol.SemanticTokens{
+				Data: []uint32{1, 2, 2, 0, 0, 0, 2, 3, 1, 0},
+			},
+			wantCalls: 1,
+		},
+		"forwards with go uri to gopls": {
+			args: struct{ params *protocol.SemanticTokensParams }{
+				params: &protocol.SemanticTokensParams{
+					TextDocument: protocol.TextDocumentIdentifier{URI: testGohtURI},
+				},
+			},
+			serverResult: &protocol.SemanticTokens{Data: []uint32{}},
+			want:         &protocol.SemanticTokens{Data: []uint32{}},
+			wantCalls:    1,
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			server := &recordingServer{
+				semanticTokensFullResult: tc.serverResult,
+			}
+			client := &recordingClient{}
+			proxy := newTestServer(server, client)
+			proxy.smc.Set(string(testGohtURI), testSourceMap())
+
+			got, err := proxy.SemanticTokensFull(context.Background(), tc.args.params)
+			if err != nil {
+				t.Fatalf("SemanticTokensFull() error = %v", err)
+			}
+
+			if len(server.semanticTokensFullCalls) != tc.wantCalls {
+				t.Fatalf("SemanticTokensFull() gopls calls = %d, want %d",
+					len(server.semanticTokensFullCalls), tc.wantCalls)
+			}
+
+			if tc.wantCalls > 0 {
+				gotURI := server.semanticTokensFullCalls[0].TextDocument.URI
+				if gotURI != testGohtGoURI {
+					t.Errorf("SemanticTokensFull() forwarded URI = %q, want %q", gotURI, testGohtGoURI)
+				}
+			}
+
+			if tc.want == nil {
+				if got != nil {
+					t.Fatalf("SemanticTokensFull() = %+v, want nil", got)
+				}
+				return
+			}
+			if got == nil {
+				t.Fatal("SemanticTokensFull() = nil, want non-nil")
+			}
+			if len(got.Data) != len(tc.want.Data) {
+				t.Fatalf("SemanticTokensFull() Data = %v, want %v", got.Data, tc.want.Data)
+			}
+			for i := range got.Data {
+				if got.Data[i] != tc.want.Data[i] {
+					t.Errorf("SemanticTokensFull() Data[%d] = %d, want %d", i, got.Data[i], tc.want.Data[i])
+				}
+			}
+		})
 	}
 }
 

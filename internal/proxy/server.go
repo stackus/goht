@@ -778,6 +778,7 @@ func (s *Server) SemanticTokensFull(ctx context.Context, params *protocol.Semant
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	gohtURI := params.TextDocument.URI
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
 	if !isGohtFile {
 		logger.Warn().Msg("not a goht file")
@@ -787,8 +788,9 @@ func (s *Server) SemanticTokensFull(ctx context.Context, params *protocol.Semant
 	resp, err := s.Server.SemanticTokensFull(ctx, params)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to perform semantic tokens full")
+		return resp, err
 	}
-	return resp, err
+	return s.mapSemanticTokens(gohtURI, resp), nil
 }
 
 func (s *Server) SemanticTokensFullDelta(ctx context.Context, params *protocol.SemanticTokensDeltaParams) (any, error) {
