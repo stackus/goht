@@ -202,8 +202,18 @@ func TestServerInitializeSanitizesUnsupportedCapabilities(t *testing.T) {
 	if got.Capabilities.InlayHintProvider != nil {
 		t.Fatalf("InlayHintProvider = %#v, want nil", got.Capabilities.InlayHintProvider)
 	}
-	if got.Capabilities.SemanticTokensProvider != nil {
-		t.Fatalf("SemanticTokensProvider = %#v, want nil", got.Capabilities.SemanticTokensProvider)
+	if got.Capabilities.SemanticTokensProvider == nil {
+		t.Fatal("SemanticTokensProvider = nil, want semantic tokens enabled")
+	}
+	opts, ok := got.Capabilities.SemanticTokensProvider.(protocol.SemanticTokensOptions)
+	if !ok {
+		t.Fatalf("SemanticTokensProvider type = %T, want SemanticTokensOptions", got.Capabilities.SemanticTokensProvider)
+	}
+	if opts.Full == nil {
+		t.Fatal("SemanticTokensOptions.Full = nil, want full support enabled")
+	}
+	if full, ok := opts.Full.Value.(bool); !ok || !full {
+		t.Fatalf("SemanticTokensOptions.Full.Value = %v, want true (no delta)", opts.Full.Value)
 	}
 }
 

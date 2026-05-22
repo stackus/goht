@@ -3,6 +3,7 @@ package proxy
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -104,8 +105,23 @@ func (s *Server) sanitizeCapabilities(capabilities *protocol.ServerCapabilities)
 	capabilities.DocumentRangeFormattingProvider = &protocol.Or_ServerCapabilities_documentRangeFormattingProvider{Value: false}
 	capabilities.DocumentOnTypeFormattingProvider = nil
 
-	// Semantic token delta streams cannot be reliably remapped across mixed GoHT source.
-	capabilities.SemanticTokensProvider = nil
+	// Preserve semantic tokens from gopls but disable delta — delta streams cannot be
+	// reliably remapped across mixed GoHT source.
+	if capabilities.SemanticTokensProvider != nil {
+		data, err := json.Marshal(capabilities.SemanticTokensProvider)
+		if err == nil {
+			var opts protocol.SemanticTokensOptions
+			if err := json.Unmarshal(data, &opts); err == nil {
+				opts.Full = &protocol.Or_SemanticTokensOptions_full{Value: true}
+				if opts.Range == nil {
+					opts.Range = &protocol.Or_SemanticTokensOptions_range{Value: true}
+				}
+				capabilities.SemanticTokensProvider = opts
+			} else {
+				capabilities.SemanticTokensProvider = nil
+			}
+		}
+	}
 }
 
 // CodeAction is called when the client requests code actions.
