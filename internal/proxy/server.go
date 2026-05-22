@@ -1189,6 +1189,34 @@ func decodeSemanticTokens(data []uint32) []semanticToken {
 	return tokens
 }
 
+func (s *Server) mapSemanticTokens(uri protocol.DocumentURI, tokens *protocol.SemanticTokens) *protocol.SemanticTokens {
+	if tokens == nil {
+		return nil
+	}
+	sm, ok := s.smc.Get(string(uri))
+	if !ok {
+		return nil
+	}
+
+	decoded := decodeSemanticTokens(tokens.Data)
+	mapped := make([]semanticToken, 0, len(decoded))
+	for _, t := range decoded {
+		gohtPos, ok := sm.SourcePositionFromTarget(int(t.line), int(t.char))
+		if !ok {
+			continue
+		}
+		mapped = append(mapped, semanticToken{
+			line:           uint32(gohtPos.Line),
+			char:           uint32(gohtPos.Col),
+			length:         t.length,
+			tokenType:      t.tokenType,
+			tokenModifiers: t.tokenModifiers,
+		})
+	}
+
+	return &protocol.SemanticTokens{Data: encodeSemanticTokens(mapped)}
+}
+
 func encodeSemanticTokens(tokens []semanticToken) []uint32 {
 	data := make([]uint32, 0, len(tokens)*5)
 	var prevLine, prevChar uint32

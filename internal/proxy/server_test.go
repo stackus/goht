@@ -786,6 +786,94 @@ func didChangeParams(text string) *protocol.DidChangeTextDocumentParams {
 	}
 }
 
+func TestServerMapSemanticTokens(t *testing.T) {
+	type testcase struct {
+		args     struct{ tokens *protocol.SemanticTokens }
+		setupSmc func(smc *SourceMapCache)
+		want     *protocol.SemanticTokens
+	}
+	tests := map[string]testcase{
+		"nil tokens returns nil": {
+			args: struct{ tokens *protocol.SemanticTokens }{tokens: nil},
+			setupSmc: func(smc *SourceMapCache) {
+				smc.Set(string(testGohtURI), testSourceMap())
+			},
+			want: nil,
+		},
+		"no source map returns nil": {
+			args: struct{ tokens *protocol.SemanticTokens }{
+				tokens: &protocol.SemanticTokens{Data: []uint32{10, 20, 2, 0, 0}},
+			},
+			setupSmc: func(smc *SourceMapCache) {},
+			want:     nil,
+		},
+		"mapped tokens remapped to goht space": {
+			args: struct{ tokens *protocol.SemanticTokens }{
+				tokens: &protocol.SemanticTokens{
+					Data: []uint32{10, 20, 2, 0, 0, 0, 2, 3, 1, 0},
+				},
+			},
+			setupSmc: func(smc *SourceMapCache) {
+				smc.Set(string(testGohtURI), testSourceMap())
+			},
+			want: &protocol.SemanticTokens{
+				Data: []uint32{1, 2, 2, 0, 0, 0, 2, 3, 1, 0},
+			},
+		},
+		"unmapped tokens filtered out": {
+			args: struct{ tokens *protocol.SemanticTokens }{
+				tokens: &protocol.SemanticTokens{
+					Data: []uint32{10, 20, 2, 0, 0, 89, 1, 4, 2, 0},
+				},
+			},
+			setupSmc: func(smc *SourceMapCache) {
+				smc.Set(string(testGohtURI), testSourceMap())
+			},
+			want: &protocol.SemanticTokens{
+				Data: []uint32{1, 2, 2, 0, 0},
+			},
+		},
+		"all unmapped returns empty token list": {
+			args: struct{ tokens *protocol.SemanticTokens }{
+				tokens: &protocol.SemanticTokens{Data: []uint32{99, 1, 4, 2, 0}},
+			},
+			setupSmc: func(smc *SourceMapCache) {
+				smc.Set(string(testGohtURI), testSourceMap())
+			},
+			want: &protocol.SemanticTokens{Data: []uint32{}},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			server := &recordingServer{}
+			client := &recordingClient{}
+			proxy := newTestServer(server, client)
+			tc.setupSmc(proxy.smc)
+
+			got := proxy.mapSemanticTokens(testGohtURI, tc.args.tokens)
+
+			if tc.want == nil {
+				if got != nil {
+					t.Fatalf("mapSemanticTokens() = %+v, want nil", got)
+				}
+				return
+			}
+			if got == nil {
+				t.Fatal("mapSemanticTokens() = nil, want non-nil")
+			}
+			if len(got.Data) != len(tc.want.Data) {
+				t.Fatalf("mapSemanticTokens() Data len = %d, want %d\ngot:  %v\nwant: %v",
+					len(got.Data), len(tc.want.Data), got.Data, tc.want.Data)
+			}
+			for i := range got.Data {
+				if got.Data[i] != tc.want.Data[i] {
+					t.Errorf("mapSemanticTokens() Data[%d] = %d, want %d", i, got.Data[i], tc.want.Data[i])
+				}
+			}
+		})
+	}
+}
+
 func TestDecodeSemanticTokens(t *testing.T) {
 	type testcase struct {
 		args struct{ data []uint32 }
