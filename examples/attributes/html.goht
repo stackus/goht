@@ -1,0 +1,46 @@
+package attributes
+
+var id = "my-id"
+var content = "Content"
+
+// GoHT supports HTML style attributes. You can use the same syntax as you would
+// in HTML. The only difference is that you need to use a hash and curly braces to
+// denote dynamic values.
+
+@haml HamlHtmlAttributes() {
+	%div(class="foo" id=#{id}) Content
+}
+
+@slim SlimHtmlAttributes() {
+	div(class="foo" id=#{id}) Content
+}
+
+@haml HamlMultiLineHtmlAttributes() {
+	%div(
+		class="foo"
+		id=#{id}
+	) Content
+}
+
+@slim SlimMultiLineHtmlAttributes() {
+	div(
+		class="foo"
+		id=#{id}
+	) Content
+}
+
+@haml HamlHtmlWithComplexNames() {
+	%div(
+		href="https://github.com/stackus/goht"
+		`:class`="show ? '' : 'hidden'"
+		"@click"="show = !show"
+	) Content
+}
+
+@slim SlimHtmlWithComplexNames() {
+	div(
+		href="https://github.com/stackus/goht"
+		`:class`="show ? '' : 'hidden'"
+		"@click"="show = !show"
+	) Content
+}

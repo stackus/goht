@@ -984,6 +984,187 @@ func Test_HamlAttributes(t *testing.T) {
 	}
 }
 
+func Test_HamlHtmlAttributes(t *testing.T) {
+	tests := map[string]struct {
+		input string
+		want  []token
+	}{
+		"simple": {
+			input: "@goht test() {\n\t%foo(id=\"bar\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"whitespace before operator": {
+			input: "@goht test() {\n\t%foo(id \t\n\r=\"bar\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"whitespace after operator": {
+			input: "@goht test() {\n\t%foo(id=\r\n\t \"bar\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiple attrs": {
+			input: "@goht test() {\n\t%foo(id=\"bar\" class=\"baz\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tAttrName, lit: "class"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"baz\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"dynamic value": {
+			input: "@goht test() {\n\t%foo(id=#{bar})",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrDynamicValue, lit: "bar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"boolean attr": {
+			input: "@goht test() {\n\t%foo(disabled)",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "disabled"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"multiline": {
+			input: "@goht test() {\n\t%foo(\n\t\tid=\"bar\"\n\t\tclass=\"baz\"\n\t)",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tAttrName, lit: "class"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"baz\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"backtick value": {
+			input: "@goht test() {\n\t%foo(id=`bar`)",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "`bar`"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"dashed name": {
+			input: "@goht test() {\n\t%foo(data-foo=\"bar\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "data-foo"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"mixed with curly style": {
+			input: "@goht test() {\n\t%foo{id:\"bar\"}(class=\"baz\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tAttrName, lit: "class"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"baz\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"with content after": {
+			input: "@goht test() {\n\t%foo(id=\"bar\") text content",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tPlainText, lit: "text content"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"attributes command": {
+			input: "@goht test() {\n\t%foo(@attributes=#{listA, \"})\", listB})",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttributesCommand, lit: "listA, \"})\", listB"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			l := newLexer([]byte(tt.input))
+			for _, want := range tt.want {
+				got := l.nextToken()
+				if got.typ != want.typ || got.lit != want.lit {
+					t.Errorf("want %v, got %v", want, got)
+				}
+			}
+		})
+	}
+}
+
 func Test_HamlDoctype(t *testing.T) {
 	tests := map[string]struct {
 		input string

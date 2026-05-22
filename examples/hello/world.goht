@@ -3,6 +3,12 @@ package hello
 
 var terms = []string{"foo", "bar", "baz", "fizz", "buzz", "quux"}
 
+func foo() {
+	for _, term := range terms {
+		println(term)
+	}
+}
+
 @goht termsWrapper(term string) {
 	%p=@children
 	%p And it was passed in as well #{term}

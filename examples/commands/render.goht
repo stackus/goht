@@ -11,12 +11,12 @@ package commands
 }
 
 @haml HamlRenderExample() {
-	%p= @render ChildrenExample()
+	%p= @render HamlChildrenExample()
 	%p the other template was rendered above.
 }
 
 @slim SlimRenderExample() {
-	p= @render ChildrenExample()
+	p= @render SlimChildrenExample()
 	p the other template was rendered above.
 }
 
@@ -32,12 +32,19 @@ package commands
 
 @haml HamlRenderWithChildrenExample() {
 	%p The other template will be rendered below.
-	= @render ChildrenExample()
+	= @render HamlChildrenExample()
 		%span this content will be rendered by the other template.
 }
 
 @slim SlimRenderWithChildrenExample() {
 	p The other template will be rendered below.
-	= @render ChildrenExample()
+	= @render SlimChildrenExample()
 		span this content will be rendered by the other template.
+}
+
+@ego EgoRenderWithChildrenExample() {
+	<p>The other template will be rendered below.</p>
+	<%@render SlimChildrenExample() { %>
+		<span>this content will be rendered by the other template.<span>
+	<% } %>
 }

@@ -43,7 +43,7 @@ package attributes
 	%a{
 		href: "https://github.com/stackus/goht",
 		`:class`: "show ? '' : 'hidden'",
-		`@click`: "show = !show",
+		"@click": "show = !show",
 	} Goht
 }
 
@@ -51,7 +51,7 @@ package attributes
 	%a{
 		href: "https://github.com/stackus/goht",
 		`:class`: "show ? '' : 'hidden'",
-		`@click`: "show = !show",
+		"@click": "show = !show",
 	} Goht
 }
 
@@ -59,6 +59,6 @@ package attributes
 	a{
 		href: "https://github.com/stackus/goht",
 		`:class`: "show ? '' : 'hidden'",
-		`@click`: "show = !show",
+		"@click": "show = !show",
 	} Goht
 }

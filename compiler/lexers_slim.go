@@ -84,6 +84,8 @@ func lexSlimContent(l *lexer) lexFn {
 		return lexSlimClass
 	case '{':
 		return lexSlimAttributesStart
+	case '(':
+		return lexSlimHtmlAttributesStart
 	case '=':
 		return lexSlimOutputCode
 	case '/':
@@ -128,7 +130,7 @@ func slimIdentifier(typ tokenType, l *lexer) lexFn {
 	}
 
 	// these characters may follow an identifier
-	const mayFollowIdentifier = "#.{=!/<>: \t\n\r"
+	const mayFollowIdentifier = "#.{(=!/<>: \t\n\r"
 
 	l.acceptUntil(mayFollowIdentifier)
 	if l.current() == "" {
@@ -637,4 +639,135 @@ func lexSlimWhitespaceAddition(l *lexer) lexFn {
 		l.emit(tAddWhitespaceBefore)
 	}
 	return lexSlimContent
+}
+
+func lexSlimHtmlAttributesStart(l *lexer) lexFn {
+	l.skip() // eat '('
+	return lexSlimHtmlAttribute
+}
+
+func lexSlimHtmlAttributesEnd(l *lexer) lexFn {
+	l.skip() // eat ')'
+	return lexSlimContent
+}
+
+func lexSlimHtmlAttribute(l *lexer) lexFn {
+	l.skipRun(" \t\n\r")
+	switch l.peek() {
+	case ')':
+		return lexSlimHtmlAttributesEnd
+	case '@':
+		return lexSlimHtmlAttributeCommandStart
+	default:
+		return lexSlimHtmlAttributeName
+	}
+}
+
+func lexSlimHtmlAttributeName(l *lexer) lexFn {
+	if l.peek() == '"' || l.peek() == '`' {
+		r := continueToMatchingQuote(l, tAttrName, false)
+		if r == scanner.EOF {
+			return l.errorf("attribute name not closed: eof")
+		}
+	} else {
+		l.acceptUntil("= )\t\n\r\"`")
+		if l.current() == "" {
+			return l.errorf("attribute name expected")
+		}
+		l.emit(tAttrName)
+	}
+
+	l.skipRun(" \t\n\r")
+	switch l.peek() {
+	case '=':
+		return lexSlimHtmlAttributeOperator
+	case ')':
+		return lexSlimHtmlAttributeEnd
+	default:
+		return l.errorf("unexpected character: %q", l.peek())
+	}
+}
+
+func lexSlimHtmlAttributeOperator(l *lexer) lexFn {
+	l.skip() // eat '=', don't accumulate it
+	l.skipRun(" \t\n\r")
+	l.s = ":"
+	l.emit(tAttrOperator)
+	return lexSlimHtmlAttributeValue
+}
+
+func lexSlimHtmlAttributeValue(l *lexer) lexFn {
+	switch l.peek() {
+	case '"', '`':
+		return lexSlimHtmlAttributeStaticValue
+	case '#':
+		return lexSlimHtmlAttributeDynamicValue
+	}
+	return l.errorf("unexpected character: %q", l.peek())
+}
+
+func lexSlimHtmlAttributeStaticValue(l *lexer) lexFn {
+	r := continueToMatchingQuote(l, tAttrEscapedValue, true)
+	if r == scanner.EOF {
+		return l.errorf("attribute value not closed: eof")
+	}
+	return lexSlimHtmlAttributeEnd
+}
+
+func lexSlimHtmlAttributeDynamicValue(l *lexer) lexFn {
+	l.skip() // skip '#'
+	if l.peek() != '{' {
+		return l.errorf("unexpected character: %q", l.peek())
+	}
+	l.skip() // skip '{'
+	r := continueToMatchingBrace(l, '}', false)
+	if r == scanner.EOF {
+		return l.errorf("attribute value not closed: eof")
+	}
+	l.backup()
+	l.emit(tAttrDynamicValue)
+	l.skip() // skip '}'
+	return lexSlimHtmlAttributeEnd
+}
+
+func lexSlimHtmlAttributeCommandStart(l *lexer) lexFn {
+	l.skipRun("@")
+	l.acceptUntil("= \t\n\r")
+	if l.current() == "" {
+		return l.errorf("command code expected")
+	}
+	switch l.current() {
+	case "attributes":
+		return lexSlimHtmlAttributeCommand(tAttributesCommand)
+	default:
+		return l.errorf("unknown attribute command: %s", l.current())
+	}
+}
+
+func lexSlimHtmlAttributeCommand(command tokenType) lexFn {
+	return func(l *lexer) lexFn {
+		l.ignore()
+		l.skipUntil("=")
+		l.skipUntil("{")
+		l.skip() // skip opening brace
+		r := continueToMatchingBrace(l, '}', true)
+		if r == scanner.EOF {
+			return l.errorf("attribute value not closed: eof")
+		}
+		l.backup()
+		l.emit(command)
+		l.skip() // skip closing brace
+
+		return lexSlimHtmlAttributeEnd
+	}
+}
+
+func lexSlimHtmlAttributeEnd(l *lexer) lexFn {
+	l.skipRun(" \t\n\r")
+	switch l.peek() {
+	case ')':
+		return lexSlimHtmlAttributesEnd
+	default:
+		return lexSlimHtmlAttribute
+	}
 }

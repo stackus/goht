@@ -75,6 +75,10 @@ func TestHamlExamples(t *testing.T) {
 			template: attributes.HamlStaticAttrs(),
 			htmlFile: "attributes_staticAttrs",
 		},
+		"attributes_htmlAttrs": {
+			template: attributes.HamlHtmlAttributes(),
+			htmlFile: "attributes_htmlAttrs",
+		},
 		"attributes_dynamicAttrs": {
 			template: attributes.DynamicAttrs(),
 			htmlFile: "attributes_dynamicAttrs",
@@ -342,6 +346,14 @@ func TestSlimExamples(t *testing.T) {
 		"attributes_staticAttrs": {
 			template: attributes.SlimStaticAttrs(),
 			htmlFile: "attributes_staticAttrs",
+		},
+		"attributes_htmlAttrs": {
+			template: attributes.SlimHtmlAttributes(),
+			htmlFile: "attributes_htmlAttrs",
+		},
+		"attributes_htmlNoParamsAttrs": {
+			template: attributes.SlimNoParensHtmlAttributes(),
+			htmlFile: "attributes_htmlNoParamsAttrs",
 		},
 		"attributes_dynamicAttrs": {
 			template: attributes.SlimDynamicAttrs(),

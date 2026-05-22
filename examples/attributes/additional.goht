@@ -29,7 +29,7 @@ var strAttrs = map[string]string{
 }
 
 @slim SlimAttributesCmd() {
-	input{
-		@attributes: #{boolAttrs, strAttrs},
-	}
+	input(
+		@attributes=#{boolAttrs, strAttrs}
+	)
 }

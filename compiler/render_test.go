@@ -33,6 +33,10 @@ func TestRender(t *testing.T) {
 			template: testdata.AttributesTest(),
 			htmlFile: "attributes",
 		},
+		"html_attributes": {
+			template: testdata.HtmlAttributesTest(),
+			htmlFile: "html_attributes",
+		},
 		"newlines": {
 			template: testdata.NewlinesTest(),
 			htmlFile: "newlines",

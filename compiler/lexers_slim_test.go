@@ -1493,3 +1493,95 @@ func Test_SlimFilters(t *testing.T) {
 		})
 	}
 }
+
+func Test_SlimHtmlAttributes(t *testing.T) {
+	tests := map[string]struct {
+		input string
+		want  []token
+	}{
+		"paren simple": {
+			input: "@slim test() {\n\tfoo(id=\"bar\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"whitespace before operator": {
+			input: "@slim test() {\n\tfoo(id \t\n\r=\"bar\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"whitespace after operator": {
+			input: "@slim test() {\n\tfoo(id=\r\n\t \"bar\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"paren multiple attrs": {
+			input: "@slim test() {\n\tfoo(id=\"bar\" class=\"baz\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tAttrName, lit: "class"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"baz\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"paren dynamic value": {
+			input: "@slim test() {\n\tfoo(id=#{bar})",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrDynamicValue, lit: "bar"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"paren boolean": {
+			input: "@slim test() {\n\tfoo(disabled)",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "disabled"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			l := newLexer([]byte(tt.input))
+			for _, want := range tt.want {
+				got := l.nextToken()
+				if got.typ != want.typ || got.lit != want.lit {
+					t.Errorf("want %v, got %v", want, got)
+				}
+			}
+		})
+	}
+}

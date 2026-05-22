@@ -519,6 +519,38 @@ func Test_ElementAttributes(t *testing.T) {
 			Text(S)
 `,
 		},
+		"html paren style simple": {
+			input: "@goht test() {\n\t%p(foo=\"bar\")\n}",
+			want: `Root
+	Template
+		Element p(foo="bar")
+			NewLine
+`,
+		},
+		"html paren style dynamic": {
+			input: "@goht test() {\n\t%p(foo=#{bar})\n}",
+			want: `Root
+	Template
+		Element p(foo={bar})
+			NewLine
+`,
+		},
+		"html paren style boolean": {
+			input: "@goht test() {\n\t%p(disabled)\n}",
+			want: `Root
+	Template
+		Element p(disabled)
+			NewLine
+`,
+		},
+		"html paren style multiple": {
+			input: "@goht test() {\n\t%p(id=\"a\" class=\"b\")\n}",
+			want: `Root
+	Template
+		Element p(id="a",class="b")
+			NewLine
+`,
+		},
 		"boolean attribute on tag with content": {
 			input: `@goht test() {
 	.foo{bar} fizz

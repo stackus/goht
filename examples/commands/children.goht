@@ -11,19 +11,22 @@ package commands
 // code syntax `=`.
 
 @goht ChildrenExample() {
+	%p Child Template
 	%p
 		The following was passed in from the calling template:
 		= @children
 }
 
 @haml HamlChildrenExample() {
+	%p Haml Child Template
 	%p
 		The following was passed in from the calling template:
 		= @children
 }
 
 @slim SlimChildrenExample() {
+	p Slim Child Template
 	p
-		The following was passed in from the calling template:
+		| The following was passed in from the calling template:
 		= @children
 }
