@@ -13,10 +13,12 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	"github.com/stackus/errors"
-	"go.lsp.dev/jsonrpc2"
+	"github.com/stackus/protocol/jsonrpc2"
+	"github.com/stackus/protocol/util/fakenet"
+
+	"github.com/stackus/protocol"
 
 	"github.com/stackus/goht/internal/logging"
-	"github.com/stackus/goht/internal/protocol"
 	"github.com/stackus/goht/internal/proxy"
 )
 
@@ -69,10 +71,11 @@ func runLsp() error {
 	logger.Info().Msg("starting goht-lsp")
 
 	conn := jsonrpc2.NewConn(func() jsonrpc2.Stream {
-		stream := jsonrpc2.NewStream(rwc{
-			r: os.Stdin,
-			w: os.Stdout,
-		})
+		stream := jsonrpc2.NewHeaderStream(fakenet.NewConn("stdin", os.Stdin, os.Stdout))
+		// stream := jsonrpc2.NewStream(rwc{
+		// 	r: os.Stdin,
+		// 	w: os.Stdout,
+		// })
 		return newTraceableStream(stream, lspOptions.traceClient, "GOHT-LSP", logger)
 	}())
 	defer func(conn jsonrpc2.Conn) {
@@ -90,7 +93,8 @@ func runLsp() error {
 		return err
 	}
 	goConn := jsonrpc2.NewConn(func() jsonrpc2.Stream {
-		stream := jsonrpc2.NewStream(goPlsRWC)
+		stream := jsonrpc2.NewHeaderStream(fakenet.NewConn("gopls", goPlsRWC, goPlsRWC))
+		// stream := jsonrpc2.NewStream(goPlsRWC)
 		return newTraceableStream(stream, lspOptions.traceGoPls, "GO-LSP", logger)
 	}())
 	defer func(goConn jsonrpc2.Conn) {
@@ -111,7 +115,7 @@ func runLsp() error {
 	goConn.Go(
 		ctx,
 		protocol.Handlers(
-			protocol.ClientHandler(proxyClient, jsonrpc2.MethodNotFoundHandler),
+			protocol.ClientHandler(proxyClient, jsonrpc2.MethodNotFound),
 		),
 	)
 
@@ -119,14 +123,19 @@ func runLsp() error {
 	conn.Go(
 		ctx,
 		protocol.Handlers(
-			protocol.ServerHandler(proxyServer, jsonrpc2.MethodNotFoundHandler),
+			protocol.ServerHandler(proxyServer, jsonrpc2.MethodNotFound),
 		),
 	)
 
 	select {
 	case <-ctx.Done():
+		cause := context.Cause(ctx)
+		if cause != nil {
+			logger.Error().Err(cause).Msg("error: context canceled with cause")
+			return cause
+		}
 		logger.Error().Err(err).Msg("error: context canceled")
-		return ctx.Err()
+		return nil
 	case <-conn.Done():
 		if err := conn.Err(); err != nil {
 			logger.Error().Err(err).Msg("error: conn with the client closed")
