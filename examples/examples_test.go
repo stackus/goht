@@ -103,6 +103,10 @@ func TestHamlExamples(t *testing.T) {
 			template: attributes.ComplexNames(),
 			htmlFile: "attributes_complexNames",
 		},
+		"attributes_htmlComplexNames": {
+			template: attributes.HamlHtmlWithComplexNames(),
+			htmlFile: "attributes_htmlComplexNames",
+		},
 		"attributes_conditionalAttrs": {
 			template: attributes.ConditionalAttrs(),
 			htmlFile: "attributes_conditionalAttrs",
@@ -351,10 +355,6 @@ func TestSlimExamples(t *testing.T) {
 			template: attributes.SlimHtmlAttributes(),
 			htmlFile: "attributes_htmlAttrs",
 		},
-		"attributes_htmlNoParamsAttrs": {
-			template: attributes.SlimNoParensHtmlAttributes(),
-			htmlFile: "attributes_htmlNoParamsAttrs",
-		},
 		"attributes_dynamicAttrs": {
 			template: attributes.SlimDynamicAttrs(),
 			htmlFile: "attributes_dynamicAttrs",
@@ -378,6 +378,10 @@ func TestSlimExamples(t *testing.T) {
 		"attributes_complexNames": {
 			template: attributes.SlimComplexNames(),
 			htmlFile: "attributes_complexNames",
+		},
+		"attributes_htmlComplexNames": {
+			template: attributes.SlimHtmlWithComplexNames(),
+			htmlFile: "attributes_htmlComplexNames",
 		},
 		"attributes_conditionalAttrs": {
 			template: attributes.SlimConditionalAttrs(),

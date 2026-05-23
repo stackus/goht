@@ -7,10 +7,10 @@ import "context"
 import "io"
 import "github.com/stackus/goht"
 
-// GoHT supports the Ruby 1.9 hash style of attributes. The other styles
-// such as HTML style, or Ruby rocket style are not supported. This should
+// GoHT supports the Ruby 1.9 hash style of attributes and the HTML style.
+// The other styles such as Ruby rocket style are not supported. This should
 // not be a problem as the Ruby 1.9 style is very similar to the style used
-// by Go for maps.
+// by Go for maps and the HTML style is familiar to most web develoeprs.
 
 func StaticAttrs() goht.Template {
 	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
