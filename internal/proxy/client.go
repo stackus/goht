@@ -30,13 +30,22 @@ func NewClient(c protocol.Client, smc *SourceMapCache, dc *DiagnosticsCache, log
 	}
 }
 
+func (c *Client) RegisterCapability(ctx context.Context, params *protocol.RegistrationParams) error {
+	c.logger.Info().Msg("SERVER -> CLIENT: RegisterCapability")
+	for _, reg := range params.Registrations {
+		c.logger.Debug().Msgf("Registering capability: %s", reg.Method)
+	}
+
+	return c.Client.RegisterCapability(ctx, params)
+}
+
 func (c *Client) PublishDiagnostics(ctx context.Context, params *protocol.PublishDiagnosticsParams) error {
 	logger := c.logger.With().
 		Str("uri", string(params.URI)).
 		Int("count", len(params.Diagnostics)).
 		Logger()
 
-	logger.Debug().Msg("SERVER -> CLIENT: PublishDiagnostics")
+	logger.Info().Msg("SERVER -> CLIENT: PublishDiagnostics")
 
 	isGohtGoFile, gohtURI := toGohtURI(params.URI)
 	if !isGohtGoFile {

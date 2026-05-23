@@ -3,7 +3,6 @@ package proxy
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -47,6 +46,7 @@ func NewServer(s protocol.Server, c protocol.Client, smc *SourceMapCache, dc *Di
 // It returns the capabilities of the server.
 func (s *Server) Initialize(ctx context.Context, params *protocol.ParamInitialize) (*protocol.InitializeResult, error) {
 	var logger zerolog.Logger
+
 	if params.ClientInfo != nil {
 		logger = s.logger.With().
 			Str("method", "Initialize").
@@ -59,10 +59,15 @@ func (s *Server) Initialize(ctx context.Context, params *protocol.ParamInitializ
 			Logger()
 	}
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("Initialize Started")
+	defer logger.Trace().Msg("Initialize Completed")
+
 	resp, err := s.Server.Initialize(ctx, params)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to initialize server")
 	}
+	logger.Info().Any("capabilities", resp.Capabilities).Msg("capabilities")
 	if resp.Capabilities.CompletionProvider == nil {
 		resp.Capabilities.CompletionProvider = &protocol.CompletionOptions{}
 	}
@@ -76,6 +81,7 @@ func (s *Server) Initialize(ctx context.Context, params *protocol.ParamInitializ
 		s.positionEncoding = protocol.UTF16
 		resp.Capabilities.PositionEncoding = nil
 	}
+	resp.Capabilities.DocumentRangeFormattingProvider = &protocol.Or_ServerCapabilities_documentRangeFormattingProvider{Value: false}
 	resp.Capabilities.TextDocumentSync = protocol.TextDocumentSyncOptions{
 		OpenClose:         true,
 		Change:            syncKind,
@@ -104,24 +110,6 @@ func (s *Server) sanitizeCapabilities(capabilities *protocol.ServerCapabilities)
 	capabilities.DocumentFormattingProvider = &protocol.Or_ServerCapabilities_documentFormattingProvider{Value: false}
 	capabilities.DocumentRangeFormattingProvider = &protocol.Or_ServerCapabilities_documentRangeFormattingProvider{Value: false}
 	capabilities.DocumentOnTypeFormattingProvider = nil
-
-	// Preserve semantic tokens from gopls but disable delta — delta streams cannot be
-	// reliably remapped across mixed GoHT source.
-	if capabilities.SemanticTokensProvider != nil {
-		data, err := json.Marshal(capabilities.SemanticTokensProvider)
-		if err == nil {
-			var opts protocol.SemanticTokensOptions
-			if err := json.Unmarshal(data, &opts); err == nil {
-				opts.Full = &protocol.Or_SemanticTokensOptions_full{Value: true}
-				if opts.Range == nil {
-					opts.Range = &protocol.Or_SemanticTokensOptions_range{Value: true}
-				}
-				capabilities.SemanticTokensProvider = opts
-			} else {
-				capabilities.SemanticTokensProvider = nil
-			}
-		}
-	}
 }
 
 // CodeAction is called when the client requests code actions.
@@ -130,6 +118,10 @@ func (s *Server) CodeAction(ctx context.Context, params *protocol.CodeActionPara
 		Str("method", "CodeAction").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("CodeAction Started")
+	defer logger.Info().Msg("CodeAction Ended")
 
 	gohtURI := params.TextDocument.URI
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
@@ -186,6 +178,10 @@ func (s *Server) CodeLens(ctx context.Context, params *protocol.CodeLensParams) 
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("CodeLens Started")
+	defer logger.Info().Msg("CodeLens Ended")
+
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
 	if !isGohtFile {
 		return s.Server.CodeLens(ctx, params)
@@ -217,6 +213,10 @@ func (s *Server) ColorPresentation(ctx context.Context, params *protocol.ColorPr
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("ColorPresentation Started")
+	defer logger.Info().Msg("ColorPresentation Ended")
+
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
 	if !isGohtFile {
 		return s.Server.ColorPresentation(ctx, params)
@@ -247,6 +247,10 @@ func (s *Server) Completion(ctx context.Context, params *protocol.CompletionPara
 		Str("method", "Completion").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("Completion Started")
+	defer logger.Info().Msg("Completion Ended")
 
 	gohtURI := params.TextDocument.URI
 	var err error
@@ -288,6 +292,10 @@ func (s *Server) Declaration(ctx context.Context, params *protocol.DeclarationPa
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("Declaration Started")
+	defer logger.Info().Msg("Declaration Ended")
+
 	gohtURI := params.TextDocument.URI
 	var err error
 	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
@@ -324,6 +332,10 @@ func (s *Server) Definition(ctx context.Context, params *protocol.DefinitionPara
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("Definition Started")
+	defer logger.Info().Msg("Definition Ended")
+
 	gohtURI := params.TextDocument.URI
 	var err error
 	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
@@ -344,6 +356,10 @@ func (s *Server) DidChange(ctx context.Context, params *protocol.DidChangeTextDo
 		Str("method", "DidChange").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("DidChange Started")
+	defer logger.Info().Msg("DidChange Ended")
 
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
 	if !isGohtFile {
@@ -403,6 +419,10 @@ func (s *Server) DidClose(ctx context.Context, params *protocol.DidCloseTextDocu
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("DidClose Started")
+	defer logger.Info().Msg("DidClose Ended")
+
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
 	if !isGohtFile {
 		logger.Warn().Msg("not a goht file")
@@ -425,6 +445,10 @@ func (s *Server) DidOpen(ctx context.Context, params *protocol.DidOpenTextDocume
 		Str("method", "DidOpen").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("DidOpen Started")
+	defer logger.Info().Msg("DidOpen Ended")
 
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
 	if !isGohtFile {
@@ -463,6 +487,10 @@ func (s *Server) DidSave(ctx context.Context, params *protocol.DidSaveTextDocume
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("DidSave Started")
+	defer logger.Info().Msg("DidSave Ended")
+
 	if isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI); isGohtFile {
 		params.TextDocument.URI = goURI
 	}
@@ -478,6 +506,10 @@ func (s *Server) DocumentColor(ctx context.Context, params *protocol.DocumentCol
 		Str("method", "DocumentColor").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("DocumentColor Started")
+	defer logger.Info().Msg("DocumentColor Ended")
 
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
 	if !isGohtFile {
@@ -511,6 +543,10 @@ func (s *Server) ResolveDocumentLink(ctx context.Context, params *protocol.Docum
 		Str("method", "ResolveDocumentLink").
 		Str("uri", *params.Target).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("ResolveDocumentLink Started")
+	defer logger.Info().Msg("ResolveDocumentLink Ended")
 
 	gohtURI := *params.Target
 	isGohtFile, goURI := toGohtGoURI(protocol.DocumentURI(gohtURI))
@@ -552,6 +588,10 @@ func (s *Server) Hover(ctx context.Context, params *protocol.HoverParams) (*prot
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("Hover Started")
+	defer logger.Info().Msg("Hover Ended")
+
 	gohtURI := params.TextDocument.URI
 	var err error
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
@@ -585,6 +625,10 @@ func (s *Server) Implementation(ctx context.Context, params *protocol.Implementa
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("Implementation Started")
+	defer logger.Info().Msg("Implementation Ended")
+
 	gohtURI := params.TextDocument.URI
 	var err error
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
@@ -611,6 +655,10 @@ func (s *Server) OnTypeFormatting(ctx context.Context, params *protocol.Document
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("OnTypeFormatting Started")
+	defer logger.Info().Msg("OnTypeFormatting Ended")
+
 	gohtURI := params.TextDocument.URI
 	var err error
 	params.TextDocument.URI, params.Position, err = s.updatePosition(gohtURI, params.Position)
@@ -618,6 +666,7 @@ func (s *Server) OnTypeFormatting(ctx context.Context, params *protocol.Document
 		logger.Error().Err(err).Msg("unable to update position")
 		return nil, nil
 	}
+
 	resp, err := s.Server.OnTypeFormatting(ctx, params)
 	if err != nil || resp == nil {
 		if err != nil {
@@ -625,10 +674,12 @@ func (s *Server) OnTypeFormatting(ctx context.Context, params *protocol.Document
 		}
 		return resp, err
 	}
+
 	for i, textEdit := range resp {
 		textEdit.Range = s.goRangeToGohtRange(gohtURI, textEdit.Range)
 		resp[i] = textEdit
 	}
+
 	return resp, nil
 }
 
@@ -637,6 +688,10 @@ func (s *Server) PrepareRename(ctx context.Context, params *protocol.PrepareRena
 		Str("method", "PrepareRename").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("PrepareRename Started")
+	defer logger.Info().Msg("PrepareRename Ended")
 
 	gohtURI := params.TextDocument.URI
 	var err error
@@ -665,6 +720,10 @@ func (s *Server) RangeFormatting(ctx context.Context, params *protocol.DocumentR
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("RangeFormatting Started")
+	defer logger.Info().Msg("RangeFormatting Ended")
+
 	gohtURI := params.TextDocument.URI
 	var isGohtURI bool
 	isGohtURI, params.TextDocument.URI = toGohtGoURI(params.TextDocument.URI)
@@ -672,6 +731,7 @@ func (s *Server) RangeFormatting(ctx context.Context, params *protocol.DocumentR
 		logger.Warn().Msg("not a goht file")
 		return []protocol.TextEdit{}, nil
 	}
+
 	resp, err := s.Server.RangeFormatting(ctx, params)
 	if err != nil || resp == nil {
 		if err != nil {
@@ -679,10 +739,12 @@ func (s *Server) RangeFormatting(ctx context.Context, params *protocol.DocumentR
 		}
 		return resp, err
 	}
+
 	for i, textEdit := range resp {
 		textEdit.Range = s.goRangeToGohtRange(gohtURI, textEdit.Range)
 		resp[i] = textEdit
 	}
+
 	return resp, nil
 }
 
@@ -691,6 +753,10 @@ func (s *Server) References(ctx context.Context, params *protocol.ReferenceParam
 		Str("method", "References").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("References Started")
+	defer logger.Info().Msg("References Ended")
 
 	gohtURI := params.TextDocument.URI
 	var err error
@@ -718,6 +784,10 @@ func (s *Server) SignatureHelp(ctx context.Context, params *protocol.SignatureHe
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("SignatureHelp Started")
+	defer logger.Info().Msg("SignatureHelp Ended")
+
 	gohtURI := params.TextDocument.URI
 	var err error
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
@@ -740,6 +810,10 @@ func (s *Server) TypeDefinition(ctx context.Context, params *protocol.TypeDefini
 		Str("method", "TypeDefinition").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("TypeDefinition Started")
+	defer logger.Info().Msg("TypeDefinition Ended")
 
 	gohtURI := params.TextDocument.URI
 	var err error
@@ -764,6 +838,10 @@ func (s *Server) WillSave(ctx context.Context, params *protocol.WillSaveTextDocu
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("WillSave Started")
+	defer logger.Info().Msg("WillSave Ended")
+
 	if isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI); isGohtFile {
 		params.TextDocument.URI = goURI
 		return s.Server.WillSave(ctx, params)
@@ -778,6 +856,10 @@ func (s *Server) SemanticTokensFull(ctx context.Context, params *protocol.Semant
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
 
+	// log entry and add deferred exit log
+	logger.Info().Msg("SemanticTokensFull Started")
+	defer logger.Info().Msg("SemanticTokensFull Ended")
+
 	gohtURI := params.TextDocument.URI
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
 	if !isGohtFile {
@@ -790,6 +872,7 @@ func (s *Server) SemanticTokensFull(ctx context.Context, params *protocol.Semant
 		logger.Error().Err(err).Msg("unable to perform semantic tokens full")
 		return resp, err
 	}
+
 	return s.mapSemanticTokens(gohtURI, resp), nil
 }
 
@@ -798,6 +881,10 @@ func (s *Server) SemanticTokensFullDelta(_ context.Context, params *protocol.Sem
 		Str("method", "SemanticTokensFullDelta").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("SemanticTokensFullDelta Started")
+	defer logger.Info().Msg("SemanticTokensFullDelta Ended")
 
 	logger.Warn().Msg("delta not supported; client should request full tokens")
 	return nil, nil
@@ -808,6 +895,10 @@ func (s *Server) SemanticTokensRange(ctx context.Context, params *protocol.Seman
 		Str("method", "SemanticTokensRange").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("SemanticTokensRange Started")
+	defer logger.Info().Msg("SemanticTokensRange Ended")
 
 	gohtURI := params.TextDocument.URI
 	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
@@ -828,6 +919,7 @@ func (s *Server) SemanticTokensRange(ctx context.Context, params *protocol.Seman
 		logger.Error().Err(err).Msg("unable to perform semantic tokens range")
 		return resp, err
 	}
+
 	return s.mapSemanticTokens(gohtURI, resp), nil
 }
 
@@ -836,6 +928,10 @@ func (s *Server) Moniker(ctx context.Context, params *protocol.MonikerParams) ([
 		Str("method", "Moniker").
 		Str("uri", string(params.TextDocument.URI)).
 		Logger()
+
+	// log entry and add deferred exit log
+	logger.Info().Msg("Moniker Started")
+	defer logger.Info().Msg("Moniker Ended")
 
 	gohtURI := params.TextDocument.URI
 	var err error
