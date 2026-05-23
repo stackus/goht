@@ -6,6 +6,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 # a single job to run tests and coverage for a Golang project; report coverage to Coveralls
 jobs:
