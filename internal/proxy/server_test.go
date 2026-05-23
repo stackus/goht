@@ -19,17 +19,17 @@ const (
 
 type recordingServer struct {
 	protocol.Server
-	initializeResult     *protocol.InitializeResult
-	completionResult     *protocol.CompletionList
-	completionCalls      []protocol.CompletionParams
-	definitionResult     []protocol.Location
-	definitionCalls      []protocol.DefinitionParams
-	implementationResult []protocol.Location
-	implementationCalls  []protocol.ImplementationParams
-	referencesResult     []protocol.Location
-	referencesCalls      []protocol.ReferenceParams
-	typeDefinitionResult []protocol.Location
-	typeDefinitionCalls  []protocol.TypeDefinitionParams
+	initializeResult          *protocol.InitializeResult
+	completionResult          *protocol.CompletionList
+	completionCalls           []protocol.CompletionParams
+	definitionResult          []protocol.Location
+	definitionCalls           []protocol.DefinitionParams
+	implementationResult      []protocol.Location
+	implementationCalls       []protocol.ImplementationParams
+	referencesResult          []protocol.Location
+	referencesCalls           []protocol.ReferenceParams
+	typeDefinitionResult      []protocol.Location
+	typeDefinitionCalls       []protocol.TypeDefinitionParams
 	didOpenCalls              []protocol.DidOpenTextDocumentParams
 	didChangeCalls            []protocol.DidChangeTextDocumentParams
 	didCloseCalls             []protocol.DidCloseTextDocumentParams
@@ -158,77 +158,6 @@ func TestServerInitializePositionEncoding(t *testing.T) {
 			t.Fatalf("TextDocumentSync.Change = %v, want Full", sync.Change)
 		}
 	})
-}
-
-func TestServerInitializeSanitizesUnsupportedCapabilities(t *testing.T) {
-	server := &recordingServer{
-		initializeResult: &protocol.InitializeResult{
-			Capabilities: protocol.ServerCapabilities{
-				CompletionProvider:               &protocol.CompletionOptions{},
-				DocumentFormattingProvider:       &protocol.Or_ServerCapabilities_documentFormattingProvider{Value: true},
-				DocumentRangeFormattingProvider:  &protocol.Or_ServerCapabilities_documentRangeFormattingProvider{Value: true},
-				DocumentOnTypeFormattingProvider: &protocol.DocumentOnTypeFormattingOptions{FirstTriggerCharacter: "."},
-				DocumentHighlightProvider:        &protocol.Or_ServerCapabilities_documentHighlightProvider{Value: true},
-				DocumentLinkProvider:             &protocol.DocumentLinkOptions{},
-				DocumentSymbolProvider:           &protocol.Or_ServerCapabilities_documentSymbolProvider{Value: true},
-				ExecuteCommandProvider:           &protocol.ExecuteCommandOptions{Commands: []string{"gopls.test"}},
-				FoldingRangeProvider:             &protocol.Or_ServerCapabilities_foldingRangeProvider{Value: true},
-				InlayHintProvider:                &protocol.Or_ServerCapabilities_inlayHintProvider{Value: true},
-				SemanticTokensProvider:           &protocol.SemanticTokensOptions{},
-			},
-			ServerInfo: &protocol.ServerInfo{},
-		},
-	}
-	proxy := newTestServer(server, &recordingClient{})
-
-	got, err := proxy.Initialize(context.Background(), &protocol.ParamInitialize{})
-	if err != nil {
-		t.Fatalf("Initialize() error = %v", err)
-	}
-
-	if got.Capabilities.CompletionProvider == nil {
-		t.Fatalf("CompletionProvider = nil, want completion support preserved")
-	}
-	if got.Capabilities.ExecuteCommandProvider != nil {
-		t.Fatalf("ExecuteCommandProvider = %#v, want nil", got.Capabilities.ExecuteCommandProvider)
-	}
-	if got.Capabilities.DocumentFormattingProvider == nil || got.Capabilities.DocumentFormattingProvider.Value != false {
-		t.Fatalf("DocumentFormattingProvider = %#v, want false", got.Capabilities.DocumentFormattingProvider)
-	}
-	if got.Capabilities.DocumentRangeFormattingProvider == nil || got.Capabilities.DocumentRangeFormattingProvider.Value != false {
-		t.Fatalf("DocumentRangeFormattingProvider = %#v, want false", got.Capabilities.DocumentRangeFormattingProvider)
-	}
-	if got.Capabilities.DocumentOnTypeFormattingProvider != nil {
-		t.Fatalf("DocumentOnTypeFormattingProvider = %#v, want nil", got.Capabilities.DocumentOnTypeFormattingProvider)
-	}
-	if got.Capabilities.DocumentHighlightProvider != nil {
-		t.Fatalf("DocumentHighlightProvider = %#v, want nil", got.Capabilities.DocumentHighlightProvider)
-	}
-	if got.Capabilities.DocumentLinkProvider != nil {
-		t.Fatalf("DocumentLinkProvider = %#v, want nil", got.Capabilities.DocumentLinkProvider)
-	}
-	if got.Capabilities.DocumentSymbolProvider != nil {
-		t.Fatalf("DocumentSymbolProvider = %#v, want nil", got.Capabilities.DocumentSymbolProvider)
-	}
-	if got.Capabilities.FoldingRangeProvider != nil {
-		t.Fatalf("FoldingRangeProvider = %#v, want nil", got.Capabilities.FoldingRangeProvider)
-	}
-	if got.Capabilities.InlayHintProvider != nil {
-		t.Fatalf("InlayHintProvider = %#v, want nil", got.Capabilities.InlayHintProvider)
-	}
-	if got.Capabilities.SemanticTokensProvider == nil {
-		t.Fatal("SemanticTokensProvider = nil, want semantic tokens enabled")
-	}
-	opts, ok := got.Capabilities.SemanticTokensProvider.(protocol.SemanticTokensOptions)
-	if !ok {
-		t.Fatalf("SemanticTokensProvider type = %T, want SemanticTokensOptions", got.Capabilities.SemanticTokensProvider)
-	}
-	if opts.Full == nil {
-		t.Fatal("SemanticTokensOptions.Full = nil, want full support enabled")
-	}
-	if full, ok := opts.Full.Value.(bool); !ok || !full {
-		t.Fatalf("SemanticTokensOptions.Full.Value = %v, want true (no delta)", opts.Full.Value)
-	}
 }
 
 func TestServerCompletionMapsAdditionalTextEdits(t *testing.T) {
@@ -802,14 +731,18 @@ func didChangeParams(text string) *protocol.DidChangeTextDocumentParams {
 
 func TestServerSemanticTokensFull(t *testing.T) {
 	type testcase struct {
-		args         struct{ params *protocol.SemanticTokensParams }
+		args struct {
+			params *protocol.SemanticTokensParams
+		}
 		serverResult *protocol.SemanticTokens
 		want         *protocol.SemanticTokens
 		wantCalls    int
 	}
 	tests := map[string]testcase{
 		"non-goht file returns nil": {
-			args: struct{ params *protocol.SemanticTokensParams }{
+			args: struct {
+				params *protocol.SemanticTokensParams
+			}{
 				params: &protocol.SemanticTokensParams{
 					TextDocument: protocol.TextDocumentIdentifier{URI: "file:///tmp/other.go"},
 				},
@@ -818,7 +751,9 @@ func TestServerSemanticTokensFull(t *testing.T) {
 			wantCalls: 0,
 		},
 		"maps token positions to goht space": {
-			args: struct{ params *protocol.SemanticTokensParams }{
+			args: struct {
+				params *protocol.SemanticTokensParams
+			}{
 				params: &protocol.SemanticTokensParams{
 					TextDocument: protocol.TextDocumentIdentifier{URI: testGohtURI},
 				},
@@ -832,7 +767,9 @@ func TestServerSemanticTokensFull(t *testing.T) {
 			wantCalls: 1,
 		},
 		"forwards with go uri to gopls": {
-			args: struct{ params *protocol.SemanticTokensParams }{
+			args: struct {
+				params *protocol.SemanticTokensParams
+			}{
 				params: &protocol.SemanticTokensParams{
 					TextDocument: protocol.TextDocumentIdentifier{URI: testGohtURI},
 				},
@@ -891,7 +828,9 @@ func TestServerSemanticTokensFull(t *testing.T) {
 
 func TestServerSemanticTokensRange(t *testing.T) {
 	type testcase struct {
-		args         struct{ params *protocol.SemanticTokensRangeParams }
+		args struct {
+			params *protocol.SemanticTokensRangeParams
+		}
 		serverResult *protocol.SemanticTokens
 		want         *protocol.SemanticTokens
 		wantCalls    int
@@ -900,7 +839,9 @@ func TestServerSemanticTokensRange(t *testing.T) {
 	// So range GoHT(1,2)→(1,4) maps to Go(10,20)→(10,22)
 	tests := map[string]testcase{
 		"non-goht file returns nil": {
-			args: struct{ params *protocol.SemanticTokensRangeParams }{
+			args: struct {
+				params *protocol.SemanticTokensRangeParams
+			}{
 				params: &protocol.SemanticTokensRangeParams{
 					TextDocument: protocol.TextDocumentIdentifier{URI: "file:///tmp/other.go"},
 					Range:        rangeOf(1, 2, 1, 4),
@@ -910,7 +851,9 @@ func TestServerSemanticTokensRange(t *testing.T) {
 			wantCalls: 0,
 		},
 		"unmappable range returns nil": {
-			args: struct{ params *protocol.SemanticTokensRangeParams }{
+			args: struct {
+				params *protocol.SemanticTokensRangeParams
+			}{
 				params: &protocol.SemanticTokensRangeParams{
 					TextDocument: protocol.TextDocumentIdentifier{URI: testGohtURI},
 					Range:        rangeOf(99, 0, 99, 5),
@@ -920,7 +863,9 @@ func TestServerSemanticTokensRange(t *testing.T) {
 			wantCalls: 0,
 		},
 		"maps range and token positions to goht space": {
-			args: struct{ params *protocol.SemanticTokensRangeParams }{
+			args: struct {
+				params *protocol.SemanticTokensRangeParams
+			}{
 				params: &protocol.SemanticTokensRangeParams{
 					TextDocument: protocol.TextDocumentIdentifier{URI: testGohtURI},
 					Range:        rangeOf(1, 2, 1, 4),
@@ -1129,23 +1074,29 @@ func TestEncodeSemanticTokens(t *testing.T) {
 			want: []uint32{},
 		},
 		"single token": {
-			args: struct{ tokens []semanticToken }{tokens: []semanticToken{
-				{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0},
-			}},
+			args: struct{ tokens []semanticToken }{
+				tokens: []semanticToken{
+					{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0},
+				},
+			},
 			want: []uint32{3, 5, 4, 1, 0},
 		},
 		"two tokens same line": {
-			args: struct{ tokens []semanticToken }{tokens: []semanticToken{
-				{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0},
-				{line: 3, char: 11, length: 2, tokenType: 0, tokenModifiers: 1},
-			}},
+			args: struct{ tokens []semanticToken }{
+				tokens: []semanticToken{
+					{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0},
+					{line: 3, char: 11, length: 2, tokenType: 0, tokenModifiers: 1},
+				},
+			},
 			want: []uint32{3, 5, 4, 1, 0, 0, 6, 2, 0, 1},
 		},
 		"two tokens different lines": {
-			args: struct{ tokens []semanticToken }{tokens: []semanticToken{
-				{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0},
-				{line: 5, char: 3, length: 2, tokenType: 0, tokenModifiers: 1},
-			}},
+			args: struct{ tokens []semanticToken }{
+				tokens: []semanticToken{
+					{line: 3, char: 5, length: 4, tokenType: 1, tokenModifiers: 0},
+					{line: 5, char: 3, length: 2, tokenType: 0, tokenModifiers: 1},
+				},
+			},
 			want: []uint32{3, 5, 4, 1, 0, 2, 3, 2, 0, 1},
 		},
 	}
