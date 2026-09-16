@@ -679,7 +679,7 @@ func lexHamlCommandCode(l *lexer) lexFn {
 	return lexHamlLineStart
 }
 
-var hamlFilters = []string{"javascript", "css", "plain", "escaped", "preserve"}
+var hamlFilters = []string{"javascript", "css", "plain", "escaped", "preserve", "go"}
 
 func lexHamlFilterStart(l *lexer) lexFn {
 	l.skipRun(": \t")
@@ -702,6 +702,8 @@ func lexHamlFilterStart(l *lexer) lexFn {
 		return lexHamlFilterLineStart(l.indent+1, tEscapedText)
 	case "preserve":
 		return lexHamlFilterLineStart(l.indent+1, tPreserveText)
+	case "go":
+		return lexSlimFilterLineStart(l.indent+1, tGoCode)
 	default:
 		return l.errorf("unsupported filter: %s", filter)
 	}
@@ -743,9 +745,13 @@ func lexHamlFilterIndent(indent int, textType tokenType) lexFn {
 
 func lexHamlFilterContent(indent int, textType tokenType) lexFn {
 	return func(l *lexer) lexFn {
-		l.acceptUntil("#\n\r")
-		if l.peek() == '#' {
-			return lexHamlFilterDynamicText(textType, lexHamlFilterContent(indent, textType))
+		if textType != tGoCode {
+			l.acceptUntil("#\n\r")
+			if l.peek() == '#' {
+				return lexHamlFilterDynamicText(textType, lexHamlFilterContent(indent, textType))
+			}
+		} else {
+			l.acceptUntil("\n\r")
 		}
 		l.acceptRun("\n\r")
 		if l.current() != "" {

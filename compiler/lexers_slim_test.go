@@ -1390,6 +1390,18 @@ func Test_SlimFilters(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"simple go": {
+			input: "@slim test() {\n\t:go\n\t\tfoo := \"bar\"\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tFilterStart, lit: "go"},
+				{typ: tGoCode, lit: "foo := \"bar\"\n"},
+				{typ: tFilterEnd, lit: ""},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"indented": {
 			input: "@slim test() {\n\t:javascript\n\t\tfoo\n}",
 			want: []token{

@@ -2091,6 +2091,19 @@ func Test_HamlFilters(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"simple go": {
+			input: "@haml test() {\n\t:go\n\t\tfoo := 1\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tFilterStart, lit: "go"},
+				{typ: tGoCode, lit: "foo := 1\n"},
+				{typ: tFilterEnd, lit: ""},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"multiline css": {
 			input: "@goht test() {\n\t:css\n\t\tfoo\n\t\tbar\n}",
 			want: []token{

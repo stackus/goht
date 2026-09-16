@@ -217,6 +217,8 @@ func (n *node) handleNode(p *parser, indent int) error {
 			p.addNode(NewCssFilterNode(t, indent))
 		case "plain", "escaped", "preserve":
 			p.addNode(NewTextFilterNode(t, indent))
+		case "go":
+			p.addNode(NewGoFilterNode(t, indent))
 		default:
 			return n.errorf("unknown filter: %s", t)
 		}
@@ -329,7 +331,7 @@ func (n *RootNode) parse(p *parser) error {
 		t := p.next()
 		n.addImport(t)
 	case tGoCode, tNewLine:
-		p.addNode(NewCodeNode(p.next()))
+		p.addNode(NewCodeNode(p.next(), 0))
 	case tTemplateStart:
 		p.addNode(NewTemplateNode(p.next()))
 	case tEOF:
@@ -348,11 +350,11 @@ type CodeNode struct {
 	tokens []token
 }
 
-func NewCodeNode(t token) *CodeNode {
+func NewCodeNode(t token, indent int) *CodeNode {
 	builder := &strings.Builder{}
 	builder.WriteString(t.lit)
 	return &CodeNode{
-		node:   newNode(nGoCode, 0, t),
+		node:   newNode(nGoCode, indent, t),
 		text:   builder,
 		tokens: []token{t},
 	}
@@ -1615,6 +1617,42 @@ func (n *SlotCommandNode) parse(p *parser) error {
 		return nil
 	default:
 		return n.handleNode(p, n.indent+1)
+	}
+}
+
+type GoFilterNode struct {
+	node
+}
+
+func NewGoFilterNode(t token, indent int) *GoFilterNode {
+	return &GoFilterNode{
+		node: newNode(nFilter, indent, t),
+	}
+}
+
+func (n *GoFilterNode) Source(tw *templateWriter) error {
+	if _, err := tw.Close(); err != nil {
+		return err
+	}
+	for _, c := range n.children {
+		if err := c.Source(tw); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func (n *GoFilterNode) parse(p *parser) error {
+	switch p.peek().Type() {
+	case tGoCode:
+		n.AddChild(NewCodeNode(p.next(), n.indent+1))
+		return nil
+	case tFilterEnd:
+		p.next()
+		return p.backToParent()
+	case tEOF:
+		return n.errorf("go filter is incomplete: %s", p.peek())
+	default:
+		return n.errorf("unexpected token: %s", p.peek())
 	}
 }
 

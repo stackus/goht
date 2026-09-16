@@ -581,6 +581,22 @@ Take care that the code is valid Go code because the entire statement, with newl
 }
 ```
 
+In the Haml and Slim templates you can use the `:go` filter to include larger blocks of Go code.
+```haml
+  :go
+    props := SomeProps{
+      Name: "GoHT",
+      IsAwesome: true,
+      ErrMessage: "use whatever you want"
+      Attributes: make(map[string]string),
+    }
+	  if user == nil {
+	  	props.Attributes["disabled"] = "disabled"
+	  } else {
+	  	props.Attributes["value"] = user.Name
+	  }
+```
+
 ### Rendering code
 Like in Haml, you can output variables and the results of expressions. The `=` script syntax and text interpolation `#{}` are supported for Haml and Slim.
 ```haml
@@ -769,12 +785,13 @@ GoHT supports inlining tags to keep templates as compact as possible.
 ```
 
 ### Filters
-Only the following Haml filters are supported:
+The following filters are supported in Haml and Slim templates:
 - `:plain` (Haml Only)
 - `:escaped` (Haml Only)
 - `:preserve` (Haml Only)
 - `:javascript`
 - `:css`
+- `:go`
 
 ### Whitespace Removal
 **Haml Only**

@@ -383,7 +383,7 @@ func lexSlimCommandCode(l *lexer) lexFn {
 	return lexSlimLineStart
 }
 
-var slimFilters = []string{"javascript", "css"}
+var slimFilters = []string{"javascript", "css", "go"}
 
 func lexSlimFilterStart(l *lexer) lexFn {
 	l.skipRun(": \t")
@@ -402,6 +402,8 @@ func lexSlimFilterStart(l *lexer) lexFn {
 	switch filter {
 	case "javascript", "css":
 		return lexSlimFilterLineStart(l.indent+1, tPlainText)
+	case "go":
+		return lexSlimFilterLineStart(l.indent+1, tGoCode)
 	}
 	return lexSlimLineEnd
 }
@@ -442,10 +444,14 @@ func lexSlimFilterIndent(indent int, textType tokenType) lexFn {
 
 func lexSlimFilterContent(indent int, textType tokenType) lexFn {
 	return func(l *lexer) lexFn {
-		l.acceptUntil("#\n\r")
-		// we have reached some interpolation as long as it wasn't escaped
-		if l.peek() == '#' && !strings.HasSuffix(l.current(), "\\") {
-			return lexSlimFilterDynamicText(textType, lexSlimFilterContent(indent, textType))
+		if textType != tGoCode {
+			l.acceptUntil("#\n\r")
+			// we have reached some interpolation as long as it wasn't escaped
+			if l.peek() == '#' && !strings.HasSuffix(l.current(), "\\") {
+				return lexSlimFilterDynamicText(textType, lexSlimFilterContent(indent, textType))
+			}
+		} else {
+			l.acceptUntil("\n\r")
 		}
 		l.acceptRun("\n\r")
 		if l.current() != "" {
