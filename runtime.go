@@ -15,56 +15,77 @@ import (
 
 // Template is a template that can be rendered into a writer.
 type Template interface {
-	Render(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error
-	Slot(slotName string, slottedTemplates ...SlottedTemplate) SlottedTemplate
+	Render(ctx context.Context, w io.Writer) error
 }
 
-type SlottedTemplate interface {
-	Template
-	SlotName() string
-	SlottedTemplates() []SlottedTemplate
+type TemplateFunc func(ctx context.Context, w io.Writer) error
+
+func (f TemplateFunc) Render(ctx context.Context, w io.Writer) error {
+	return f(ctx, w)
 }
 
-type slottedTemplate struct {
-	template         TemplateFunc
-	slotName         string
-	slottedTemplates []SlottedTemplate
-}
+// Fragment renders templates in slice order.
+type Fragment []Template
 
-type TemplateFunc func(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error
-
-func (f TemplateFunc) Render(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error {
-	return f(ctx, w, slottedTemplates...)
-}
-
-func (f TemplateFunc) Slot(slotName string, slottedTemplates ...SlottedTemplate) SlottedTemplate {
-	return &slottedTemplate{
-		template:         f,
-		slotName:         slotName,
-		slottedTemplates: slottedTemplates,
-	}
-}
-
-func (st *slottedTemplate) Render(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error {
-	if err := st.template.Render(ctx, w, slottedTemplates...); err != nil {
-		return err
+func (f Fragment) Render(ctx context.Context, w io.Writer) error {
+	for _, template := range f {
+		if err := template.Render(ctx, w); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func (st *slottedTemplate) Slot(slotName string, slottedTemplates ...SlottedTemplate) SlottedTemplate {
-	return &slottedTemplate{
-		slotName:         slotName,
-		slottedTemplates: slottedTemplates,
+// SlotTemplate is an immutable template value with named template lists.
+// Slot returns a copied value with a named list replaced.
+type SlotTemplate struct {
+	template TemplateFunc
+	declared map[string]struct{}
+	slots    map[string]Fragment
+	err      error
+}
+
+// NewSlotTemplate creates a template that accepts the provided slot names.
+func NewSlotTemplate(template TemplateFunc, slotNames ...string) SlotTemplate {
+	declared := make(map[string]struct{}, len(slotNames))
+	for _, slotName := range slotNames {
+		declared[slotName] = struct{}{}
 	}
+	return SlotTemplate{template: template, declared: declared}
 }
 
-func (st *slottedTemplate) SlotName() string {
-	return st.slotName
+// Render fails before rendering when composition contains an unknown slot.
+func (t SlotTemplate) Render(ctx context.Context, w io.Writer) error {
+	if t.err != nil {
+		return t.err
+	}
+	return t.template.Render(context.WithValue(ctx, slotContextKey{}, t.slots), w)
 }
 
-func (st *slottedTemplate) SlottedTemplates() []SlottedTemplate {
-	return st.slottedTemplates
+// Slot returns a copied template with slotName replaced by templates. An
+// undeclared slot is recorded and returned from Render before any output.
+func (t SlotTemplate) Slot(slotName string, templates ...Template) SlotTemplate {
+	if _, ok := t.declared[slotName]; !ok {
+		t.err = errors.Join(t.err, fmt.Errorf("goht: unknown slot %q", slotName))
+		return t
+	}
+
+	slots := make(map[string]Fragment, len(t.slots)+1)
+	for name, fragment := range t.slots {
+		slots[name] = slices.Clone(fragment)
+	}
+	slots[slotName] = slices.Clone(templates)
+	t.slots = slots
+	return t
+}
+
+type slotContextKey struct{}
+
+// GetSlot returns a copy of the templates assigned to slotName in the current
+// slot template render. It returns nil when the slot is absent.
+func GetSlot(ctx context.Context, slotName string) Fragment {
+	slots, _ := ctx.Value(slotContextKey{}).(map[string]Fragment)
+	return slices.Clone(slots[slotName])
 }
 
 // little nuke alligators that eat whitespace; silly but important
@@ -112,7 +133,7 @@ func PopChildren(ctx context.Context) (context.Context, Template) {
 	var value *ctxValue
 	ctx, value = getContext(ctx)
 	if value.children == nil {
-		return ctx, TemplateFunc(func(ctx context.Context, w io.Writer, slottedTemplates ...SlottedTemplate) error { return nil })
+		return ctx, TemplateFunc(func(context.Context, io.Writer) error { return nil })
 	}
 	children := *value.children
 	value.children = nil
@@ -123,15 +144,6 @@ func PushChildren(ctx context.Context, children Template) context.Context {
 	value := ctx.Value(ctxKey).(*ctxValue)
 	value.children = &children
 	return ctx
-}
-
-func GetSlottedTemplate(slottedTemplates []SlottedTemplate, slotName string) SlottedTemplate {
-	for _, st := range slottedTemplates {
-		if st.SlotName() == slotName {
-			return st
-		}
-	}
-	return nil
 }
 
 func initContext(ctx context.Context) context.Context {
