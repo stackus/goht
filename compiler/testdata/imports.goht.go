@@ -15,7 +15,7 @@ type ImportsTestTemplate struct {
 }
 
 // ImportsTest returns a new instance of ImportsTestTemplate.
-// Slots: none.
+// Slots: children.
 func ImportsTest() *ImportsTestTemplate {
 	return &ImportsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -23,9 +23,6 @@ func ImportsTest() *ImportsTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		s := fmt.Sprintf("Hello, %s!", "world")
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
@@ -44,7 +41,7 @@ func ImportsTest() *ImportsTestTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for ImportsTestTemplate and returns a new instance.
@@ -52,4 +49,9 @@ func (t *ImportsTestTemplate) Slot(name string, templates ...goht.Template) *Imp
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for ImportsTestTemplate.
+func (t *ImportsTestTemplate) WithChildren(templates ...goht.Template) *ImportsTestTemplate {
+	return t.Slot("children", templates...)
 }

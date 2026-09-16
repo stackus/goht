@@ -12,7 +12,7 @@ type FiltersTestTemplate struct {
 }
 
 // FiltersTest returns a new instance of FiltersTestTemplate.
-// Slots: none.
+// Slots: children.
 func FiltersTest() *FiltersTestTemplate {
 	return &FiltersTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -20,9 +20,6 @@ func FiltersTest() *FiltersTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		str := "Interpolated <em>text</em>"
 		if _, __err = __buf.WriteString("<p>\nPlain <em>text</em>\n"); __err != nil {
 			return
@@ -105,7 +102,7 @@ func FiltersTest() *FiltersTestTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for FiltersTestTemplate and returns a new instance.
@@ -113,4 +110,9 @@ func (t *FiltersTestTemplate) Slot(name string, templates ...goht.Template) *Fil
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for FiltersTestTemplate.
+func (t *FiltersTestTemplate) WithChildren(templates ...goht.Template) *FiltersTestTemplate {
+	return t.Slot("children", templates...)
 }

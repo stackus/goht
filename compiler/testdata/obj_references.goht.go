@@ -22,7 +22,7 @@ type ObjectReferencesTestTemplate struct {
 }
 
 // ObjectReferencesTest returns a new instance of ObjectReferencesTestTemplate.
-// Slots: none.
+// Slots: children.
 func ObjectReferencesTest() *ObjectReferencesTestTemplate {
 	return &ObjectReferencesTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -30,9 +30,6 @@ func ObjectReferencesTest() *ObjectReferencesTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		o := ObjRef("")
 		if _, __err = __buf.WriteString("<p"); __err != nil {
 			return
@@ -73,7 +70,7 @@ func ObjectReferencesTest() *ObjectReferencesTestTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for ObjectReferencesTestTemplate and returns a new instance.
@@ -81,4 +78,9 @@ func (t *ObjectReferencesTestTemplate) Slot(name string, templates ...goht.Templ
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for ObjectReferencesTestTemplate.
+func (t *ObjectReferencesTestTemplate) WithChildren(templates ...goht.Template) *ObjectReferencesTestTemplate {
+	return t.Slot("children", templates...)
 }

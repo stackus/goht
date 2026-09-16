@@ -664,6 +664,14 @@ func Test_EgoSlotCommand(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"reserved children name": {
+			input: "@ego test() {\n\t<%@slot children %>",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tError, lit: `slot name "children" is reserved`},
+				{typ: tEOF, lit: ""},
+			},
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {

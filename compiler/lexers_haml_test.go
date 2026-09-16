@@ -1751,6 +1751,16 @@ func Test_HamlSlotCommand(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"reserved children name": {
+			input: "@goht test() {\n\t= @slot children",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: `slot name "children" is reserved`},
+				{typ: tEOF, lit: ""},
+			},
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {

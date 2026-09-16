@@ -300,6 +300,9 @@ func lexEgoSlotStart(l *lexer) lexFn {
 		if l.current() == "" {
 			return l.errorf("slot name expected")
 		}
+		if l.current() == "children" {
+			return l.errorf("slot name %q is reserved", l.current())
+		}
 		l.emit(tSlotCommand)
 		// if the content originally ends with a '{' then increase the indent (after emitting)
 		if strings.HasSuffix(s, "{") {

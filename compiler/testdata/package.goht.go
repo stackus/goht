@@ -12,7 +12,7 @@ type PackageTestTemplate struct {
 }
 
 // PackageTest returns a new instance of PackageTestTemplate.
-// Slots: none.
+// Slots: children.
 func PackageTest() *PackageTestTemplate {
 	return &PackageTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -20,9 +20,6 @@ func PackageTest() *PackageTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("This is a package test.\n"); __err != nil {
 			return
 		}
@@ -30,7 +27,7 @@ func PackageTest() *PackageTestTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for PackageTestTemplate and returns a new instance.
@@ -38,4 +35,9 @@ func (t *PackageTestTemplate) Slot(name string, templates ...goht.Template) *Pac
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for PackageTestTemplate.
+func (t *PackageTestTemplate) WithChildren(templates ...goht.Template) *PackageTestTemplate {
+	return t.Slot("children", templates...)
 }

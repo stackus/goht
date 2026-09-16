@@ -96,16 +96,6 @@ const (
 
 var nukeWhitespaceRe = regexp.MustCompile(NukeAfter + `\s*|\s*` + NukeBefore)
 
-type contextKey int
-
-const (
-	ctxKey contextKey = iota
-)
-
-type ctxValue struct {
-	children *Template
-}
-
 type Buffer struct {
 	*bytes.Buffer
 }
@@ -127,42 +117,6 @@ func GetBuffer() Buffer {
 func ReleaseBuffer(buf Buffer) {
 	buf.Reset()
 	bufferPool.Put(buf)
-}
-
-func PopChildren(ctx context.Context) (context.Context, Template) {
-	var value *ctxValue
-	ctx, value = getContext(ctx)
-	if value.children == nil {
-		return ctx, TemplateFunc(func(context.Context, io.Writer) error { return nil })
-	}
-	children := *value.children
-	value.children = nil
-	return ctx, children
-}
-
-func PushChildren(ctx context.Context, children Template) context.Context {
-	value := ctx.Value(ctxKey).(*ctxValue)
-	value.children = &children
-	return ctx
-}
-
-func initContext(ctx context.Context) context.Context {
-	if _, ok := ctx.Value(ctxKey).(*ctxValue); ok {
-		return ctx
-	}
-	value := &ctxValue{
-		children: nil,
-	}
-	return context.WithValue(ctx, ctxKey, value)
-}
-
-func getContext(ctx context.Context) (context.Context, *ctxValue) {
-	value, ok := ctx.Value(ctxKey).(*ctxValue)
-	if !ok {
-		ctx = initContext(ctx)
-		value = ctx.Value(ctxKey).(*ctxValue)
-	}
-	return ctx, value
 }
 
 func CaptureErrors(s string, errs ...error) (string, error) {

@@ -133,6 +133,22 @@ func TestTemplate_GenerateSlotMethodErrors(t *testing.T) {
 	}
 }
 
+func TestParseString_ReservedChildrenSlot(t *testing.T) {
+	tests := map[string]string{
+		"haml": "@haml Reserved() {\n\t= @slot children\n}\n",
+		"slim": "@slim Reserved() {\n\t= @slot children\n}\n",
+		"ego":  "@ego Reserved() {\n\t<%@slot children %>\n}\n",
+	}
+	for name, source := range tests {
+		t.Run(name, func(t *testing.T) {
+			_, err := ParseString(source)
+			if err == nil || !strings.Contains(err.Error(), `slot name "children" is reserved`) {
+				t.Fatalf("ParseString() error = %v, want reserved-children error", err)
+			}
+		})
+	}
+}
+
 // TestSourceMapRoundTrip compiles a small template in each of GoHT's three
 // syntaxes and confirms that every entry the SourceMap records round-trips
 // through both SourcePositionFromTarget and TargetPositionFromSource, and

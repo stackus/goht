@@ -12,7 +12,7 @@ type NewlinesTestTemplate struct {
 }
 
 // NewlinesTest returns a new instance of NewlinesTestTemplate.
-// Slots: none.
+// Slots: children.
 func NewlinesTest() *NewlinesTestTemplate {
 	return &NewlinesTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -20,9 +20,6 @@ func NewlinesTest() *NewlinesTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"first\"></div>\n<div class=\"second\">Content</div>\n<div class=\"third\"></div>\n"); __err != nil {
 			return
 		}
@@ -30,7 +27,7 @@ func NewlinesTest() *NewlinesTestTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for NewlinesTestTemplate and returns a new instance.
@@ -38,4 +35,9 @@ func (t *NewlinesTestTemplate) Slot(name string, templates ...goht.Template) *Ne
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for NewlinesTestTemplate.
+func (t *NewlinesTestTemplate) WithChildren(templates ...goht.Template) *NewlinesTestTemplate {
+	return t.Slot("children", templates...)
 }

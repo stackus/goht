@@ -12,7 +12,7 @@ type HtmlAttributesTestTemplate struct {
 }
 
 // HtmlAttributesTest returns a new instance of HtmlAttributesTestTemplate.
-// Slots: none.
+// Slots: children.
 func HtmlAttributesTest() *HtmlAttributesTestTemplate {
 	return &HtmlAttributesTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -20,9 +20,6 @@ func HtmlAttributesTest() *HtmlAttributesTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p class=\"static\">Static paren attr</p>\n<p class=\"b\" id=\"a\">Multiple paren attrs</p>\n"); __err != nil {
 			return
 		}
@@ -40,7 +37,7 @@ func HtmlAttributesTest() *HtmlAttributesTestTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for HtmlAttributesTestTemplate and returns a new instance.
@@ -48,4 +45,9 @@ func (t *HtmlAttributesTestTemplate) Slot(name string, templates ...goht.Templat
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for HtmlAttributesTestTemplate.
+func (t *HtmlAttributesTestTemplate) WithChildren(templates ...goht.Template) *HtmlAttributesTestTemplate {
+	return t.Slot("children", templates...)
 }

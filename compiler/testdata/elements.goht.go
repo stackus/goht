@@ -12,7 +12,7 @@ type ElementsTestTemplate struct {
 }
 
 // ElementsTest returns a new instance of ElementsTestTemplate.
-// Slots: none.
+// Slots: children.
 func ElementsTest() *ElementsTestTemplate {
 	return &ElementsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -20,9 +20,6 @@ func ElementsTest() *ElementsTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html>\n<body>\n<div id=\"main\" class=\"wrapper\">\n<article>\n<h1>Article Title</h1>\n</article>\n<p>Article content</p>\n<footer>\n<p>Article footer</p>\n</footer>\n</div>\n<footer class=\"wrapper\">\n<p>Footer content</p>\n</footer>\n</body>\n</html>\n"); __err != nil {
 			return
 		}
@@ -30,7 +27,7 @@ func ElementsTest() *ElementsTestTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for ElementsTestTemplate and returns a new instance.
@@ -38,4 +35,9 @@ func (t *ElementsTestTemplate) Slot(name string, templates ...goht.Template) *El
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for ElementsTestTemplate.
+func (t *ElementsTestTemplate) WithChildren(templates ...goht.Template) *ElementsTestTemplate {
+	return t.Slot("children", templates...)
 }

@@ -1277,6 +1277,15 @@ func Test_SlimSlotCommand(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"reserved children name": {
+			input: "@slim test() {\n\t= @slot children",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: `slot name "children" is reserved`},
+				{typ: tEOF, lit: ""},
+			},
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {

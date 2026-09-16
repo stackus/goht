@@ -12,7 +12,7 @@ type AttributesTestTemplate struct {
 }
 
 // AttributesTest returns a new instance of AttributesTestTemplate.
-// Slots: none.
+// Slots: children.
 func AttributesTest() *AttributesTestTemplate {
 	return &AttributesTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -20,9 +20,6 @@ func AttributesTest() *AttributesTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"boolean\" disabled>Disabled Content</div>\n"); __err != nil {
 			return
 		}
@@ -67,7 +64,7 @@ func AttributesTest() *AttributesTestTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for AttributesTestTemplate and returns a new instance.
@@ -75,4 +72,9 @@ func (t *AttributesTestTemplate) Slot(name string, templates ...goht.Template) *
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for AttributesTestTemplate.
+func (t *AttributesTestTemplate) WithChildren(templates ...goht.Template) *AttributesTestTemplate {
+	return t.Slot("children", templates...)
 }

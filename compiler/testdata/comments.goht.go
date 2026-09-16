@@ -12,7 +12,7 @@ type CommentsTestTemplate struct {
 }
 
 // CommentsTest returns a new instance of CommentsTestTemplate.
-// Slots: none.
+// Slots: children.
 func CommentsTest() *CommentsTestTemplate {
 	return &CommentsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -20,9 +20,6 @@ func CommentsTest() *CommentsTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>before</p>\n<!--this is a HTML comment-->\n<p>after</p>\n<p>last</p>\n<div>---</div>\n<p>before</p>\n<!--\nthis is a HTML comment\n-->\n<p>after</p>\n<p>last</p>\n"); __err != nil {
 			return
 		}
@@ -30,7 +27,7 @@ func CommentsTest() *CommentsTestTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for CommentsTestTemplate and returns a new instance.
@@ -38,4 +35,9 @@ func (t *CommentsTestTemplate) Slot(name string, templates ...goht.Template) *Co
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for CommentsTestTemplate.
+func (t *CommentsTestTemplate) WithChildren(templates ...goht.Template) *CommentsTestTemplate {
+	return t.Slot("children", templates...)
 }

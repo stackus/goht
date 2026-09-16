@@ -431,9 +431,6 @@ func (n *TemplateNode) Source(tw *templateWriter) error {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 `
 	exit := `		if !__isBuf {
 			_, __err = __w.Write(__buf.Bytes())
@@ -497,15 +494,18 @@ type slotMethod struct {
 }
 
 func (n *TemplateNode) slotMethods() ([]slotMethod, error) {
-	var slots []slotMethod
+	slots := []slotMethod{{name: "children", method: "WithChildren"}}
 
-	seenNames := make(map[string]struct{})
-	seenMethods := make(map[string]string)
+	seenNames := map[string]struct{}{"children": {}}
+	seenMethods := map[string]string{"WithChildren": "children"}
 
 	var visit func(nodeBase) error
 
 	visit = func(current nodeBase) error {
 		if slot, ok := current.(*SlotCommandNode); ok {
+			if slot.slot == "children" {
+				return slot.errorf("slot name %q is reserved", slot.slot)
+			}
 			if _, seen := seenNames[slot.slot]; !seen {
 				method, err := slotMethodName(slot.slot)
 				if err != nil {
@@ -1621,7 +1621,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 
 	vName := tw.GetVarName()
 
-	fnLine := vName + " := goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {\n"
+	fnLine := vName + " := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {\n"
 
 	if _, err := tw.WriteIndent(fnLine); err != nil {
 		return err
@@ -1655,7 +1655,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 		"		_, __err = io.Copy(__w, __buf)\n",
 		"	}\n",
 		"	return\n",
-		"})\n",
+		"})}\n",
 	}
 	for _, line := range lines {
 		if _, err := tw.WriteIndent(line); err != nil {
@@ -1671,7 +1671,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 	} else {
 		tw.Add(n.origin, r)
 	}
-	if _, err := tw.Write(".Render(goht.PushChildren(ctx, " + vName + "), __buf); __err != nil { return }\n"); err != nil {
+	if _, err := tw.Write(".WithChildren(" + vName + "...).Render(ctx, __buf); __err != nil { return }\n"); err != nil {
 		return err
 	}
 
@@ -1705,7 +1705,14 @@ func NewChildrenCommandNode(t token) *ChildrenCommandNode {
 }
 
 func (n *ChildrenCommandNode) Source(tw *templateWriter) error {
-	_, err := tw.WriteIndent("if __err = __children.Render(ctx, __buf); __err != nil { return }\n")
+	if _, err := tw.WriteIndent("if __children := goht.GetSlot(ctx, \"children\"); __children != nil {\n"); err != nil {
+		return err
+	}
+	itw := tw.Indent(1)
+	if _, err := itw.WriteIndent("if __err = __children.Render(ctx, __buf); __err != nil { return }\n"); err != nil {
+		return err
+	}
+	_, err := tw.WriteIndent("}\n")
 	return err
 }
 

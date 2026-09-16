@@ -671,6 +671,9 @@ func lexHamlCommandCode(l *lexer) lexFn {
 		if l.current() == "" {
 			return l.errorf("slot name expected")
 		}
+		if l.current() == "children" {
+			return l.errorf("slot name %q is reserved", l.current())
+		}
 		l.emit(tSlotCommand)
 	default:
 		return l.errorf("unknown command: %s", l.current())

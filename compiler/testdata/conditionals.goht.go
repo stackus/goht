@@ -12,7 +12,7 @@ type ConditionalsTestTemplate struct {
 }
 
 // ConditionalsTest returns a new instance of ConditionalsTestTemplate.
-// Slots: none.
+// Slots: children.
 func ConditionalsTest(v bool) *ConditionalsTestTemplate {
 	return &ConditionalsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -20,9 +20,6 @@ func ConditionalsTest(v bool) *ConditionalsTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>before</p>\n"); __err != nil {
 			return
 		}
@@ -38,7 +35,7 @@ func ConditionalsTest(v bool) *ConditionalsTestTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for ConditionalsTestTemplate and returns a new instance.
@@ -46,4 +43,9 @@ func (t *ConditionalsTestTemplate) Slot(name string, templates ...goht.Template)
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for ConditionalsTestTemplate.
+func (t *ConditionalsTestTemplate) WithChildren(templates ...goht.Template) *ConditionalsTestTemplate {
+	return t.Slot("children", templates...)
 }

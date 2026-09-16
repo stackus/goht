@@ -12,7 +12,7 @@ type TypedNoSlotsTemplate struct {
 }
 
 // TypedNoSlots returns a new instance of TypedNoSlotsTemplate.
-// Slots: none.
+// Slots: children.
 func TypedNoSlots() *TypedNoSlotsTemplate {
 	return &TypedNoSlotsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -20,9 +20,6 @@ func TypedNoSlots() *TypedNoSlotsTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>no slots</p>\n"); __err != nil {
 			return
 		}
@@ -30,7 +27,7 @@ func TypedNoSlots() *TypedNoSlotsTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for TypedNoSlotsTemplate and returns a new instance.
@@ -40,12 +37,17 @@ func (t *TypedNoSlotsTemplate) Slot(name string, templates ...goht.Template) *Ty
 	return &next
 }
 
+// WithChildren sets the "children" slot for TypedNoSlotsTemplate.
+func (t *TypedNoSlotsTemplate) WithChildren(templates ...goht.Template) *TypedNoSlotsTemplate {
+	return t.Slot("children", templates...)
+}
+
 type TypedOneSlotTemplate struct {
 	goht.SlotTemplate
 }
 
 // TypedOneSlot returns a new instance of TypedOneSlotTemplate.
-// Slots: header.
+// Slots: children, header.
 func TypedOneSlot() *TypedOneSlotTemplate {
 	return &TypedOneSlotTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -53,9 +55,6 @@ func TypedOneSlot() *TypedOneSlotTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if __slot := goht.GetSlot(ctx, "header"); __slot != nil {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
@@ -68,7 +67,7 @@ func TypedOneSlot() *TypedOneSlotTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	}, "header")}
+	}, "children", "header")}
 }
 
 // Slot sets a named slot for TypedOneSlotTemplate and returns a new instance.
@@ -76,6 +75,11 @@ func (t *TypedOneSlotTemplate) Slot(name string, templates ...goht.Template) *Ty
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for TypedOneSlotTemplate.
+func (t *TypedOneSlotTemplate) WithChildren(templates ...goht.Template) *TypedOneSlotTemplate {
+	return t.Slot("children", templates...)
 }
 
 // WithHeader sets the "header" slot for TypedOneSlotTemplate.
@@ -88,7 +92,7 @@ type TypedMultipleSlotsTemplate struct {
 }
 
 // TypedMultipleSlots returns a new instance of TypedMultipleSlotsTemplate.
-// Slots: main-content, sidebar_2.
+// Slots: children, main-content, sidebar_2.
 func TypedMultipleSlots() *TypedMultipleSlotsTemplate {
 	return &TypedMultipleSlotsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -96,9 +100,6 @@ func TypedMultipleSlots() *TypedMultipleSlotsTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if __slot := goht.GetSlot(ctx, "main-content"); __slot != nil {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
@@ -116,7 +117,7 @@ func TypedMultipleSlots() *TypedMultipleSlotsTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	}, "main-content", "sidebar_2")}
+	}, "children", "main-content", "sidebar_2")}
 }
 
 // Slot sets a named slot for TypedMultipleSlotsTemplate and returns a new instance.
@@ -124,6 +125,11 @@ func (t *TypedMultipleSlotsTemplate) Slot(name string, templates ...goht.Templat
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for TypedMultipleSlotsTemplate.
+func (t *TypedMultipleSlotsTemplate) WithChildren(templates ...goht.Template) *TypedMultipleSlotsTemplate {
+	return t.Slot("children", templates...)
 }
 
 // WithMainContent sets the "main-content" slot for TypedMultipleSlotsTemplate.
@@ -141,7 +147,7 @@ type TypedFallbackSlotTemplate struct {
 }
 
 // TypedFallbackSlot returns a new instance of TypedFallbackSlotTemplate.
-// Slots: footer.
+// Slots: children, footer.
 func TypedFallbackSlot() *TypedFallbackSlotTemplate {
 	return &TypedFallbackSlotTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -149,9 +155,6 @@ func TypedFallbackSlot() *TypedFallbackSlotTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if __slot := goht.GetSlot(ctx, "footer"); __slot != nil {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
@@ -168,7 +171,7 @@ func TypedFallbackSlot() *TypedFallbackSlotTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	}, "footer")}
+	}, "children", "footer")}
 }
 
 // Slot sets a named slot for TypedFallbackSlotTemplate and returns a new instance.
@@ -176,6 +179,11 @@ func (t *TypedFallbackSlotTemplate) Slot(name string, templates ...goht.Template
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for TypedFallbackSlotTemplate.
+func (t *TypedFallbackSlotTemplate) WithChildren(templates ...goht.Template) *TypedFallbackSlotTemplate {
+	return t.Slot("children", templates...)
 }
 
 // WithFooter sets the "footer" slot for TypedFallbackSlotTemplate.
@@ -188,7 +196,7 @@ type TypedDuplicateSlotTemplate struct {
 }
 
 // TypedDuplicateSlot returns a new instance of TypedDuplicateSlotTemplate.
-// Slots: content.
+// Slots: children, content.
 func TypedDuplicateSlot() *TypedDuplicateSlotTemplate {
 	return &TypedDuplicateSlotTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -196,9 +204,6 @@ func TypedDuplicateSlot() *TypedDuplicateSlotTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if __slot := goht.GetSlot(ctx, "content"); __slot != nil {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
@@ -216,7 +221,7 @@ func TypedDuplicateSlot() *TypedDuplicateSlotTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	}, "content")}
+	}, "children", "content")}
 }
 
 // Slot sets a named slot for TypedDuplicateSlotTemplate and returns a new instance.
@@ -224,6 +229,11 @@ func (t *TypedDuplicateSlotTemplate) Slot(name string, templates ...goht.Templat
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for TypedDuplicateSlotTemplate.
+func (t *TypedDuplicateSlotTemplate) WithChildren(templates ...goht.Template) *TypedDuplicateSlotTemplate {
+	return t.Slot("children", templates...)
 }
 
 // WithContent sets the "content" slot for TypedDuplicateSlotTemplate.

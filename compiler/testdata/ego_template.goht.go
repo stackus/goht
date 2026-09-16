@@ -12,7 +12,7 @@ type EgoTemplateTemplate struct {
 }
 
 // EgoTemplate returns a new instance of EgoTemplateTemplate.
-// Slots: none.
+// Slots: children.
 func EgoTemplate() *EgoTemplateTemplate {
 	return &EgoTemplateTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
@@ -20,9 +20,6 @@ func EgoTemplate() *EgoTemplateTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n\t<head>\n\t\t<title>Hello World</title>\n\t</head>\n\t<body>\n\t\t<p>Hello World</p>\n\t\t"); __err != nil {
 			return
 		}
@@ -57,7 +54,7 @@ func EgoTemplate() *EgoTemplateTemplate {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})}
+	}, "children")}
 }
 
 // Slot sets a named slot for EgoTemplateTemplate and returns a new instance.
@@ -65,4 +62,9 @@ func (t *EgoTemplateTemplate) Slot(name string, templates ...goht.Template) *Ego
 	next := *t
 	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
 	return &next
+}
+
+// WithChildren sets the "children" slot for EgoTemplateTemplate.
+func (t *EgoTemplateTemplate) WithChildren(templates ...goht.Template) *EgoTemplateTemplate {
+	return t.Slot("children", templates...)
 }
