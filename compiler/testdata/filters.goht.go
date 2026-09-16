@@ -7,8 +7,14 @@ import "context"
 import "io"
 import "github.com/stackus/goht"
 
-func FiltersTest() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type FiltersTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// FiltersTest returns a new instance of FiltersTestTemplate.
+// Slots: none.
+func FiltersTest() *FiltersTestTemplate {
+	return &FiltersTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -99,5 +105,12 @@ func FiltersTest() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	})}
+}
+
+// Slot sets a named slot for FiltersTestTemplate and returns a new instance.
+func (t *FiltersTestTemplate) Slot(name string, templates ...goht.Template) *FiltersTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }

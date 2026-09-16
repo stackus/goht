@@ -3,11 +3,15 @@ package compiler
 import (
 	"bytes"
 	"fmt"
+	"go/ast"
+	goparser "go/parser"
+	gotoken "go/token"
 	"html"
 	"regexp"
 	"slices"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/stackus/goht"
 )
@@ -401,9 +405,28 @@ func NewTemplateNode(t token) *TemplateNode {
 }
 
 func (n *TemplateNode) Source(tw *templateWriter) error {
-	entry := ` goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
+	templateName, err := templateDeclarationName(n.decl)
+	if err != nil {
+		return n.errorf("invalid template declaration: %w", err)
+	}
+	slots, err := n.slotMethods()
+	if err != nil {
+		return err
+	}
+	templateType := templateName + "Template"
+
+	if _, err := tw.Write("type " + templateType + " struct {\n\tgoht.SlotTemplate\n}\n\n"); err != nil {
+		return err
+	}
+	if _, err := tw.Write("// " + templateName + " returns a new instance of " + templateType + ".\n"); err != nil {
+		return err
+	}
+	if _, err := tw.Write("// Slots: " + slotNames(slots) + ".\n"); err != nil {
+		return err
+	}
+
+	entry := " *" + templateType + " {\n\treturn &" + templateType + "{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {\n" +
+		`		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
@@ -416,7 +439,7 @@ func (n *TemplateNode) Source(tw *templateWriter) error {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}` + slotArguments(slots) + `)}
 }`
 	tw.ResetVarName()
 	if _, err := tw.Write("func "); err != nil {
@@ -447,8 +470,160 @@ func (n *TemplateNode) Source(tw *templateWriter) error {
 		return err
 	}
 
-	_, err := tw.Write(exit)
-	return err
+	if _, err := tw.Write(exit); err != nil {
+		return err
+	}
+
+	if _, err := tw.Write("\n\n// Slot sets a named slot for " + templateType + " and returns a new instance.\n"); err != nil {
+		return err
+	}
+	if _, err := tw.Write("func (t *" + templateType + ") Slot(name string, templates ...goht.Template) *" + templateType + " {\n\tnext := *t\n\tnext.SlotTemplate = t.SlotTemplate.Slot(name, templates...)\n\treturn &next\n}\n"); err != nil {
+		return err
+	}
+	for _, slot := range slots {
+		if _, err := tw.Write("\n// " + slot.method + " sets the " + strconv.Quote(slot.name) + " slot for " + templateType + ".\n"); err != nil {
+			return err
+		}
+		if _, err := tw.Write("func (t *" + templateType + ") " + slot.method + "(templates ...goht.Template) *" + templateType + " {\n\treturn t.Slot(" + strconv.Quote(slot.name) + ", templates...)\n}\n"); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type slotMethod struct {
+	name   string
+	method string
+}
+
+func (n *TemplateNode) slotMethods() ([]slotMethod, error) {
+	var slots []slotMethod
+
+	seenNames := make(map[string]struct{})
+	seenMethods := make(map[string]string)
+
+	var visit func(nodeBase) error
+
+	visit = func(current nodeBase) error {
+		if slot, ok := current.(*SlotCommandNode); ok {
+			if _, seen := seenNames[slot.slot]; !seen {
+				method, err := slotMethodName(slot.slot)
+				if err != nil {
+					return slot.errorf("invalid slot name %q: %w", slot.slot, err)
+				}
+
+				if other, collision := seenMethods[method]; collision {
+					return slot.errorf("slot name %q conflicts with %q: both generate %s", slot.slot, other, method)
+				}
+
+				seenNames[slot.slot] = struct{}{}
+				seenMethods[method] = slot.slot
+
+				slots = append(slots, slotMethod{name: slot.slot, method: method})
+			}
+		}
+
+		for _, child := range current.Children() {
+			if err := visit(child); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	for _, child := range n.children {
+		if err := visit(child); err != nil {
+			return nil, err
+		}
+	}
+
+	return slots, nil
+}
+
+func templateDeclarationName(declaration string) (string, error) {
+	file, err := goparser.ParseFile(gotoken.NewFileSet(), "", "package generated\nfunc "+declaration+" {}", 0)
+	if err != nil {
+		return "", err
+	}
+
+	function, ok := file.Decls[0].(*ast.FuncDecl)
+	if !ok {
+		return "", fmt.Errorf("function declaration expected")
+	}
+
+	return function.Name.Name, nil
+}
+
+func slotMethodName(name string) (string, error) {
+	var words []string
+	var word []rune
+
+	for _, r := range name {
+		switch {
+		case unicode.IsLetter(r) || unicode.IsDigit(r):
+			word = append(word, r)
+		case r == '-' || r == '_':
+			if len(word) == 0 {
+				return "", fmt.Errorf("separators must appear between words")
+			}
+			words = append(words, string(word))
+			word = nil
+		default:
+			return "", fmt.Errorf("unsupported character %q", r)
+		}
+	}
+	if len(word) == 0 {
+		return "", fmt.Errorf("separators must appear between words")
+	}
+
+	words = append(words, string(word))
+
+	if !unicode.IsLetter([]rune(words[0])[0]) {
+		return "", fmt.Errorf("the first word must start with a letter")
+	}
+
+	for i, value := range words {
+		runes := []rune(value)
+		runes[0] = unicode.ToUpper(runes[0])
+		words[i] = string(runes)
+	}
+
+	method := "With" + strings.Join(words, "")
+
+	if !gotoken.IsIdentifier(method) || !ast.IsExported(method) {
+		return "", fmt.Errorf("cannot generate exported method %q", method)
+	}
+
+	return method, nil
+}
+
+func slotNames(slots []slotMethod) string {
+	if len(slots) == 0 {
+		return "none"
+	}
+
+	names := make([]string, len(slots))
+
+	for i, slot := range slots {
+		names[i] = slot.name
+	}
+
+	return strings.Join(names, ", ")
+}
+
+func slotArguments(slots []slotMethod) string {
+	if len(slots) == 0 {
+		return ""
+	}
+
+	arguments := make([]string, len(slots))
+
+	for i, slot := range slots {
+		arguments[i] = strconv.Quote(slot.name)
+	}
+
+	return ", " + strings.Join(arguments, ", ")
 }
 
 func (n *TemplateNode) parse(p *parser) error {
@@ -1446,7 +1621,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 
 	vName := tw.GetVarName()
 
-	fnLine := vName + " := goht.TemplateFunc(func(ctx context.Context, __w io.Writer, _ ...goht.SlottedTemplate) (__err error) {\n"
+	fnLine := vName + " := goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {\n"
 
 	if _, err := tw.WriteIndent(fnLine); err != nil {
 		return err
@@ -1496,7 +1671,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 	} else {
 		tw.Add(n.origin, r)
 	}
-	if _, err := tw.Write(".Render(goht.PushChildren(ctx, " + vName + "), __buf, __sts...); __err != nil { return }\n"); err != nil {
+	if _, err := tw.Write(".Render(goht.PushChildren(ctx, " + vName + "), __buf); __err != nil { return }\n"); err != nil {
 		return err
 	}
 
@@ -1530,7 +1705,7 @@ func NewChildrenCommandNode(t token) *ChildrenCommandNode {
 }
 
 func (n *ChildrenCommandNode) Source(tw *templateWriter) error {
-	_, err := tw.WriteIndent("if __err = __children.Render(ctx, __buf, __sts...); __err != nil { return }\n")
+	_, err := tw.WriteIndent("if __err = __children.Render(ctx, __buf); __err != nil { return }\n")
 	return err
 }
 
@@ -1553,23 +1728,13 @@ func NewSlotCommandNode(t token, indent int, keepNewlines bool) *SlotCommandNode
 }
 
 func (n *SlotCommandNode) Source(tw *templateWriter) error {
-	if _, err := tw.WriteIndent("if __st := goht.GetSlottedTemplate(__sts, " + strconv.Quote(n.slot) + "); __st != nil {\n"); err != nil {
+	if _, err := tw.WriteIndent("if __slot := goht.GetSlot(ctx, " + strconv.Quote(n.slot) + "); __slot != nil {\n"); err != nil {
 		return err
 	}
 
 	itw := tw.Indent(1)
 
-	// lines := []string{
-	// 			"__sts := append(__st.SlottedTemplates(), __sts...)\n",
-	// 			"_ = __sts\n",
-	// }
-	// for _, line := range lines {
-	// 	if _, err := itw.WriteIndent(line); err != nil {
-	// 		return err
-	// 	}
-	// }
-
-	if _, err := itw.WriteIndent("if __err = __st.Render(ctx, __buf, append(__st.SlottedTemplates(), __sts...)...); __err != nil { return }\n"); err != nil {
+	if _, err := itw.WriteIndent("if __err = __slot.Render(ctx, __buf); __err != nil { return }\n"); err != nil {
 		return err
 	}
 

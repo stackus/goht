@@ -5,6 +5,7 @@ import (
 	"go/format"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -49,6 +50,9 @@ func TestTemplate_Generate(t *testing.T) {
 		},
 		"render": {
 			templateFile: "rendering",
+		},
+		"typed slots": {
+			templateFile: "typed_slots",
 		},
 	}
 	for name, tt := range tests {
@@ -95,6 +99,35 @@ func TestTemplate_Generate(t *testing.T) {
 			diffs := dmp.DiffMain(string(want), string(got), true)
 			if len(diffs) > 1 {
 				t.Errorf("diff:\n%s", dmp.DiffPrettyText(diffs))
+			}
+		})
+	}
+}
+
+func TestTemplate_GenerateSlotMethodErrors(t *testing.T) {
+	tests := map[string]struct {
+		source string
+		want   string
+	}{
+		"invalid slot name": {
+			source: "package testdata\n@slim Invalid() {\n\t=@slot main/content\n}\n",
+			want:   `invalid slot name "main/content"`,
+		},
+		"normalized method collision": {
+			source: "package testdata\n@slim Collision() {\n\t=@slot main-content\n\t=@slot main_content\n}\n",
+			want:   `slot name "main_content" conflicts with "main-content": both generate WithMainContent`,
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			tpl, err := ParseString(tt.source)
+			if err != nil {
+				t.Fatalf("ParseString() error = %v", err)
+			}
+			var output bytes.Buffer
+			err = tpl.Generate(&output)
+			if err == nil || !strings.Contains(err.Error(), tt.want) {
+				t.Fatalf("Generate() error = %v, want containing %q", err, tt.want)
 			}
 		})
 	}

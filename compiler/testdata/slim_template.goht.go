@@ -7,8 +7,14 @@ import "context"
 import "io"
 import "github.com/stackus/goht"
 
-func SlimTemplate() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type SlimTemplateTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimTemplate returns a new instance of SlimTemplateTemplate.
+// Slots: none.
+func SlimTemplate() *SlimTemplateTemplate {
+	return &SlimTemplateTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -51,5 +57,12 @@ func SlimTemplate() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	})}
+}
+
+// Slot sets a named slot for SlimTemplateTemplate and returns a new instance.
+func (t *SlimTemplateTemplate) Slot(name string, templates ...goht.Template) *SlimTemplateTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }

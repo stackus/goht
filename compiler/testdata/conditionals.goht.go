@@ -7,8 +7,14 @@ import "context"
 import "io"
 import "github.com/stackus/goht"
 
-func ConditionalsTest(v bool) goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type ConditionalsTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// ConditionalsTest returns a new instance of ConditionalsTestTemplate.
+// Slots: none.
+func ConditionalsTest(v bool) *ConditionalsTestTemplate {
+	return &ConditionalsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -32,5 +38,12 @@ func ConditionalsTest(v bool) goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	})}
+}
+
+// Slot sets a named slot for ConditionalsTestTemplate and returns a new instance.
+func (t *ConditionalsTestTemplate) Slot(name string, templates ...goht.Template) *ConditionalsTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }

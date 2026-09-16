@@ -9,8 +9,14 @@ import "github.com/stackus/goht"
 
 var foo = "bar"
 
-func InterpolationTest() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type InterpolationTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// InterpolationTest returns a new instance of InterpolationTestTemplate.
+// Slots: none.
+func InterpolationTest() *InterpolationTestTemplate {
+	return &InterpolationTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -36,5 +42,12 @@ func InterpolationTest() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	})}
+}
+
+// Slot sets a named slot for InterpolationTestTemplate and returns a new instance.
+func (t *InterpolationTestTemplate) Slot(name string, templates ...goht.Template) *InterpolationTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }

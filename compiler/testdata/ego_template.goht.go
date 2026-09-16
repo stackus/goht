@@ -7,8 +7,14 @@ import "context"
 import "io"
 import "github.com/stackus/goht"
 
-func EgoTemplate() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type EgoTemplateTemplate struct {
+	goht.SlotTemplate
+}
+
+// EgoTemplate returns a new instance of EgoTemplateTemplate.
+// Slots: none.
+func EgoTemplate() *EgoTemplateTemplate {
+	return &EgoTemplateTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -51,5 +57,12 @@ func EgoTemplate() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	})}
+}
+
+// Slot sets a named slot for EgoTemplateTemplate and returns a new instance.
+func (t *EgoTemplateTemplate) Slot(name string, templates ...goht.Template) *EgoTemplateTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }

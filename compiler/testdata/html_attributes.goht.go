@@ -7,8 +7,14 @@ import "context"
 import "io"
 import "github.com/stackus/goht"
 
-func HtmlAttributesTest() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type HtmlAttributesTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// HtmlAttributesTest returns a new instance of HtmlAttributesTestTemplate.
+// Slots: none.
+func HtmlAttributesTest() *HtmlAttributesTestTemplate {
+	return &HtmlAttributesTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -34,5 +40,12 @@ func HtmlAttributesTest() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	})}
+}
+
+// Slot sets a named slot for HtmlAttributesTestTemplate and returns a new instance.
+func (t *HtmlAttributesTestTemplate) Slot(name string, templates ...goht.Template) *HtmlAttributesTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }

@@ -1,0 +1,24 @@
+package testdata
+
+@slim TypedNoSlots() {
+	p no slots
+}
+
+@slim TypedOneSlot() {
+	=@slot header
+}
+
+@slim TypedMultipleSlots() {
+	=@slot main-content
+	=@slot sidebar_2
+}
+
+@slim TypedFallbackSlot() {
+	=@slot footer
+		p fallback
+}
+
+@slim TypedDuplicateSlot() {
+	=@slot content
+	=@slot content
+}

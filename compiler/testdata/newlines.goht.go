@@ -7,8 +7,14 @@ import "context"
 import "io"
 import "github.com/stackus/goht"
 
-func NewlinesTest() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type NewlinesTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// NewlinesTest returns a new instance of NewlinesTestTemplate.
+// Slots: none.
+func NewlinesTest() *NewlinesTestTemplate {
+	return &NewlinesTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -24,5 +30,12 @@ func NewlinesTest() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	})}
+}
+
+// Slot sets a named slot for NewlinesTestTemplate and returns a new instance.
+func (t *NewlinesTestTemplate) Slot(name string, templates ...goht.Template) *NewlinesTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }

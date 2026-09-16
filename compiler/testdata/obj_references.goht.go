@@ -17,8 +17,14 @@ func (ObjRef) ObjectClass() string {
 	return "objref"
 }
 
-func ObjectReferencesTest() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type ObjectReferencesTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// ObjectReferencesTest returns a new instance of ObjectReferencesTestTemplate.
+// Slots: none.
+func ObjectReferencesTest() *ObjectReferencesTestTemplate {
+	return &ObjectReferencesTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -67,5 +73,12 @@ func ObjectReferencesTest() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	})}
+}
+
+// Slot sets a named slot for ObjectReferencesTestTemplate and returns a new instance.
+func (t *ObjectReferencesTestTemplate) Slot(name string, templates ...goht.Template) *ObjectReferencesTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }

@@ -7,8 +7,14 @@ import "context"
 import "io"
 import "github.com/stackus/goht"
 
-func ElementsTest() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type ElementsTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// ElementsTest returns a new instance of ElementsTestTemplate.
+// Slots: none.
+func ElementsTest() *ElementsTestTemplate {
+	return &ElementsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -24,5 +30,12 @@ func ElementsTest() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	})}
+}
+
+// Slot sets a named slot for ElementsTestTemplate and returns a new instance.
+func (t *ElementsTestTemplate) Slot(name string, templates ...goht.Template) *ElementsTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }

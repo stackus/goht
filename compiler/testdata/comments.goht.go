@@ -7,8 +7,14 @@ import "context"
 import "io"
 import "github.com/stackus/goht"
 
-func CommentsTest() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type CommentsTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// CommentsTest returns a new instance of CommentsTestTemplate.
+// Slots: none.
+func CommentsTest() *CommentsTestTemplate {
+	return &CommentsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -24,5 +30,12 @@ func CommentsTest() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	})}
+}
+
+// Slot sets a named slot for CommentsTestTemplate and returns a new instance.
+func (t *CommentsTestTemplate) Slot(name string, templates ...goht.Template) *CommentsTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }

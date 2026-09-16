@@ -10,8 +10,14 @@ import (
 	"fmt"
 )
 
-func ImportsTest() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type ImportsTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// ImportsTest returns a new instance of ImportsTestTemplate.
+// Slots: none.
+func ImportsTest() *ImportsTestTemplate {
+	return &ImportsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -38,5 +44,12 @@ func ImportsTest() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	})}
+}
+
+// Slot sets a named slot for ImportsTestTemplate and returns a new instance.
+func (t *ImportsTestTemplate) Slot(name string, templates ...goht.Template) *ImportsTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }
