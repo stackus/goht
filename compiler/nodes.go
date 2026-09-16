@@ -155,7 +155,7 @@ func (n *node) Tree(buf *bytes.Buffer, indent int) string {
 	return buf.String()
 }
 
-func (n *node) errorf(format string, args ...interface{}) error {
+func (n *node) errorf(format string, args ...any) error {
 	return PositionalError{
 		Line:   n.origin.line,
 		Column: n.origin.col,

@@ -84,9 +84,11 @@ func (l *lexer) peek() rune {
 // peekAhead returns the next length runes without consuming them.
 func (l *lexer) peekAhead(length int) string {
 	width := 0
-	s := ""
 	var err error
-	for i := 0; i < length; i++ {
+
+	var s strings.Builder
+
+	for range length {
 		var ch rune
 		var size int
 		ch, size, err = l.reader.ReadRune()
@@ -94,10 +96,11 @@ func (l *lexer) peekAhead(length int) string {
 			break
 		}
 		width += size
-		s += string(ch)
+		s.WriteString(string(ch))
 	}
+
 	_, _ = l.reader.Seek(int64(-width), io.SeekCurrent)
-	return s
+	return s.String()
 }
 
 // ignore discards the current captured string.
@@ -130,7 +133,7 @@ func (l *lexer) acceptUntil(stopRunes string) {
 
 // acceptAhead consumes the next length runes.
 func (l *lexer) acceptAhead(length int) {
-	for i := 0; i < length; i++ {
+	for range length {
 		l.next()
 	}
 }
@@ -160,7 +163,7 @@ func (l *lexer) skipUntil(stopRunes string) {
 
 // skipAhead consumes the next length runes and discards them.
 func (l *lexer) skipAhead(length int) {
-	for i := 0; i < length; i++ {
+	for range length {
 		l.next()
 	}
 	l.s = l.s[:len(l.s)-length]
