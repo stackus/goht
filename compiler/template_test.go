@@ -99,3 +99,55 @@ func TestTemplate_Generate(t *testing.T) {
 		})
 	}
 }
+
+// TestSourceMapRoundTrip compiles a small template in each of GoHT's three
+// syntaxes and confirms that every entry the SourceMap records round-trips
+// through both SourcePositionFromTarget and TargetPositionFromSource, and
+// that codegen still records a non-trivial number of mappings.
+//
+// The fixtures use script lines (silent "- "/"= ", or EGO's "<% %>"/"<%= %>")
+// rather than plain tags/attributes/text, because only source spans that can
+// end up as literal Go code in the generated file are ever added to the
+// SourceMap (see the tw.Add call sites in nodes.go) — static markup and
+// plain text are written as inert string literals that can't produce a Go
+// compiler error, so they're intentionally never mapped.
+func TestSourceMapRoundTrip(t *testing.T) {
+	tests := map[string]struct{ src string }{
+		"haml": {src: "package testdata\n\n@haml HamlTest() {\n\t- x := 1\n\t= x\n}\n"},
+		"slim": {src: "package testdata\n\n@slim SlimTest() {\n\t- x := 1\n\t= x\n}\n"},
+		"ego":  {src: "package testdata\n\n@ego EgoTest() {\n\t<% x := 1 %>\n\t<%= x %>\n}\n"},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			tpl, err := ParseString(tt.src)
+			if err != nil {
+				t.Fatalf("ParseString() error = %v", err)
+			}
+
+			var buf bytes.Buffer
+			sm, err := tpl.Compose(&buf)
+			if err != nil {
+				t.Fatalf("Compose() error = %v", err)
+			}
+
+			const minEntries = 5
+			entries := 0
+			for srcLine, cols := range sm.SourceLinesToTarget {
+				for srcCol, target := range cols {
+					entries++
+					gotSrc, ok := sm.SourcePositionFromTarget(target.Line, target.Col)
+					if !ok {
+						t.Fatalf("SourcePositionFromTarget(%d,%d) not found (from src %d,%d)", target.Line, target.Col, srcLine, srcCol)
+					}
+					if gotSrc != (Position{Line: srcLine, Col: srcCol}) {
+						t.Errorf("round trip for src(%d,%d) via tgt(%d,%d) = %#v, want {Line:%d Col:%d}",
+							srcLine, srcCol, target.Line, target.Col, gotSrc, srcLine, srcCol)
+					}
+				}
+			}
+			if entries < minEntries {
+				t.Fatalf("only %d source map entries recorded, want at least %d; codegen may have stopped calling SourceMap.Add\n%s", entries, minEntries, sm.Dump())
+			}
+		})
+	}
+}

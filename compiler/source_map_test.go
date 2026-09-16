@@ -158,6 +158,29 @@ func TestSourceMap_SourcePositionFromTarget(t *testing.T) {
 	}
 }
 
+func TestSourceMap_Dump(t *testing.T) {
+	sm := &SourceMap{
+		SourceLinesToTarget: map[int]map[int]Position{
+			1: {
+				9:  {Line: 4, Col: 2},
+				10: {Line: 4, Col: 3},
+			},
+			0: {
+				1: {Line: 0, Col: 1},
+				0: {Line: 0, Col: 0},
+			},
+		},
+		TargetLinesToSource: map[int]map[int]Position{},
+	}
+	want := "src(0,0) -> tgt(0,0)\n" +
+		"src(0,1) -> tgt(0,1)\n" +
+		"src(1,9) -> tgt(4,2)\n" +
+		"src(1,10) -> tgt(4,3)\n"
+	if got := sm.Dump(); got != want {
+		t.Errorf("expected dump to be %q, got %q", want, got)
+	}
+}
+
 func TestSourceMap_TargetPositionFromSource(t *testing.T) {
 	sm := &SourceMap{
 		SourceLinesToTarget: map[int]map[int]Position{

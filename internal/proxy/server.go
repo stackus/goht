@@ -1185,14 +1185,16 @@ func (s *Server) parseTemplate(ctx context.Context, uri protocol.DocumentURI, co
 			Message:  err.Error(),
 		}
 		if posErr, ok := errors.AsType[compiler.PositionalError](err); ok {
+			// posErr.Line/Column are one-based (straight from the lexer),
+			// but LSP positions are zero-based.
 			diagnostic.Range = protocol.Range{
 				Start: protocol.Position{
-					Line:      uint32(posErr.Line),
-					Character: uint32(posErr.Column),
+					Line:      uint32(posErr.Line - 1),
+					Character: uint32(posErr.Column - 1),
 				},
 				End: protocol.Position{
-					Line:      uint32(posErr.Line),
-					Character: uint32(posErr.Column),
+					Line:      uint32(posErr.Line - 1),
+					Character: uint32(posErr.Column - 1),
 				},
 			}
 		}

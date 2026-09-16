@@ -1,6 +1,8 @@
 package compiler
 
 import (
+	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -73,4 +75,28 @@ func (sm *SourceMap) TargetPositionFromSource(line, col int) (Position, bool) {
 		return Position{}, false
 	}
 	return sm.SourceLinesToTarget[line][col], true
+}
+
+// Dump returns a human-readable, sorted listing of every source->target
+// mapping, for debugging via t.Log or manual inspection. It is not used by
+// any production code path.
+func (sm *SourceMap) Dump() string {
+	var b strings.Builder
+	lines := make([]int, 0, len(sm.SourceLinesToTarget))
+	for l := range sm.SourceLinesToTarget {
+		lines = append(lines, l)
+	}
+	sort.Ints(lines)
+	for _, l := range lines {
+		cols := make([]int, 0, len(sm.SourceLinesToTarget[l]))
+		for c := range sm.SourceLinesToTarget[l] {
+			cols = append(cols, c)
+		}
+		sort.Ints(cols)
+		for _, c := range cols {
+			t := sm.SourceLinesToTarget[l][c]
+			fmt.Fprintf(&b, "src(%d,%d) -> tgt(%d,%d)\n", l, c, t.Line, t.Col)
+		}
+	}
+	return b.String()
 }

@@ -15,6 +15,8 @@ const (
 	validGoht      = "package main\n\n@goht Test() {\n\t%p hello\n}\n"
 	otherValidGoht = "package main\n\n@goht Test() {\n\t%p goodbye\n}\n"
 	invalidGoht    = "@goht Test() {\n"
+
+	invalidGohtMissingComma = "package example\n\n@slim Example() {\n\tp{class:\"example\" id:\"example\"} Example\n}\n"
 )
 
 type recordingServer struct {
@@ -490,6 +492,29 @@ func TestServerDidOpenInvalidGohtSkipsGeneratedGoDocument(t *testing.T) {
 	}
 	if proxy.goSrcs[string(testGohtURI)] != "" {
 		t.Fatalf("generated Go source stored for invalid document")
+	}
+}
+
+func TestServerDidOpenInvalidSlimMissingCommaReportsZeroBasedRange(t *testing.T) {
+	server := &recordingServer{}
+	client := &recordingClient{}
+	proxy := newTestServer(server, client)
+
+	if err := proxy.DidOpen(context.Background(), didOpenParams(invalidGohtMissingComma)); err != nil {
+		t.Fatalf("DidOpen() error = %v", err)
+	}
+
+	if len(client.diagnostics) == 0 {
+		t.Fatalf("diagnostics were not published")
+	}
+	diags := client.diagnostics[len(client.diagnostics)-1].Diagnostics
+	if len(diags) == 0 {
+		t.Fatalf("no diagnostics in last publish")
+	}
+	// 0-based position of the 'i' in 'id' on the tag line (1-based line 4, column 20).
+	want := rangeOf(3, 19, 3, 19)
+	if got := diags[0].Range; got != want {
+		t.Fatalf("diagnostic range = %#v, want %#v (message: %s)", got, want, diags[0].Message)
 	}
 }
 
