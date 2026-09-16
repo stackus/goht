@@ -62,6 +62,20 @@ var myDynamicValue = "foo"
 	} This is a paragraph.
 }
 
+@haml HamlMultilineHtmlStyleAttrs() {
+	%p(
+		class=#{myDynamicValue}
+		id="bar"
+	) This is a paragraph.
+}
+
+@slim SlimMultilineHtmlStyleAttrs() {
+	p(
+		class=#{myDynamicValue}
+		id="bar"
+	) This is a paragraph.
+}
+
 // You may include as much whitespace as you wish between the attribute,
 // operator, value, and attribute separator. The following are all valid.
 
@@ -77,6 +91,9 @@ var myDynamicValue = "foo"
 	%p{class:#{myDynamicValue},id:"bar"} This is a paragraph.
 	%p{class: #{myDynamicValue},id: "bar"} This is a paragraph.
 	%p{class :#{myDynamicValue}, id   : "bar"} This is a paragraph.
+	%p(class = #{myDynamicValue} id  =  "bar") This is a paragraph.
+	%p(class=#{myDynamicValue}  id="bar") This is a paragraph.
+	%p(  class =#{myDynamicValue} id= "bar"  ) This is a paragraph.
 }
 
 @slim SlimWhitespaceAttrs() {
@@ -84,6 +101,9 @@ var myDynamicValue = "foo"
 	p{class:#{myDynamicValue},id:"bar"} This is a paragraph.
 	p{class: #{myDynamicValue},id: "bar"} This is a paragraph.
 	p{class :#{myDynamicValue}, id   : "bar"} This is a paragraph.
+	p(class = #{myDynamicValue} id  =  "bar") This is a paragraph.
+	p(class=#{myDynamicValue}  id="bar") This is a paragraph.
+	p(  class =#{myDynamicValue} id= "bar"  ) This is
 }
 
 // The dynamic attribute values may also include formatting rules just like
