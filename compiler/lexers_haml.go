@@ -703,7 +703,7 @@ func lexHamlFilterStart(l *lexer) lexFn {
 	case "preserve":
 		return lexHamlFilterLineStart(l.indent+1, tPreserveText)
 	case "go":
-		return lexSlimFilterLineStart(l.indent+1, tGoCode)
+		return lexHamlFilterLineStart(l.indent+1, tGoCode)
 	default:
 		return l.errorf("unsupported filter: %s", filter)
 	}

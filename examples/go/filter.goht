@@ -1,0 +1,26 @@
+package example
+
+// GoHT provide support for a "go" filter which can be used to add multiline Go
+// code into Haml and Slim templates. The code will be included in the generated
+// file as is.
+
+@slim SlimGoFilter() {
+	:go
+		// normal Go code can be used here
+		name := ""
+		if name == "" {
+			name = "Slim Go Filter"
+		}
+	p= name
+}
+
+@haml HamlGoFilter() {
+	:go
+		// normal Go code can be used here
+		name := ""
+		if name == "" {
+			name = "Haml Go Filter"
+		}
+	%p= name
+}
+
