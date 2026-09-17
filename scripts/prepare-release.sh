@@ -47,6 +47,10 @@ fi
 printf 'VERSION=%s\n' "$version" > .version
 go run ./cmd/goht generate --force
 
+if ! go test -v -vet=all ./...; then
+	fail 'tests failed'
+fi
+
 git add -A
 if git diff --cached --quiet; then
 	fail 'version update and regeneration produced no changes'
