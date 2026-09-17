@@ -254,6 +254,8 @@ func lexEgoCommandStart(l *lexer) lexFn {
 		return lexEgoSlotStart
 	case "ifslot":
 		return lexEgoSlotDirectiveStart(tIfSlotCommand, "ifslot")
+	case "noslot":
+		return lexEgoSlotDirectiveStart(tNoSlotCommand, "noslot")
 	case "eachslot":
 		return lexEgoSlotDirectiveStart(tEachSlotCommand, "eachslot")
 	default:

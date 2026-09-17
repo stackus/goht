@@ -381,7 +381,7 @@ func lexSlimCommandCode(l *lexer) lexFn {
 			return l.errorf("slot name %q is reserved", l.current())
 		}
 		l.emit(tSlotCommand)
-	case "ifslot", "eachslot":
+	case "ifslot", "noslot", "eachslot":
 		command := l.current()
 		l.acceptRun("() \t")
 		l.ignore()
@@ -391,6 +391,8 @@ func lexSlimCommandCode(l *lexer) lexFn {
 		}
 		if command == "ifslot" {
 			l.emit(tIfSlotCommand)
+		} else if command == "noslot" {
+			l.emit(tNoSlotCommand)
 		} else {
 			l.emit(tEachSlotCommand)
 		}

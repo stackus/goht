@@ -37,6 +37,7 @@ const (
 	nChildrenCommand
 	nSlotCommand
 	nIfSlotCommand
+	nNoSlotCommand
 	nEachSlotCommand
 	nFilter
 )
@@ -79,6 +80,8 @@ func (n nodeType) String() string {
 		return "SlotCommand"
 	case nIfSlotCommand:
 		return "IfSlotCommand"
+	case nNoSlotCommand:
+		return "NoSlotCommand"
 	case nEachSlotCommand:
 		return "EachSlotCommand"
 	case nFilter:
@@ -220,6 +223,8 @@ func (n *node) handleNode(p *parser, indent int) error {
 		p.addNode(NewSlotCommandNode(p.next(), indent, n.keepNewlines))
 	case tIfSlotCommand:
 		p.addNode(NewIfSlotCommandNode(p.next(), indent, n.keepNewlines))
+	case tNoSlotCommand:
+		p.addNode(NewNoSlotCommandNode(p.next(), indent, n.keepNewlines))
 	case tEachSlotCommand:
 		p.addNode(NewEachSlotCommandNode(p.next(), indent, n.keepNewlines))
 	case tFilterStart:
@@ -521,6 +526,8 @@ func (n *TemplateNode) slotMethods() ([]slotMethod, error) {
 			}
 			slotName, origin = current.slot, &current.node
 		case *IfSlotCommandNode:
+			slotName, origin = current.slot, &current.node
+		case *NoSlotCommandNode:
 			slotName, origin = current.slot, &current.node
 		case *EachSlotCommandNode:
 			slotName, origin = current.slot, &current.node
@@ -1852,6 +1859,53 @@ func (n *IfSlotCommandNode) Source(tw *templateWriter) error {
 }
 
 func (n *IfSlotCommandNode) parse(p *parser) error {
+	switch p.peek().Type() {
+	case tNewLine:
+		p.next()
+		return nil
+	default:
+		return n.handleNode(p, n.indent+1)
+	}
+}
+
+// NoSlotCommandNode renders its body only when its named slot was not assigned.
+type NoSlotCommandNode struct {
+	node
+	slot string
+}
+
+func NewNoSlotCommandNode(t token, indent int, keepNewlines bool) *NoSlotCommandNode {
+	n := &NoSlotCommandNode{node: newNode(nNoSlotCommand, indent, t), slot: t.lit}
+	if keepNewlines {
+		n.keepNewlines = true
+	}
+	return n
+}
+
+func (n *NoSlotCommandNode) Source(tw *templateWriter) error {
+	if err := validateSlotReference(n.slot); err != nil {
+		return n.errorf("invalid slot name %q: %w", n.slot, err)
+	}
+	if _, err := tw.WriteIndent("if _, __hasSlot := __slots.Has(" + strconv.Quote(n.slot) + "); !__hasSlot {\n"); err != nil {
+		return err
+	}
+	itw := tw.Indent(1)
+	for _, child := range n.children {
+		if err := child.Source(itw); err != nil {
+			return err
+		}
+	}
+	if _, err := itw.Close(); err != nil {
+		return err
+	}
+	if next, ok := n.nextSibling.(*SilentScriptNode); ok && strings.TrimSpace(next.code) == "}" {
+		return nil
+	}
+	_, err := tw.WriteIndent("}\n")
+	return err
+}
+
+func (n *NoSlotCommandNode) parse(p *parser) error {
 	switch p.peek().Type() {
 	case tNewLine:
 		p.next()

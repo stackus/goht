@@ -1,4 +1,5 @@
 # GoHT (Go HTML Templates)
+
 A [Haml](http://haml.info/), [Slim](https://slim-template.github.io/), and EGO template engine and file generation tool for Go.
 
 ![GoHT](docs/goht_header_html.png)
@@ -8,6 +9,7 @@ A [Haml](http://haml.info/), [Slim](https://slim-template.github.io/), and EGO t
 [![Coverage Status](https://coveralls.io/repos/github/stackus/goht/badge.svg?branch=main)](https://coveralls.io/github/stackus/goht?branch=main)
 
 ## Table of Contents
+
 - [Features](#features)
 - [Quick Start](#quick-start)
 - Template Engines
@@ -44,6 +46,7 @@ A [Haml](http://haml.info/), [Slim](https://slim-template.github.io/), and EGO t
 - [License](#license)
 
 ## Features
+
 - [Haml](http://haml.info/) syntax support with GoHT-specific differences documented below
 - [Slim](https://slim-lang.com/) syntax support with GoHT-specific differences documented below
 - EGO support ([EJS](https://ejs.co/) or [ERB](https://docs.ruby-lang.org/en/2.3.0/ERB.html) like syntax)
@@ -54,7 +57,9 @@ A [Haml](http://haml.info/), [Slim](https://slim-template.github.io/), and EGO t
 - Named slots for reusable template composition
 
 ## Quick Start
+
 First create a GoHT file, a file which mixes Go with Haml, Slim, or EGO templates using a `.goht` extension:
+
 ```haml
 package main
 
@@ -86,11 +91,13 @@ var siteTitle = "GoHT"
 ```
 
 Your next step will be to process the GoHT file to parse the GoHT code and generate the Go code using the GoHT [CLI](#goht-cli) tool:
+
 ```sh
 goht generate
 ```
 
 Use the generated Go code to render HTML in your application:
+
 ```go
 package main
 
@@ -111,7 +118,9 @@ func main() {
   }
 }
 ```
+
 Which would serve the following HTML:
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -127,6 +136,7 @@ Which would serve the following HTML:
 ```
 
 ## Supported Haml Syntax & Features
+
 - [x] Doctypes (`!!!`)
 - [x] Tags (`%tag`)
 - [x] Attributes styles (`{name: value}`, `(name="value")`) [(more info)](#attributes)
@@ -143,9 +153,11 @@ Which would serve the following HTML:
 - [x] Whitespace Removal (`%tag>`, `%tag<`) [(more info)](#whitespace-removal)
 
 ### Unsupported Haml Features
+
 - [ ] Probably something I've missed, please raise an issue if you find something missing.
 
 ## Supported Slim Syntax & Features
+
 - [x] Doctypes (`doctype`)
 - [x] Tags (`tag`)
 - [x] Attributes styles (`{name: value}`, `(name="value")`) [(more info)](#attributes)
@@ -170,6 +182,7 @@ Which would serve the following HTML:
 The basic EGO syntax starts tags with `<%` and ends them with `%>`.
 
 The opening tags that are supported are:
+
 - `<%` - Start of a Go code block
   - Examples: `<% for k, v := range list { %>`, `<% foo := "bar" %>`, `<% if foo == "bar" { %>`
 - `<%-` - Start of a Go code block with whitespace stripping
@@ -184,6 +197,7 @@ The opening tags that are supported are:
   - Examples: `<%# This is a comment %>`
 
 The closing tags that are supported are:
+
 - `%>` - Normal closing tag
   - Examples: `<% foo := "bar" %>`, `<%= foo %>`
 - `-%>` - Closing tag with whitespace stripping
@@ -194,65 +208,92 @@ The closing tags that are supported are:
 ## GoHT CLI
 
 ### Installation
+
 ```sh
 go install github.com/stackus/goht/cmd/goht@latest
 ```
 
 ### Usage
+
 Use `generate` to generate Go code from GoHT template files,
 that are new or newer than the generated Go files, in the current directory and subdirectories:
+
 ```sh
 goht generate
 ```
+
 Use the `--path` flag to specify a directory to generate code for:
+
 ```sh
 goht generate --path=./templates
 ```
+
 You can also pass a single `.goht` file:
+
 ```sh
 goht generate --path=./templates/example.goht
 ```
+
 In all examples, the generated code will be placed in the same directory as the template files.
 
 Use the `--force` to generate code for all GoHT template files, even if they are older than the generated Go files:
+
 ```sh
 goht generate --force
 ```
+
 Use `--watch` to keep scanning for changes and regenerate code:
+
 ```sh
 goht generate --watch
 ```
+
 By default, `generate` skips `vendor` and `node_modules` directories. You can change that list with `--skip-dirs`:
+
 ```sh
 goht generate --skip-dirs=vendor,node_modules,tmp
 ```
+
 Generation runs concurrently using the number of CPUs by default. Use `--max-workers` to set a specific worker count:
+
 ```sh
 goht generate --max-workers=4
 ```
-When a generated `.goht.go` file no longer has a matching `.goht` file, `generate` deletes the orphaned file by default. Use `--keep` to preserve orphaned generated files:
+
+When a generated `.goht.go` file no longer has a matching `.goht` file, `generate` deletes the orphaned file by default. Use `--keep` to
+preserve orphaned generated files:
+
 ```sh
 goht generate --keep
 ```
+
 See more options with `goht help generate` or `goht generate -h`.
 
 ## IDE Support
 
-The editor extensions provide syntax support, and the GoHT CLI includes an LSP server that can be wired into editors that support the Language Server Protocol.
+The editor extensions provide syntax support, and the GoHT CLI includes an LSP server that can be wired into editors that support the
+Language Server Protocol.
 
 ![vscode_ide_example.png](docs/vscode_ide_example.png)
-- VSCode [Extension](https://marketplace.visualstudio.com/items?itemName=stackus.goht-vscode) and code [repository](https://github.com/stackus/goht-vscode)
-- JetBrains (GoLand and others) [Plugin](https://plugins.jetbrains.com/plugin/23783-goht) and code [repository](https://github.com/stackus/goht-jetbrains)
+
+- VSCode [Extension](https://marketplace.visualstudio.com/items?itemName=stackus.goht-vscode) and
+  code [repository](https://github.com/stackus/goht-vscode)
+- JetBrains (GoLand and others) [Plugin](https://plugins.jetbrains.com/plugin/23783-goht) and
+  code [repository](https://github.com/stackus/goht-jetbrains)
 - [TextMate Bundle](bundle)
   - Offers only basic syntax highlighting and is a work in progress.
 
 ### LSP
+
 The GoHT CLI includes an LSP server that communicates over stdio and proxies Go requests through `gopls`.
 Install `gopls` and make sure it is available in `PATH` before starting the server:
+
 ```sh
 go install golang.org/x/tools/gopls@latest
 ```
+
 Start the server with:
+
 ```sh
 goht lsp
 ```
@@ -261,15 +302,17 @@ See `goht help lsp` for the current flag list.
 
 Contributions are welcome. Please see the [contributing guide](CONTRIBUTING.md) for more information.
 
-
 ## Library Installation
+
 When you are using GoHT you will typically be dealing with the generated Go code, and not the GoHT runtime directly.
 However, if you need to install the GoHT library, you can do so with:
+
 ```sh
 go get github.com/stackus/goht
 ```
 
 ## Using GoHT
+
 To start using GoHT, the first step is to create a GoHT file with one or more Haml, Slim, or EGO templates.
 If you need guidance, the section [The GoHT template](#the-goht-template) has all the information you need.
 
@@ -303,8 +346,10 @@ func main() {
   }
 }
 ```
+
 The above would render the `RemoveWhitespace` example from the [examples](/examples) directory in this repository,
 and would output the following:
+
 ```html
 <p>This text has no whitespace between it and the parent tag.</p>
 <p>
@@ -312,11 +357,14 @@ There is whitespace between this text and the parent tag.<p>This text has no whi
 There is also no whitespace between this tag and the sibling text above it.
 Finally, the tag has no whitespace between it and the outer tag.</p></p>
 ```
+
 The second parameter passed into the `Render` method can be anything that implements the `io.Writer` interface,
 such as a file or a buffer, or the `http.ResponseWriter` that you get from an HTTP handler.
 
 ### Using GoHT with HTTP handlers
+
 Using the GoHT templates is made straightforward.
+
 ```go
 package main
 
@@ -345,19 +393,24 @@ func main() {
 There are a number of examples showing various template features in the [examples](examples) directory.
 
 ### A big nod to Templ
-The way that you use GoHT is very similar to how you would use [Templ](https://templ.guide). This is no accident as I am a big fan of the work being done with that engine.
+
+The way that you use GoHT is very similar to how you would use [Templ](https://templ.guide). This is no accident as I am a big fan of the
+work being done with that engine.
 
 After getting Haml properly lexed and parsed, I did not want to reinvent the wheel and come up with a whole new rendering API.
 The API that Templ presents is nice and easy to use, so I decided to replicate it in GoHT.
 
 ## The GoHT template
+
 GoHT templates are files with the extension `.goht` that when processed will produce a matching Go file with the extension `.goht.go`.
 
-In these files you are free to write any Go code that you wish, and then drop into a template using the `@haml`, `@slim`, or `@ego` directive.
+In these files you are free to write any Go code that you wish, and then drop into a template using the `@haml`, `@slim`, or `@ego`
+directive.
 
 > Note: The original `@goht` directive is still supported for Haml templating, but it is deprecated and will be removed in a future version.
 
 The following starts the creation of a SiteLayout template:
+
 ```haml
 @haml SiteLayout() {
 
@@ -371,6 +424,7 @@ or
 ```
 
 GoHT templates are closed like Go functions, with a closing brace `}`. So a complete but empty example is this:
+
 ```haml
 @haml SiteLayout() {
 }
@@ -385,17 +439,20 @@ or
 @ego SiteLayout() {
 }
 ```
+
 Inside the templates you must indent the contents of the template code at least once. This is a requirement of GoHT.
 
 ### Template directives
 
 GoHT recognizes these template directives:
+
 - `@haml` starts a Haml template.
 - `@slim` starts a Slim template.
 - `@ego` starts an EGO template.
 - `@goht` starts a Haml template for backward compatibility, but **is deprecated**.
 
 Within the templates you can use these directives:
+
 - `@render` renders another template and can pass nested content to it.
 - `@children` renders nested content passed by `@render`.
 - `@slot` renders named slot content, optionally with default content.
@@ -404,24 +461,30 @@ Within the templates you can use these directives:
 - `@attributes` expands dynamic attribute maps in Haml and Slim attributes.
 
 ## GoHT Syntax
+
 The Haml syntax is documented at the [Haml](http://haml.info/) website.
 Please see that site or the [Haml Reference](https://haml.info/docs/yardoc/file.REFERENCE.html) for more information.
 The Slim syntax is documented at the [Slim](https://slim-lang.com/) website.
 
-GoHT implements the whitespace-indented Haml and Slim syntax features listed above. It also supports the EGO syntax, which is more like normal HTML.
-So, if you are already familiar with Haml, Slim, or are familiar with either EJS (Embedded JavaScript) or ERB (Embedded Ruby) then you should be able to jump right in.
+GoHT implements the whitespace-indented Haml and Slim syntax features listed above. It also supports the EGO syntax, which is more like
+normal HTML.
+So, if you are already familiar with Haml, Slim, or are familiar with either EJS (Embedded JavaScript) or ERB (Embedded Ruby) then you
+should be able to jump right in.
+
 There are some minor differences that I will document in the next section.
 
 ### GoHT template differences
 
 Important differences are:
+
 - [Go package and imports](#go-package-and-imports): You can declare a package and imports for your templates.
 - [Multiple templates per file](#multiple-templates-per-file): You can declare as many templates in a file as you wish.
 - [Doctypes](#doctypes): Haml and Slim only. Limited doctype support.
 - [Indents](#indents): GoHT follows the rules of GoFMT for indents.
 - [Inlined code](#inlined-code): You won't be using Ruby here, you'll be using Go.
 - [Rendering code](#rendering-code): The catch is what is being outputted will need to be a string in all cases.
-- [Attributes](#attributes): Haml and Slim only. Supports Ruby 1.9 (`{...}`) and HTML (`(...)`) style attributes. Slim also supports inline paren-free HTML attributes.
+- [Attributes](#attributes): Haml and Slim only. Supports Ruby 1.9 (`{...}`) and HTML (`(...)`) style attributes. Slim also supports inline
+  paren-free HTML attributes.
 - [Classes](#classes): Haml and Slim only. Multiple sources of classes are supported.
 - [Object References](#object-references): Haml Only: Limited support for object references.
 - [Filters](#filters): Haml and Slim only. Partial list of supported filters.
@@ -431,14 +494,18 @@ In the above list, EGO doesn't have many of the limitations of the other two lan
 This is because anything outside the EGO tags can be or contain whatever you want.
 
 ### Go package and imports
+
 You can provide a package name at the top of your GoHT template file. If you do not provide one then `main` will be used.
 
-You may also import any packages that you need to use in your template. The imports you use and the ones brought in by GoHT will be combined and deduplicated.
+You may also import any packages that you need to use in your template. The imports you use and the ones brought in by GoHT will be combined
+and deduplicated.
 
 ### Multiple templates per file
+
 You can declare as many templates in a file as you wish.
 Each template must have a unique name in the module they will be output into.
 You may also mix all three template types in the same file.
+
 ```haml
 @slim SiteLayout() {
 }
@@ -452,6 +519,7 @@ You may also mix all three template types in the same file.
 
 The templates are converted into Go functions, so they must be valid Go function names.
 This also means that you can declare them with parameters and can use those parameters in the template.
+
 ```haml
 @haml SiteLayout(title string) {
   !!!
@@ -462,7 +530,9 @@ This also means that you can declare them with parameters and can use those para
       -# ... the rest of the template
 }
 ```
+
 The same applies to Slim templates:
+
 ```slim
 @slim SiteLayout(title string) {
   doctype
@@ -473,7 +543,9 @@ The same applies to Slim templates:
       / ... the rest of the template
 }
 ```
+
 And to the EGO templates:
+
 ```html
 @ego SiteLayout(title string) {
   <html lang="en">
@@ -488,7 +560,10 @@ And to the EGO templates:
 ```
 
 ### Doctypes
-Only the HTML 5 doctype is supported in the Haml and Slim templates. It renders as `<!DOCTYPE html>` and is written using `!!!` in Haml or `doctype` in Slim. Any text after the Slim `doctype` keyword is ignored by GoHT, so prefer plain `doctype`.
+
+Only the HTML 5 doctype is supported in the Haml and Slim templates. It renders as `<!DOCTYPE html>` and is written using `!!!` in Haml or
+`doctype` in Slim. Any text after the Slim `doctype` keyword is ignored by GoHT, so prefer plain `doctype`.
+
 ```haml
 @haml SiteLayout() {
   !!!
@@ -500,14 +575,17 @@ Only the HTML 5 doctype is supported in the Haml and Slim templates. It renders 
 ```
 
 ### Indents
+
 GoHT follows the rules of GoFMT for indents, meaning that you should use tabs for indentation.
 For the Haml and Slim templates, you must use tabs throughout the entire template.
 For the EGO templates, you may use spaces after the initial tab indent required for each line.
 
-> Note: Two spaces are being used in this README for display only. If you copy examples from this document into a `.goht` file, replace the displayed indentation with tabs for Haml and Slim templates.
+> Note: Two spaces are being used in this README for display only. If you copy examples from this document into a `.goht` file, replace the
+> displayed indentation with tabs for Haml and Slim templates.
 
 You must also indent the content of the Haml and Slim templates,
 and the closing brace should be at the same level as the template directive.
+
 ```haml
 @haml SiteLayout() {
   %html
@@ -519,6 +597,7 @@ and the closing brace should be at the same level as the template directive.
 ```
 
 Slim:
+
 ```slim
 @slim SiteLayout() {
   doctype
@@ -531,6 +610,7 @@ Slim:
 ```
 
 EGO:
+
 ```html
 @ego SiteLayout() {
   <html>
@@ -545,24 +625,30 @@ EGO:
 ```
 
 ### Inlined code
+
 You won't be using Ruby here, you'll be using Go.
 
 In most situations where we would need to include opening and closing braces in Go, we can omit them in GoHT.
 This makes it a lot closer to the Ruby-based Haml, and makes the templates easier to read.
 Go will still require that we have a full statement, no shorthands for boolean conditionals.
 So instead of this with Ruby:
+
 ```haml
   - if user
     %strong The user exists
 ```
+
 You would write this with Go (Go needs the `!= nil` check):
+
 ```haml
   - if user != nil
     %strong The user exists
 ```
+
 There is minimal processing performed on the Go code you put into the templates, so it needs to be valid Go code sans braces.
 
-> You may continue to use the braces in the Haml and Slim templates at the ends of your lines if you wish. Existing code with braces will continue to work without modifications.
+> You may continue to use the braces in the Haml and Slim templates at the ends of your lines if you wish. Existing code with braces will
+> continue to work without modifications.
 
 Long statements can be split across multiple lines by ending each line with either a backslash `\` or a comma `,`.
 The backslashes will be **stripped**, but the commas will be **kept**.
@@ -586,6 +672,7 @@ Take care that the code is valid Go code because the entire statement, with newl
 ```
 
 In the Haml and Slim templates you can use the `:go` filter to include larger blocks of Go code.
+
 ```haml
   :go
     props := SomeProps{
@@ -594,20 +681,25 @@ In the Haml and Slim templates you can use the `:go` filter to include larger bl
       ErrMessage: "use whatever you want"
       Attributes: make(map[string]string),
     }
-	  if user == nil {
-	  	props.Attributes["disabled"] = "disabled"
-	  } else {
-	  	props.Attributes["value"] = user.Name
-	  }
+    if user == nil {
+      props.Attributes["disabled"] = "disabled"
+    } else {
+      props.Attributes["value"] = user.Name
+    }
 ```
 
 ### Rendering code
-Like in Haml, you can output variables and the results of expressions. The `=` script syntax and text interpolation `#{}` are supported for Haml and Slim.
+
+Like in Haml, you can output variables and the results of expressions. The `=` script syntax and text interpolation `#{}` are supported for
+Haml and Slim.
+
 ```haml
   %strong= user.Name
   %strong The user's name is #{user.Name}
 ```
+
 Slim:
+
 ```slim
   strong= user.Name
   strong The user's name is #{user.Name}
@@ -615,24 +707,33 @@ Slim:
 
 The catch is what is being outputted will need to be a string in all cases.
 So instead of writing this to output an integer value:
+
 ```haml
   %strong= user.Age
 ```
+
 You would need to write this:
+
 ```haml
   %strong= fmt.Sprintf("%d", user.Age)
 ```
+
 Which, to be honest, can be a bit long to write, so a shortcut is provided:
+
 ```haml
   %strong=%d user.Age
 ```
+
 The interpolation syntax also supports the shortcut:
+
 ```haml
   %strong #{user.Name} is #{%d user.Age} years old.
 ```
+
 When formatting a value into a string `fmt.Sprintf` is used under the hood, so you can use any of the formatting options that it supports.
 
 ### Attributes
+
 **Haml and Slim Only**
 
 GoHT supports two styles of attributes: Ruby 1.9 style and HTML style.
@@ -641,45 +742,60 @@ GoHT supports two styles of attributes: Ruby 1.9 style and HTML style.
 
 This syntax is closest to the Go syntax, and is the most readable.
 Between the attribute name, operator, and value you can include or leave out as much whitespace as you like.
+
 ```haml
   %a{href: "https://github.com/stackus/goht", target: "_blank"} GoHT
 ```
+
 You can supply a value to an attribute using the text interpolation syntax.
+
 ```haml
   %a{href:#{url}} GoHT
 ```
+
 Attributes can be written over multiple lines, and the closing brace can be on a new line.
+
 ```haml
   %a{
     href: "...",
     target: "_blank",
   } GoHT
 ```
+
 Attributes which you want to render conditionally use the `?` operator instead of the `:` operator.
-For conditional attributes the attribute value is required to be an interpolated value which will be used as the condition in a Go `if` statement.
+For conditional attributes the attribute value is required to be an interpolated value which will be used as the condition in a Go `if`
+statement.
+
 ```haml
   %button{
     disabled ? #{disabled},
   } Click me
 ```
-> Note: The final comma is not required on the last attribute when they are spread across multiple lines like it would be in Go. Including it is fine and will not cause any issues.
+
+> Note: The final comma is not required on the last attribute when they are spread across multiple lines like it would be in Go. Including
+> it is fine and will not cause any issues.
 
 Certain characters in the attribute name will require that the name be escaped.
+
 ```haml
   %button{
     "@click": "onClick",
     ":disabled": "disabled",
   } Click me
 ```
-Keep in mind that attribute names cannot be replaced with an interpolated string; only the value can. Attribute names and rendered attribute values are HTML-escaped.
+
+Keep in mind that attribute names cannot be replaced with an interpolated string; only the value can. Attribute names and rendered attribute
+values are HTML-escaped.
 
 To support dynamic lists of attributes, you can use the `@attributes` directive.
 This directive takes a list of arguments which comes in two forms:
+
 - `map[string]string`
   - The key is the attribute name, the value is the attribute value.
   - The attribute will be rendered with its string value.
 - `map[string]bool`
   - The key is the attribute name, the value is the condition to render the attribute.
+
 ```haml
   %button{
     "@click": "onClick",
@@ -692,18 +808,25 @@ This directive takes a list of arguments which comes in two forms:
 
 HTML style attributes use `=` as the operator and parentheses as delimiters.
 Attributes are separated by whitespace; commas are not used.
+
 ```haml
   %a(href="https://github.com/stackus/goht" target="_blank") GoHT
 ```
+
 Dynamic values use the same `#{...}` interpolation syntax.
+
 ```haml
   %a(href=#{url}) GoHT
 ```
+
 Boolean attributes (no value) are written as just the attribute name.
+
 ```slim
   button(disabled) Click me
 ```
+
 Multiline HTML style attributes are supported within the parentheses.
+
 ```haml
   %a(
     href="..."
@@ -712,11 +835,13 @@ Multiline HTML style attributes are supported within the parentheses.
 ```
 
 ### Classes
+
 **Haml and Slim Only**
 
 GoHT supports the `.` operator for classes and also will accept the `class` attribute such as `class:"foo bar"`.
 However, if the class attribute is given an interpolated value, it will need to be a comma separated list of values.
 These values can be the following types:
+
 - `string`
   - `myClass` variable or `"foo bar"` string literal
 - `[]string`
@@ -725,20 +850,24 @@ These values can be the following types:
   - The key is the class name, the value is the condition to include the class.
 
 Examples:
+
 ```haml
   %button.foo.bar.baz Click me
   %button.fizz{class:"foo bar baz"} Click me
   %button.foo{class:#{myStrClasses, myBoolClasses}} Click me
 ```
+
 All sources of classes will be combined into a single class attribute in the order GoHT receives them.
 
 ### Object References
+
 **Haml Only**
 
 Haml supports using a Ruby object to supply the id and class for a tag using the `[]` object reference syntax.
 
 This is supported but is rather limited in GoHT.
 The type that you use within the brackets will be expected to implement at least one or both of the following interfaces:
+
 ```go
 type ObjectIDer interface {
   ObjectID() string
@@ -748,11 +877,14 @@ type ObjectClasser interface {
   ObjectClass() string
 }
 ```
+
 The result of these methods will be used
 to populate the id and class attributes similarly to how Haml would apply the Ruby object references.
-An object reference may also include a prefix, such as `[obj, prefixVar]`. When a prefix is present, GoHT includes it before the object class and id values when building the generated `class` and `id` attributes.
+An object reference may also include a prefix, such as `[obj, prefixVar]`. When a prefix is present, GoHT includes it before the object
+class and id values when building the generated `class` and `id` attributes.
 
 Example:
+
 ```
 type User struct {
   ID string
@@ -774,9 +906,12 @@ var user = &User{ID: "foo_bar"}
   %span[obj, prefixVar] User with id "people_foo_bar" and class "people_user"
 }
 ```
-In the above example, the `ObjectID` and `ObjectClass` values for `user` will be prefixed with `prefix` in the first tag, and `article` in the second tag, resulting in the id and class values shown in the comments.
+
+In the above example, the `ObjectID` and `ObjectClass` values for `user` will be prefixed with `prefix` in the first tag, and `article` in
+the second tag, resulting in the id and class values shown in the comments.
 
 ### Inlined Tags
+
 **Slim Only**
 
 GoHT supports inlining tags to keep templates as compact as possible.
@@ -789,7 +924,9 @@ GoHT supports inlining tags to keep templates as compact as possible.
 ```
 
 ### Filters
+
 The following filters are supported in Haml and Slim templates:
+
 - `:plain` (Haml Only)
 - `:escaped` (Haml Only)
 - `:preserve` (Haml Only)
@@ -798,6 +935,7 @@ The following filters are supported in Haml and Slim templates:
 - `:go`
 
 ### Whitespace Removal
+
 **Haml Only**
 
 GoHT supports the removal of whitespace between tags. This is done by adding a `>` or `<` to the end of the tag.
@@ -808,6 +946,7 @@ GoHT supports the removal of whitespace between tags. This is done by adding a `
 Both can be used together to remove whitespace both inside and outside a tag; the order they're in does not matter.
 
 ### Whitespace Addition
+
 **Slim Only**
 
 GoHT supports the addition of whitespace between tags. This is done by adding a `<` or `>` to the end of the tag.
@@ -816,25 +955,30 @@ GoHT supports the addition of whitespace between tags. This is done by adding a 
 - `>` will add whitespace after the tag
 
 ### Template nesting
+
 The biggest departure from Haml and Slim is how templates can be combined.
 When working Haml you could use `= render :partial_name` or `= haml :partial_name` to render a partial.
-
 
 The `render` and `haml` functions are not available in GoHT, instead you can use the `@render` directive.
 
 **Haml:**
+
 ```haml
 @haml HomePage() {
   = @render SiteLayout()
 }
 ```
+
 **Slim:**
+
 ```slim
 @slim HomePage() {
   = @render SiteLayout()
 }
 ```
+
 **EGO:**
+
 ```html
 @ego HomePage() {
   <%@render SiteLayout() %>
@@ -845,20 +989,25 @@ The above examples would render the `SiteLayout` template, and you would call it
 You can also call it and provide it with a block of content to render where the rendered template chooses.
 
 **Haml:**
+
 ```haml
 @haml HomePage() {
   = @render SiteLayout()
     %p This is the home page for GoHT.
 }
 ```
+
 **Slim:**
+
 ```slim
 @slim HomePage() {
   = @render SiteLayout()
     p This is the home page for GoHT.
 }
 ```
+
 **EGO:**
+
 ```html
 @ego HomePage() {
   <%@render SiteLayout() { %>
@@ -867,7 +1016,9 @@ You can also call it and provide it with a block of content to render where the 
 }
 ```
 
-Any content nested under the `@render` directive will be passed into the template that it can render where it wants using the `@children` directive.
+Any content nested under the `@render` directive will be passed into the template that it can render where it wants using the `@children`
+directive.
+
 ```haml
 @haml SiteLayout() {
   !!!
@@ -1004,35 +1155,60 @@ same header and their own content.
 #### Conditional and iterated slots
 
 Use `@ifslot <name>` to render a body only when a slot was assigned, including
-an explicitly empty assignment. Use the single iteration spelling
+an explicitly empty assignment. `@noslot <name>` is its opposite: it renders a
+body only when the slot was not assigned. Use the single iteration spelling
 `@eachslot <template> in <slot>` to bind each assigned template; render it
 explicitly with `@render <template>`.
 
+Using `@ifslot` allows you to conditionally add content only when a slot is filled.
+
+Normally, you can output content when a slot is not filled by nesting it under 
+`@slot` in the template. But if you also nest the `@slot` directive under `@ifslot`,
+then that default content will never render. Instead, use `@noslot` to provide
+content only when the slot is not filled.
+
+***
+
 **Haml:**
+
 ```haml
 = @ifslot items
+  %p Items:
   = @eachslot item in items
     = @render item
+= @noslot items
+  %p No items.
 ```
 
 **Slim:**
+
 ```slim
 = @ifslot items
+  p Items:
   = @eachslot item in items
     = @render item
+= @noslot items
+  p No items.
 ```
 
 **EGO:**
+
 ```html
 <%@ifslot items { %>
-<%@eachslot item in items { %>
-<%@render item %>
+  <p>Items:</p>
+  <%@eachslot item in items { %>
+    <%@render item %>
+  <% } %>
 <% } %>
+<%@noslot items { %>
+  <p>No items.</p>
 <% } %>
 ```
 
 ## Contributing
+
 Contributions are welcome. Please see the [contributing guide](CONTRIBUTING.md) for more information.
 
 ## License
+
 [MIT](LICENSE)

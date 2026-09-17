@@ -58,6 +58,7 @@ const (
 	tChildrenCommand
 	tSlotCommand
 	tIfSlotCommand
+	tNoSlotCommand
 	tEachSlotCommand
 	tAttributesCommand
 	tFilterStart
@@ -144,6 +145,8 @@ func (t tokenType) String() string {
 		return "SlotCommand"
 	case tIfSlotCommand:
 		return "IfSlotCommand"
+	case tNoSlotCommand:
+		return "NoSlotCommand"
 	case tEachSlotCommand:
 		return "EachSlotCommand"
 	case tAttributesCommand:

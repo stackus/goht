@@ -9,6 +9,8 @@ package testdata
 		= @ifslot content
 			= @eachslot item in content
 				= @render item
+		= @noslot content
+			.empty No items
 }
 
 @slim SlimSlotDirectives() {
@@ -26,10 +28,10 @@ package testdata
 
 @ego EgoSlotDirectives() {
 	<div class="items">
-	<%@ifslot content { %>
-	<%@eachslot item in content { %>
-	<%@render item %>
-	<% } %>
-	<% } %>
+		<%@ifslot content { %>
+			<%@eachslot item in content { %>
+				<%@render item %>
+			<% } %>
+		<% } %>
 	</div>
 }

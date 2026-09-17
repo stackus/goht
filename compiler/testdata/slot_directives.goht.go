@@ -76,6 +76,11 @@ func HamlSlotDirectives() *HamlSlotDirectivesTemplate {
 				}
 			}
 		}
+		if _, __hasSlot := __slots.Has("content"); !__hasSlot {
+			if _, __err = __buf.WriteString("<div class=\"empty\">No items</div>\n"); __err != nil {
+				return
+			}
+		}
 		if _, __err = __buf.WriteString("</div>\n"); __err != nil {
 			return
 		}

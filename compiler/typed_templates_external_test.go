@@ -68,7 +68,7 @@ func TestGeneratedSlotDirectives(t *testing.T) {
 		{name: "haml", template: testdata.HamlSlotDirectives().WithContent(items...), want: "<div class=\"items\">\n<div class=\"item\">one</div>\n<div class=\"item\">two</div>\n</div>\n"},
 		{name: "slim", template: testdata.SlimSlotDirectives().WithContent(items...), want: "<div class=\"items\"><div class=\"item\">one</div>\n<div class=\"item\">two</div>\n</div>\n"},
 		{name: "ego", template: testdata.EgoSlotDirectives().WithContent(items...), want: "<div class=\"items\">\n\n\n<div class=\"item\">one</div>\n\n<div class=\"item\">two</div>\n\n\n</div>\n"},
-		{name: "absent", template: testdata.HamlSlotDirectives(), want: "<div class=\"items\">\n</div>\n"},
+		{name: "absent", template: testdata.HamlSlotDirectives(), want: "<div class=\"items\">\n<div class=\"empty\">No items</div>\n</div>\n"},
 		{name: "explicitly empty", template: testdata.HamlSlotDirectives().WithContent(), want: "<div class=\"items\">\n</div>\n"},
 	}
 	for _, tt := range templates {
