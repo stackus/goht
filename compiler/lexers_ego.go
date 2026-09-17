@@ -252,8 +252,34 @@ func lexEgoCommandStart(l *lexer) lexFn {
 		return lexEgoChildrenStart
 	case "slot":
 		return lexEgoSlotStart
+	case "ifslot":
+		return lexEgoSlotDirectiveStart(tIfSlotCommand, "ifslot")
+	case "eachslot":
+		return lexEgoSlotDirectiveStart(tEachSlotCommand, "eachslot")
 	default:
 		return l.errorf("unknown command: %q", l.current())
+	}
+}
+
+func lexEgoSlotDirectiveStart(typ tokenType, command string) lexFn {
+	return func(l *lexer) lexFn {
+		l.skipRun(" \t")
+		l.ignore()
+		return findClosingTag(l, func(l *lexer) lexFn {
+			l.s = strings.TrimSpace(l.s)
+			original := l.current()
+			l.s = strings.TrimRight(l.s, " \t{")
+			if l.current() == "" {
+				return l.errorf("%s arguments expected", command)
+			}
+			l.emit(typ)
+			if strings.HasSuffix(original, "{") {
+				if err := increaseEgoIndent(l); err != nil {
+					return err
+				}
+			}
+			return nil
+		})
 	}
 }
 

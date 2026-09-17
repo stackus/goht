@@ -55,8 +55,53 @@ func TestGeneratedChildrenAndNestedSlots(t *testing.T) {
 	}
 }
 
+func TestGeneratedSlotDirectives(t *testing.T) {
+	items := []goht.Template{testdata.SlotDirectiveItem("one"), testdata.SlotDirectiveItem("two")}
+	templates := []struct {
+		name     string
+		template goht.Template
+		want     string
+	}{
+		{name: "haml", template: testdata.HamlSlotDirectives().WithContent(items...), want: "<div class=\"items\">\n<div class=\"item\">one</div>\n<div class=\"item\">two</div>\n</div>\n"},
+		{name: "slim", template: testdata.SlimSlotDirectives().WithContent(items...), want: "<div class=\"items\"><div class=\"item\">one</div>\n<div class=\"item\">two</div>\n</div>\n"},
+		{name: "ego", template: testdata.EgoSlotDirectives().WithContent(items...), want: "<div class=\"items\">\n\n\n<div class=\"item\">one</div>\n\n<div class=\"item\">two</div>\n\n\n</div>\n"},
+		{name: "absent", template: testdata.HamlSlotDirectives(), want: "<div class=\"items\">\n</div>\n"},
+		{name: "explicitly empty", template: testdata.HamlSlotDirectives().WithContent(), want: "<div class=\"items\">\n</div>\n"},
+	}
+	for _, tt := range templates {
+		t.Run(tt.name, func(t *testing.T) {
+			var output strings.Builder
+			if err := tt.template.Render(context.Background(), &output); err != nil {
+				t.Fatalf("Render() error = %v", err)
+			}
+			if got := output.String(); got != tt.want {
+				t.Errorf("Render() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+
+	for _, tt := range []struct {
+		name     string
+		template goht.Template
+		want     string
+	}{
+		{name: "children absent", template: testdata.ChildrenPresence(), want: "<div class=\"container\"></div>\n"},
+		{name: "children present", template: testdata.ChildrenPresence().WithChildren(), want: "<div class=\"container\"><div class=\"present\">children are present</div></div>\n"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			var output strings.Builder
+			if err := tt.template.Render(context.Background(), &output); err != nil {
+				t.Fatalf("Render() error = %v", err)
+			}
+			if got := output.String(); got != tt.want {
+				t.Errorf("Render() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func text(value string) goht.TemplateFunc {
-	return func(_ context.Context, w io.Writer) error {
+	return func(_ context.Context, w io.Writer, _ goht.Slots) error {
 		_, err := io.WriteString(w, value)
 		return err
 	}

@@ -18,10 +18,12 @@ type Template interface {
 	Render(ctx context.Context, w io.Writer) error
 }
 
-type TemplateFunc func(ctx context.Context, w io.Writer) error
+// TemplateFunc adapts a function that renders with the slots assigned to its
+// enclosing slot template.
+type TemplateFunc func(ctx context.Context, w io.Writer, slots Slots) error
 
 func (f TemplateFunc) Render(ctx context.Context, w io.Writer) error {
-	return f(ctx, w)
+	return f(ctx, w, Slots{})
 }
 
 // Fragment renders templates in slice order.
@@ -34,6 +36,16 @@ func (f Fragment) Render(ctx context.Context, w io.Writer) error {
 		}
 	}
 	return nil
+}
+
+// Slots is the named fragments assigned to a slot template.
+type Slots map[string]Fragment
+
+// Has reports whether name has an assigned fragment, including an explicitly
+// empty assignment. The returned fragment is a copy.
+func (s Slots) Has(name string) (Fragment, bool) {
+	fragment, ok := s[name]
+	return slices.Clone(fragment), ok
 }
 
 // SlotTemplate is an immutable template value with named template lists.
@@ -59,7 +71,7 @@ func (t SlotTemplate) Render(ctx context.Context, w io.Writer) error {
 	if t.err != nil {
 		return t.err
 	}
-	return t.template.Render(context.WithValue(ctx, slotContextKey{}, t.slots), w)
+	return t.template(ctx, w, t.slots)
 }
 
 // Slot returns a copied template with slotName replaced by templates. An
@@ -74,18 +86,13 @@ func (t SlotTemplate) Slot(slotName string, templates ...Template) SlotTemplate 
 	for name, fragment := range t.slots {
 		slots[name] = slices.Clone(fragment)
 	}
-	slots[slotName] = slices.Clone(templates)
+	fragment := slices.Clone(templates)
+	if fragment == nil {
+		fragment = Fragment{}
+	}
+	slots[slotName] = fragment
 	t.slots = slots
 	return t
-}
-
-type slotContextKey struct{}
-
-// GetSlot returns a copy of the templates assigned to slotName in the current
-// slot template render. It returns nil when the slot is absent.
-func GetSlot(ctx context.Context, slotName string) Fragment {
-	slots, _ := ctx.Value(slotContextKey{}).(map[string]Fragment)
-	return slices.Clone(slots[slotName])
 }
 
 // little nuke alligators that eat whitespace; silly but important

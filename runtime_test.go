@@ -12,9 +12,9 @@ import (
 
 func TestSlotTemplateComposition(t *testing.T) {
 	noSlots := goht.NewSlotTemplate(text("plain"))
-	content := func(ctx context.Context, w io.Writer) error {
-		slot := goht.GetSlot(ctx, "content")
-		if slot == nil {
+	content := func(ctx context.Context, w io.Writer, slots goht.Slots) error {
+		slot, ok := slots.Has("content")
+		if !ok {
 			_, err := io.WriteString(w, "fallback")
 			return err
 		}
@@ -55,11 +55,13 @@ func TestSlotTemplateComposition(t *testing.T) {
 }
 
 func TestSlotTemplateNestedSlots(t *testing.T) {
-	inner := goht.NewSlotTemplate(func(ctx context.Context, w io.Writer) error {
-		return goht.GetSlot(ctx, "label").Render(ctx, w)
+	inner := goht.NewSlotTemplate(func(ctx context.Context, w io.Writer, slots goht.Slots) error {
+		label, _ := slots.Has("label")
+		return label.Render(ctx, w)
 	}, "label").Slot("label", text("inner"))
-	outer := goht.NewSlotTemplate(func(ctx context.Context, w io.Writer) error {
-		return goht.GetSlot(ctx, "content").Render(ctx, w)
+	outer := goht.NewSlotTemplate(func(ctx context.Context, w io.Writer, slots goht.Slots) error {
+		content, _ := slots.Has("content")
+		return content.Render(ctx, w)
 	}, "content").Slot("content", inner)
 
 	var out strings.Builder
@@ -85,6 +87,57 @@ func TestSlotTemplateUnknownSlotFailsBeforeRendering(t *testing.T) {
 	}
 }
 
+func TestSlotTemplateSlotsHasWithEmptyAssignment(t *testing.T) {
+	template := goht.NewSlotTemplate(func(ctx context.Context, w io.Writer, slots goht.Slots) error {
+		if _, ok := slots.Has("content"); ok {
+			_, err := io.WriteString(w, "present")
+			return err
+		}
+		_, err := io.WriteString(w, "absent")
+		return err
+	}, "content")
+
+	for _, tt := range []struct {
+		name string
+		tpl  goht.Template
+		want string
+	}{
+		{name: "absent", tpl: template, want: "absent"},
+		{name: "explicitly empty", tpl: template.Slot("content"), want: "present"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			var out strings.Builder
+			if err := tt.tpl.Render(context.Background(), &out); err != nil {
+				t.Fatalf("Render() error = %v", err)
+			}
+			if got := out.String(); got != tt.want {
+				t.Errorf("Render() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSlotsHasReturnsCopy(t *testing.T) {
+	slots := goht.Slots{"content": goht.Fragment{text("original")}}
+	fragment, ok := slots.Has("content")
+	if !ok {
+		t.Fatal("Slots.Has() did not report assigned slot")
+	}
+	fragment[0] = text("changed")
+
+	var out strings.Builder
+	stored, ok := slots.Has("content")
+	if !ok {
+		t.Fatal("Slots.Has() did not report assigned slot after mutation")
+	}
+	if err := stored.Render(context.Background(), &out); err != nil {
+		t.Fatalf("stored slot Render() error = %v", err)
+	}
+	if got := out.String(); got != "original" {
+		t.Errorf("stored slot Render() = %q, want %q", got, "original")
+	}
+}
+
 func TestFragment(t *testing.T) {
 	boom := errors.New("boom")
 	fragment := goht.Fragment{text("first"), failingTemplate{err: boom}, text("after")}
@@ -105,6 +158,18 @@ func TestFragment(t *testing.T) {
 	if got := out.String(); got != "" {
 		t.Errorf("empty Fragment.Render() = %q, want empty", got)
 	}
+
+	var received goht.Slots
+	fragment = goht.Fragment{goht.TemplateFunc(func(_ context.Context, _ io.Writer, slots goht.Slots) error {
+		received = slots
+		return nil
+	})}
+	if err := fragment.Render(context.Background(), &out); err != nil {
+		t.Fatalf("fragment with TemplateFunc Render() error = %v", err)
+	}
+	if len(received) != 0 {
+		t.Errorf("fragment TemplateFunc slots = %v, want empty", received)
+	}
 }
 
 // generatedLayoutTemplate is a compile-time fixture for Task 002's generated
@@ -115,9 +180,9 @@ type generatedLayoutTemplate struct {
 }
 
 func generatedLayout() *generatedLayoutTemplate {
-	return &generatedLayoutTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, w io.Writer) error {
-		slot := goht.GetSlot(ctx, "content")
-		if slot == nil {
+	return &generatedLayoutTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, w io.Writer, slots goht.Slots) error {
+		slot, ok := slots.Has("content")
+		if !ok {
 			return text("fallback").Render(ctx, w)
 		}
 		return slot.Render(ctx, w)
@@ -158,7 +223,7 @@ func TestGeneratedShapeFixture(t *testing.T) {
 }
 
 func text(value string) goht.TemplateFunc {
-	return func(_ context.Context, w io.Writer) error {
+	return func(_ context.Context, w io.Writer, _ goht.Slots) error {
 		_, err := io.WriteString(w, value)
 		return err
 	}

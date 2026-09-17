@@ -14,7 +14,7 @@ type ChildrenTestTemplate struct {
 // ChildrenTest returns a new instance of ChildrenTestTemplate.
 // Slots: children.
 func ChildrenTest(v string) *ChildrenTestTemplate {
-	return &ChildrenTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &ChildrenTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -33,7 +33,7 @@ func ChildrenTest(v string) *ChildrenTestTemplate {
 		if _, __err = __buf.WriteString("</div>\n<div class=\"children\">\n"); __err != nil {
 			return
 		}
-		if __children := goht.GetSlot(ctx, "children"); __children != nil {
+		if __children, __hasChildren := __slots.Has("children"); __hasChildren {
 			if __err = __children.Render(ctx, __buf); __err != nil {
 				return
 			}
@@ -67,7 +67,7 @@ type RenderTestTemplate struct {
 // RenderTest returns a new instance of RenderTestTemplate.
 // Slots: children.
 func RenderTest() *RenderTestTemplate {
-	return &RenderTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &RenderTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -76,7 +76,7 @@ func RenderTest() *RenderTestTemplate {
 		if _, __err = __buf.WriteString("<div class=\"parent\">\n<div class=\"local\">This is local content</div>\n"); __err != nil {
 			return
 		}
-		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 			__buf, __isBuf := __w.(goht.Buffer)
 			if !__isBuf {
 				__buf = goht.GetBuffer()
@@ -122,7 +122,7 @@ type WrapperTestTemplate struct {
 // WrapperTest returns a new instance of WrapperTestTemplate.
 // Slots: children.
 func WrapperTest() *WrapperTestTemplate {
-	return &WrapperTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &WrapperTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -131,7 +131,7 @@ func WrapperTest() *WrapperTestTemplate {
 		if _, __err = __buf.WriteString("<div class=\"wrapper\">\n<div class=\"list\">\n"); __err != nil {
 			return
 		}
-		if __children := goht.GetSlot(ctx, "children"); __children != nil {
+		if __children, __hasChildren := __slots.Has("children"); __hasChildren {
 			if __err = __children.Render(ctx, __buf); __err != nil {
 				return
 			}
@@ -165,7 +165,7 @@ type WrappedTestTemplate struct {
 // WrappedTest returns a new instance of WrappedTestTemplate.
 // Slots: children.
 func WrappedTest(v string) *WrappedTestTemplate {
-	return &WrappedTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &WrappedTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -210,13 +210,13 @@ type NestedRenderTestTemplate struct {
 // NestedRenderTest returns a new instance of NestedRenderTestTemplate.
 // Slots: children.
 func NestedRenderTest() *NestedRenderTestTemplate {
-	return &NestedRenderTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &NestedRenderTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {
+		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 			__buf, __isBuf := __w.(goht.Buffer)
 			if !__isBuf {
 				__buf = goht.GetBuffer()
@@ -262,7 +262,7 @@ type SlotTestTemplate struct {
 // SlotTest returns a new instance of SlotTestTemplate.
 // Slots: children, first, second, third.
 func SlotTest() *SlotTestTemplate {
-	return &SlotTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &SlotTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -271,17 +271,17 @@ func SlotTest() *SlotTestTemplate {
 		if _, __err = __buf.WriteString("<div class=\"wrapper\">\n"); __err != nil {
 			return
 		}
-		if __slot := goht.GetSlot(ctx, "first"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("first"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
 		}
-		if __slot := goht.GetSlot(ctx, "second"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("second"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
 		}
-		if __slot := goht.GetSlot(ctx, "third"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("third"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
@@ -330,7 +330,7 @@ type SlotWithDefaultTestTemplate struct {
 // SlotWithDefaultTest returns a new instance of SlotWithDefaultTestTemplate.
 // Slots: children, first, second, third.
 func SlotWithDefaultTest() *SlotWithDefaultTestTemplate {
-	return &SlotWithDefaultTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &SlotWithDefaultTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -339,7 +339,7 @@ func SlotWithDefaultTest() *SlotWithDefaultTestTemplate {
 		if _, __err = __buf.WriteString("<div class=\"wrapper\">\n"); __err != nil {
 			return
 		}
-		if __slot := goht.GetSlot(ctx, "first"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("first"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
@@ -348,7 +348,7 @@ func SlotWithDefaultTest() *SlotWithDefaultTestTemplate {
 				return
 			}
 		}
-		if __slot := goht.GetSlot(ctx, "second"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("second"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
@@ -357,7 +357,7 @@ func SlotWithDefaultTest() *SlotWithDefaultTestTemplate {
 				return
 			}
 		}
-		if __slot := goht.GetSlot(ctx, "third"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("third"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}

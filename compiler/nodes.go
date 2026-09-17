@@ -36,6 +36,8 @@ const (
 	nRenderCommand
 	nChildrenCommand
 	nSlotCommand
+	nIfSlotCommand
+	nEachSlotCommand
 	nFilter
 )
 
@@ -75,6 +77,10 @@ func (n nodeType) String() string {
 		return "ChildrenCommand"
 	case nSlotCommand:
 		return "SlotCommand"
+	case nIfSlotCommand:
+		return "IfSlotCommand"
+	case nEachSlotCommand:
+		return "EachSlotCommand"
 	case nFilter:
 		return "Filter"
 	default:
@@ -212,6 +218,10 @@ func (n *node) handleNode(p *parser, indent int) error {
 		p.addChild(NewChildrenCommandNode(p.next()))
 	case tSlotCommand:
 		p.addNode(NewSlotCommandNode(p.next(), indent, n.keepNewlines))
+	case tIfSlotCommand:
+		p.addNode(NewIfSlotCommandNode(p.next(), indent, n.keepNewlines))
+	case tEachSlotCommand:
+		p.addNode(NewEachSlotCommandNode(p.next(), indent, n.keepNewlines))
 	case tFilterStart:
 		t := p.next()
 		switch t.lit {
@@ -425,7 +435,7 @@ func (n *TemplateNode) Source(tw *templateWriter) error {
 		return err
 	}
 
-	entry := " *" + templateType + " {\n\treturn &" + templateType + "{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {\n" +
+	entry := " *" + templateType + " {\n\treturn &" + templateType + "{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {\n" +
 		`		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -502,24 +512,31 @@ func (n *TemplateNode) slotMethods() ([]slotMethod, error) {
 	var visit func(nodeBase) error
 
 	visit = func(current nodeBase) error {
-		if slot, ok := current.(*SlotCommandNode); ok {
-			if slot.slot == "children" {
-				return slot.errorf("slot name %q is reserved", slot.slot)
+		var slotName string
+		var origin *node
+		switch current := current.(type) {
+		case *SlotCommandNode:
+			if current.slot == "children" {
+				return current.errorf("slot name %q is reserved", current.slot)
 			}
-			if _, seen := seenNames[slot.slot]; !seen {
-				method, err := slotMethodName(slot.slot)
+			slotName, origin = current.slot, &current.node
+		case *IfSlotCommandNode:
+			slotName, origin = current.slot, &current.node
+		case *EachSlotCommandNode:
+			slotName, origin = current.slot, &current.node
+		}
+		if slotName != "" && slotName != "children" {
+			if _, seen := seenNames[slotName]; !seen {
+				method, err := slotMethodName(slotName)
 				if err != nil {
-					return slot.errorf("invalid slot name %q: %w", slot.slot, err)
+					return origin.errorf("invalid slot name %q: %w", slotName, err)
 				}
-
 				if other, collision := seenMethods[method]; collision {
-					return slot.errorf("slot name %q conflicts with %q: both generate %s", slot.slot, other, method)
+					return origin.errorf("slot name %q conflicts with %q: both generate %s", slotName, other, method)
 				}
-
-				seenNames[slot.slot] = struct{}{}
-				seenMethods[method] = slot.slot
-
-				slots = append(slots, slotMethod{name: slot.slot, method: method})
+				seenNames[slotName] = struct{}{}
+				seenMethods[method] = slotName
+				slots = append(slots, slotMethod{name: slotName, method: method})
 			}
 		}
 
@@ -1621,7 +1638,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 
 	vName := tw.GetVarName()
 
-	fnLine := vName + " := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer) (__err error) {\n"
+	fnLine := vName + " := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {\n"
 
 	if _, err := tw.WriteIndent(fnLine); err != nil {
 		return err
@@ -1689,6 +1706,12 @@ func (n *RenderCommandNode) parse(p *parser) error {
 	case tNewLine:
 		p.next()
 		return nil
+	case tRawText:
+		if strings.TrimSpace(p.peek().lit) == "" {
+			p.next()
+			return nil
+		}
+		return n.handleNode(p, n.indent+1)
 	default:
 		return n.handleNode(p, n.indent+1)
 	}
@@ -1705,7 +1728,7 @@ func NewChildrenCommandNode(t token) *ChildrenCommandNode {
 }
 
 func (n *ChildrenCommandNode) Source(tw *templateWriter) error {
-	if _, err := tw.WriteIndent("if __children := goht.GetSlot(ctx, \"children\"); __children != nil {\n"); err != nil {
+	if _, err := tw.WriteIndent("if __children, __hasChildren := __slots.Has(\"children\"); __hasChildren {\n"); err != nil {
 		return err
 	}
 	itw := tw.Indent(1)
@@ -1735,7 +1758,7 @@ func NewSlotCommandNode(t token, indent int, keepNewlines bool) *SlotCommandNode
 }
 
 func (n *SlotCommandNode) Source(tw *templateWriter) error {
-	if _, err := tw.WriteIndent("if __slot := goht.GetSlot(ctx, " + strconv.Quote(n.slot) + "); __slot != nil {\n"); err != nil {
+	if _, err := tw.WriteIndent("if __slot, __hasSlot := __slots.Has(" + strconv.Quote(n.slot) + "); __hasSlot {\n"); err != nil {
 		return err
 	}
 
@@ -1790,6 +1813,119 @@ func (n *SlotCommandNode) parse(p *parser) error {
 	default:
 		return n.handleNode(p, n.indent+1)
 	}
+}
+
+type IfSlotCommandNode struct {
+	node
+	slot string
+}
+
+func NewIfSlotCommandNode(t token, indent int, keepNewlines bool) *IfSlotCommandNode {
+	n := &IfSlotCommandNode{node: newNode(nIfSlotCommand, indent, t), slot: t.lit}
+	if keepNewlines {
+		n.keepNewlines = true
+	}
+	return n
+}
+
+func (n *IfSlotCommandNode) Source(tw *templateWriter) error {
+	if err := validateSlotReference(n.slot); err != nil {
+		return n.errorf("invalid slot name %q: %w", n.slot, err)
+	}
+	if _, err := tw.WriteIndent("if _, __hasSlot := __slots.Has(" + strconv.Quote(n.slot) + "); __hasSlot {\n"); err != nil {
+		return err
+	}
+	itw := tw.Indent(1)
+	for _, child := range n.children {
+		if err := child.Source(itw); err != nil {
+			return err
+		}
+	}
+	if _, err := itw.Close(); err != nil {
+		return err
+	}
+	if next, ok := n.nextSibling.(*SilentScriptNode); ok && strings.TrimSpace(next.code) == "}" {
+		return nil
+	}
+	_, err := tw.WriteIndent("}\n")
+	return err
+}
+
+func (n *IfSlotCommandNode) parse(p *parser) error {
+	switch p.peek().Type() {
+	case tNewLine:
+		p.next()
+		return nil
+	default:
+		return n.handleNode(p, n.indent+1)
+	}
+}
+
+type EachSlotCommandNode struct {
+	node
+	variable string
+	slot     string
+}
+
+func NewEachSlotCommandNode(t token, indent int, keepNewlines bool) *EachSlotCommandNode {
+	n := &EachSlotCommandNode{node: newNode(nEachSlotCommand, indent, t)}
+	if keepNewlines {
+		n.keepNewlines = true
+	}
+	parts := strings.Fields(t.lit)
+	if len(parts) == 3 && parts[1] == "in" {
+		n.variable = parts[0]
+		n.slot = parts[2]
+	}
+	return n
+}
+
+func (n *EachSlotCommandNode) Source(tw *templateWriter) error {
+	if !gotoken.IsIdentifier(n.variable) {
+		return n.errorf("invalid @eachslot template variable %q", n.variable)
+	}
+	if err := validateSlotReference(n.slot); err != nil {
+		return n.errorf("invalid @eachslot slot name %q: %w", n.slot, err)
+	}
+	slotVariable := tw.GetVarName()
+	if _, err := tw.WriteIndent(slotVariable + ", _ := __slots.Has(" + strconv.Quote(n.slot) + ")\n"); err != nil {
+		return err
+	}
+	if _, err := tw.WriteIndent("for _, " + n.variable + " := range " + slotVariable + " {\n"); err != nil {
+		return err
+	}
+	itw := tw.Indent(1)
+	for _, child := range n.children {
+		if err := child.Source(itw); err != nil {
+			return err
+		}
+	}
+	if _, err := itw.Close(); err != nil {
+		return err
+	}
+	if next, ok := n.nextSibling.(*SilentScriptNode); ok && strings.TrimSpace(next.code) == "}" {
+		return nil
+	}
+	_, err := tw.WriteIndent("}\n")
+	return err
+}
+
+func (n *EachSlotCommandNode) parse(p *parser) error {
+	switch p.peek().Type() {
+	case tNewLine:
+		p.next()
+		return nil
+	default:
+		return n.handleNode(p, n.indent+1)
+	}
+}
+
+func validateSlotReference(name string) error {
+	if name == "children" {
+		return nil
+	}
+	_, err := slotMethodName(name)
+	return err
 }
 
 type GoFilterNode struct {

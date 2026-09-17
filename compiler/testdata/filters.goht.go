@@ -14,7 +14,7 @@ type FiltersTestTemplate struct {
 // FiltersTest returns a new instance of FiltersTestTemplate.
 // Slots: children.
 func FiltersTest() *FiltersTestTemplate {
-	return &FiltersTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &FiltersTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()

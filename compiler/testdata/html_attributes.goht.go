@@ -14,7 +14,7 @@ type HtmlAttributesTestTemplate struct {
 // HtmlAttributesTest returns a new instance of HtmlAttributesTestTemplate.
 // Slots: children.
 func HtmlAttributesTest() *HtmlAttributesTestTemplate {
-	return &HtmlAttributesTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &HtmlAttributesTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()

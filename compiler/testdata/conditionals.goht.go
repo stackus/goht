@@ -14,7 +14,7 @@ type ConditionalsTestTemplate struct {
 // ConditionalsTest returns a new instance of ConditionalsTestTemplate.
 // Slots: children.
 func ConditionalsTest(v bool) *ConditionalsTestTemplate {
-	return &ConditionalsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &ConditionalsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()

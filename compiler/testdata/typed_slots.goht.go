@@ -14,7 +14,7 @@ type TypedNoSlotsTemplate struct {
 // TypedNoSlots returns a new instance of TypedNoSlotsTemplate.
 // Slots: children.
 func TypedNoSlots() *TypedNoSlotsTemplate {
-	return &TypedNoSlotsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &TypedNoSlotsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
@@ -49,13 +49,13 @@ type TypedOneSlotTemplate struct {
 // TypedOneSlot returns a new instance of TypedOneSlotTemplate.
 // Slots: children, header.
 func TypedOneSlot() *TypedOneSlotTemplate {
-	return &TypedOneSlotTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &TypedOneSlotTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if __slot := goht.GetSlot(ctx, "header"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("header"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
@@ -94,18 +94,18 @@ type TypedMultipleSlotsTemplate struct {
 // TypedMultipleSlots returns a new instance of TypedMultipleSlotsTemplate.
 // Slots: children, main-content, sidebar_2.
 func TypedMultipleSlots() *TypedMultipleSlotsTemplate {
-	return &TypedMultipleSlotsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &TypedMultipleSlotsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if __slot := goht.GetSlot(ctx, "main-content"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("main-content"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
 		}
-		if __slot := goht.GetSlot(ctx, "sidebar_2"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("sidebar_2"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
@@ -149,13 +149,13 @@ type TypedFallbackSlotTemplate struct {
 // TypedFallbackSlot returns a new instance of TypedFallbackSlotTemplate.
 // Slots: children, footer.
 func TypedFallbackSlot() *TypedFallbackSlotTemplate {
-	return &TypedFallbackSlotTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &TypedFallbackSlotTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if __slot := goht.GetSlot(ctx, "footer"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("footer"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
@@ -198,18 +198,18 @@ type TypedDuplicateSlotTemplate struct {
 // TypedDuplicateSlot returns a new instance of TypedDuplicateSlotTemplate.
 // Slots: children, content.
 func TypedDuplicateSlot() *TypedDuplicateSlotTemplate {
-	return &TypedDuplicateSlotTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &TypedDuplicateSlotTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if __slot := goht.GetSlot(ctx, "content"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("content"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
 		}
-		if __slot := goht.GetSlot(ctx, "content"); __slot != nil {
+		if __slot, __hasSlot := __slots.Has("content"); __hasSlot {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}

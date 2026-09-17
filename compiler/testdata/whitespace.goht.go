@@ -14,7 +14,7 @@ type WhitespaceTestTemplate struct {
 // WhitespaceTest returns a new instance of WhitespaceTestTemplate.
 // Slots: children.
 func WhitespaceTest() *WhitespaceTestTemplate {
-	return &WhitespaceTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &WhitespaceTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()

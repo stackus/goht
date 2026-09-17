@@ -14,7 +14,7 @@ type ElementsTestTemplate struct {
 // ElementsTest returns a new instance of ElementsTestTemplate.
 // Slots: children.
 func ElementsTest() *ElementsTestTemplate {
-	return &ElementsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer) (__err error) {
+	return &ElementsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()

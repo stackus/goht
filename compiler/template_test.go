@@ -54,6 +54,9 @@ func TestTemplate_Generate(t *testing.T) {
 		"typed slots": {
 			templateFile: "typed_slots",
 		},
+		"slot directives": {
+			templateFile: "slot_directives",
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -144,6 +147,30 @@ func TestParseString_ReservedChildrenSlot(t *testing.T) {
 			_, err := ParseString(source)
 			if err == nil || !strings.Contains(err.Error(), `slot name "children" is reserved`) {
 				t.Fatalf("ParseString() error = %v, want reserved-children error", err)
+			}
+		})
+	}
+}
+
+func TestSlotDirectiveSourceMaps(t *testing.T) {
+	tests := map[string]string{
+		"haml": "package testdata\n@haml Test() {\n\t= @ifslot content\n\t\t= @eachslot item in content\n\t\t\t= @render item\n}\n",
+		"slim": "package testdata\n@slim Test() {\n\t= @ifslot content\n\t\t= @eachslot item in content\n\t\t\t= @render item\n}\n",
+		"ego":  "package testdata\n@ego Test() {\n\t<%@ifslot content { %>\n\t<%@eachslot item in content { %>\n\t<%@render item %>\n\t<% } %>\n\t<% } %>\n}\n",
+	}
+	for name, source := range tests {
+		t.Run(name, func(t *testing.T) {
+			template, err := ParseString(source)
+			if err != nil {
+				t.Fatalf("ParseString() error = %v", err)
+			}
+			var output bytes.Buffer
+			sourceMap, err := template.Compose(&output)
+			if err != nil {
+				t.Fatalf("Compose() error = %v", err)
+			}
+			if len(sourceMap.SourceLinesToTarget) == 0 {
+				t.Fatal("Compose() produced no source-map entries")
 			}
 		})
 	}
