@@ -7,10 +7,12 @@ dotenv:
   - ./.version
 
 tasks:
-  version:
-    desc: Set the version
+  prepare-release:
+    desc: Create, tag, and push a release
     summary: |
-      Set the version
+      Verify the changelog, update .version, regenerate templates, commit,
+      tag, and push a release. The working tree must be clean.
+
+      Usage: task prepare-release -- vMAJOR.MINOR.PATCH
     cmds:
-      - git tag -a {{ .VERSION }} -m "Release {{ .VERSION }}"
-      - git push origin
+      - ./scripts/prepare-release.sh {{ .CLI_ARGS }}
