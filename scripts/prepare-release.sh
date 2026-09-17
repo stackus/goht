@@ -40,7 +40,7 @@ if ! awk '
 	fail 'CHANGELOG.md must have an empty ## Unreleased section'
 fi
 
-if ! grep -Eq "^## \\[$version\\]( |$)" CHANGELOG.md; then
+if ! grep -Eq "^## \\[$version\\](\\([^[:space:]]+\\))?( |$)" CHANGELOG.md; then
 	fail "CHANGELOG.md does not contain a release heading for $version"
 fi
 
