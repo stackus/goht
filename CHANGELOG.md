@@ -17,6 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `.Slot(...)` composition calls to fluent methods. This pre-1.0 release does
   not provide backward compatibility.
 
+### Added
+
+- Added the `:go` filter for including blocks of Go code in Haml and Slim
+  templates.
+- Added `@ifslot` for conditional slot content and `@eachslot` for iterating
+  the templates assigned to a slot in Haml, Slim, and EGO templates.
+- Added `goht.Fragment` for composing multiple templates into a slot.
+
+### Fixed
+
+- Language-server diagnostics now report zero-based positions as required by
+  the Language Server Protocol.
+
 ## [v0.8.5](https://github.com/stackus/goht/compare/v0.8.4...v0.8.5) - 2026-05-22
 
 ### Added
