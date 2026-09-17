@@ -12,19 +12,34 @@ import "github.com/stackus/goht"
 // must be the first line of the file. If you do not specify a package,
 // the generated code will use "main" as the package name.
 
-func PackageExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type PackageExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// PackageExample returns a new instance of PackageExampleTemplate.
+// Slots: children.
+func PackageExample() *PackageExampleTemplate {
+	return &PackageExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if !__isBuf {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for PackageExampleTemplate and returns a new instance.
+func (t *PackageExampleTemplate) Slot(name string, templates ...goht.Template) *PackageExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for PackageExampleTemplate.
+func (t *PackageExampleTemplate) WithChildren(templates ...goht.Template) *PackageExampleTemplate {
+	return t.Slot("children", templates...)
 }

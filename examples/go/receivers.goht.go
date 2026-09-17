@@ -23,16 +23,19 @@ type User struct {
 //
 //   @render u.Details()
 
-func (u User) Details() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type DetailsTemplate struct {
+	goht.SlotTemplate
+}
+
+// Details returns a new instance of DetailsTemplate.
+// Slots: children.
+func (u User) Details() *DetailsTemplate {
+	return &DetailsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"name\">User name: "); __err != nil {
 			return
 		}
@@ -60,19 +63,34 @@ func (u User) Details() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func (u User) HamlDetails() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for DetailsTemplate and returns a new instance.
+func (t *DetailsTemplate) Slot(name string, templates ...goht.Template) *DetailsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for DetailsTemplate.
+func (t *DetailsTemplate) WithChildren(templates ...goht.Template) *DetailsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlDetailsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlDetails returns a new instance of HamlDetailsTemplate.
+// Slots: children.
+func (u User) HamlDetails() *HamlDetailsTemplate {
+	return &HamlDetailsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"name\">User name: "); __err != nil {
 			return
 		}
@@ -100,19 +118,34 @@ func (u User) HamlDetails() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func (u User) SlimDetails() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlDetailsTemplate and returns a new instance.
+func (t *HamlDetailsTemplate) Slot(name string, templates ...goht.Template) *HamlDetailsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlDetailsTemplate.
+func (t *HamlDetailsTemplate) WithChildren(templates ...goht.Template) *HamlDetailsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimDetailsTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimDetails returns a new instance of SlimDetailsTemplate.
+// Slots: children.
+func (u User) SlimDetails() *SlimDetailsTemplate {
+	return &SlimDetailsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"name\">User name: "); __err != nil {
 			return
 		}
@@ -140,5 +173,17 @@ func (u User) SlimDetails() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimDetailsTemplate and returns a new instance.
+func (t *SlimDetailsTemplate) Slot(name string, templates ...goht.Template) *SlimDetailsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimDetailsTemplate.
+func (t *SlimDetailsTemplate) WithChildren(templates ...goht.Template) *SlimDetailsTemplate {
+	return t.Slot("children", templates...)
 }

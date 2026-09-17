@@ -11,16 +11,19 @@ import "github.com/stackus/goht"
 // code into Haml and Slim templates. The code will be included in the generated
 // file as is.
 
-func SlimGoFilter() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type SlimGoFilterTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimGoFilter returns a new instance of SlimGoFilterTemplate.
+// Slots: children.
+func SlimGoFilter() *SlimGoFilterTemplate {
+	return &SlimGoFilterTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		// normal Go code can be used here
 		name := ""
 		if name == "" {
@@ -43,19 +46,34 @@ func SlimGoFilter() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlGoFilter() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for SlimGoFilterTemplate and returns a new instance.
+func (t *SlimGoFilterTemplate) Slot(name string, templates ...goht.Template) *SlimGoFilterTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimGoFilterTemplate.
+func (t *SlimGoFilterTemplate) WithChildren(templates ...goht.Template) *SlimGoFilterTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlGoFilterTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlGoFilter returns a new instance of HamlGoFilterTemplate.
+// Slots: children.
+func HamlGoFilter() *HamlGoFilterTemplate {
+	return &HamlGoFilterTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		// normal Go code can be used here
 		name := ""
 		if name == "" {
@@ -78,5 +96,17 @@ func HamlGoFilter() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlGoFilterTemplate and returns a new instance.
+func (t *HamlGoFilterTemplate) Slot(name string, templates ...goht.Template) *HamlGoFilterTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlGoFilterTemplate.
+func (t *HamlGoFilterTemplate) WithChildren(templates ...goht.Template) *HamlGoFilterTemplate {
+	return t.Slot("children", templates...)
 }

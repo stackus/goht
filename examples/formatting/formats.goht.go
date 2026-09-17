@@ -22,16 +22,19 @@ var floatVar = 123.456
 var boolVar = true
 var stringVar = "Hello"
 
-func IntExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type IntExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// IntExample returns a new instance of IntExampleTemplate.
+// Slots: children.
+func IntExample() *IntExampleTemplate {
+	return &IntExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The integer is ("); __err != nil {
 			return
 		}
@@ -99,19 +102,34 @@ func IntExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlIntExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for IntExampleTemplate and returns a new instance.
+func (t *IntExampleTemplate) Slot(name string, templates ...goht.Template) *IntExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for IntExampleTemplate.
+func (t *IntExampleTemplate) WithChildren(templates ...goht.Template) *IntExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlIntExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlIntExample returns a new instance of HamlIntExampleTemplate.
+// Slots: children.
+func HamlIntExample() *HamlIntExampleTemplate {
+	return &HamlIntExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The integer is ("); __err != nil {
 			return
 		}
@@ -179,19 +197,34 @@ func HamlIntExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimIntExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlIntExampleTemplate and returns a new instance.
+func (t *HamlIntExampleTemplate) Slot(name string, templates ...goht.Template) *HamlIntExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlIntExampleTemplate.
+func (t *HamlIntExampleTemplate) WithChildren(templates ...goht.Template) *HamlIntExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimIntExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimIntExample returns a new instance of SlimIntExampleTemplate.
+// Slots: children.
+func SlimIntExample() *SlimIntExampleTemplate {
+	return &SlimIntExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The integer is ("); __err != nil {
 			return
 		}
@@ -259,19 +292,34 @@ func SlimIntExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func FloatExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for SlimIntExampleTemplate and returns a new instance.
+func (t *SlimIntExampleTemplate) Slot(name string, templates ...goht.Template) *SlimIntExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimIntExampleTemplate.
+func (t *SlimIntExampleTemplate) WithChildren(templates ...goht.Template) *SlimIntExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type FloatExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// FloatExample returns a new instance of FloatExampleTemplate.
+// Slots: children.
+func FloatExample() *FloatExampleTemplate {
+	return &FloatExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The float is ("); __err != nil {
 			return
 		}
@@ -339,19 +387,34 @@ func FloatExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlFloatExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for FloatExampleTemplate and returns a new instance.
+func (t *FloatExampleTemplate) Slot(name string, templates ...goht.Template) *FloatExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for FloatExampleTemplate.
+func (t *FloatExampleTemplate) WithChildren(templates ...goht.Template) *FloatExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlFloatExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlFloatExample returns a new instance of HamlFloatExampleTemplate.
+// Slots: children.
+func HamlFloatExample() *HamlFloatExampleTemplate {
+	return &HamlFloatExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The float is ("); __err != nil {
 			return
 		}
@@ -419,19 +482,34 @@ func HamlFloatExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimFloatExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlFloatExampleTemplate and returns a new instance.
+func (t *HamlFloatExampleTemplate) Slot(name string, templates ...goht.Template) *HamlFloatExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlFloatExampleTemplate.
+func (t *HamlFloatExampleTemplate) WithChildren(templates ...goht.Template) *HamlFloatExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimFloatExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimFloatExample returns a new instance of SlimFloatExampleTemplate.
+// Slots: children.
+func SlimFloatExample() *SlimFloatExampleTemplate {
+	return &SlimFloatExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The float is ("); __err != nil {
 			return
 		}
@@ -499,19 +577,34 @@ func SlimFloatExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func BoolExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for SlimFloatExampleTemplate and returns a new instance.
+func (t *SlimFloatExampleTemplate) Slot(name string, templates ...goht.Template) *SlimFloatExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimFloatExampleTemplate.
+func (t *SlimFloatExampleTemplate) WithChildren(templates ...goht.Template) *SlimFloatExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type BoolExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// BoolExample returns a new instance of BoolExampleTemplate.
+// Slots: children.
+func BoolExample() *BoolExampleTemplate {
+	return &BoolExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The bool is ("); __err != nil {
 			return
 		}
@@ -529,19 +622,34 @@ func BoolExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlBoolExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for BoolExampleTemplate and returns a new instance.
+func (t *BoolExampleTemplate) Slot(name string, templates ...goht.Template) *BoolExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for BoolExampleTemplate.
+func (t *BoolExampleTemplate) WithChildren(templates ...goht.Template) *BoolExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlBoolExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlBoolExample returns a new instance of HamlBoolExampleTemplate.
+// Slots: children.
+func HamlBoolExample() *HamlBoolExampleTemplate {
+	return &HamlBoolExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The bool is ("); __err != nil {
 			return
 		}
@@ -559,19 +667,34 @@ func HamlBoolExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimBoolExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlBoolExampleTemplate and returns a new instance.
+func (t *HamlBoolExampleTemplate) Slot(name string, templates ...goht.Template) *HamlBoolExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlBoolExampleTemplate.
+func (t *HamlBoolExampleTemplate) WithChildren(templates ...goht.Template) *HamlBoolExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimBoolExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimBoolExample returns a new instance of SlimBoolExampleTemplate.
+// Slots: children.
+func SlimBoolExample() *SlimBoolExampleTemplate {
+	return &SlimBoolExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The bool is ("); __err != nil {
 			return
 		}
@@ -589,19 +712,34 @@ func SlimBoolExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func StringExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for SlimBoolExampleTemplate and returns a new instance.
+func (t *SlimBoolExampleTemplate) Slot(name string, templates ...goht.Template) *SlimBoolExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimBoolExampleTemplate.
+func (t *SlimBoolExampleTemplate) WithChildren(templates ...goht.Template) *SlimBoolExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type StringExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// StringExample returns a new instance of StringExampleTemplate.
+// Slots: children.
+func StringExample() *StringExampleTemplate {
+	return &StringExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The string is ("); __err != nil {
 			return
 		}
@@ -699,19 +837,34 @@ func StringExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlStringExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for StringExampleTemplate and returns a new instance.
+func (t *StringExampleTemplate) Slot(name string, templates ...goht.Template) *StringExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for StringExampleTemplate.
+func (t *StringExampleTemplate) WithChildren(templates ...goht.Template) *StringExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlStringExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlStringExample returns a new instance of HamlStringExampleTemplate.
+// Slots: children.
+func HamlStringExample() *HamlStringExampleTemplate {
+	return &HamlStringExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The string is ("); __err != nil {
 			return
 		}
@@ -809,19 +962,34 @@ func HamlStringExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimStringExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlStringExampleTemplate and returns a new instance.
+func (t *HamlStringExampleTemplate) Slot(name string, templates ...goht.Template) *HamlStringExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlStringExampleTemplate.
+func (t *HamlStringExampleTemplate) WithChildren(templates ...goht.Template) *HamlStringExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimStringExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimStringExample returns a new instance of SlimStringExampleTemplate.
+// Slots: children.
+func SlimStringExample() *SlimStringExampleTemplate {
+	return &SlimStringExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>The string is ("); __err != nil {
 			return
 		}
@@ -919,5 +1087,17 @@ func SlimStringExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimStringExampleTemplate and returns a new instance.
+func (t *SlimStringExampleTemplate) Slot(name string, templates ...goht.Template) *SlimStringExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimStringExampleTemplate.
+func (t *SlimStringExampleTemplate) WithChildren(templates ...goht.Template) *SlimStringExampleTemplate {
+	return t.Slot("children", templates...)
 }

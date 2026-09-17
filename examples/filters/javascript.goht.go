@@ -13,16 +13,19 @@ import "github.com/stackus/goht"
 
 var name = "Bob"
 
-func JavaScript() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type JavaScriptTemplate struct {
+	goht.SlotTemplate
+}
+
+// JavaScript returns a new instance of JavaScriptTemplate.
+// Slots: children.
+func JavaScript() *JavaScriptTemplate {
+	return &JavaScriptTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<script>\nconsole.log(\"Hello "); __err != nil {
 			return
 		}
@@ -40,19 +43,34 @@ func JavaScript() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlJavaScript() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for JavaScriptTemplate and returns a new instance.
+func (t *JavaScriptTemplate) Slot(name string, templates ...goht.Template) *JavaScriptTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for JavaScriptTemplate.
+func (t *JavaScriptTemplate) WithChildren(templates ...goht.Template) *JavaScriptTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlJavaScriptTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlJavaScript returns a new instance of HamlJavaScriptTemplate.
+// Slots: children.
+func HamlJavaScript() *HamlJavaScriptTemplate {
+	return &HamlJavaScriptTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<script>\nconsole.log(\"Hello "); __err != nil {
 			return
 		}
@@ -70,19 +88,34 @@ func HamlJavaScript() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimJavaScript() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlJavaScriptTemplate and returns a new instance.
+func (t *HamlJavaScriptTemplate) Slot(name string, templates ...goht.Template) *HamlJavaScriptTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlJavaScriptTemplate.
+func (t *HamlJavaScriptTemplate) WithChildren(templates ...goht.Template) *HamlJavaScriptTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimJavaScriptTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimJavaScript returns a new instance of SlimJavaScriptTemplate.
+// Slots: children.
+func SlimJavaScript() *SlimJavaScriptTemplate {
+	return &SlimJavaScriptTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<script>\nconsole.log(\"Hello "); __err != nil {
 			return
 		}
@@ -100,5 +133,17 @@ func SlimJavaScript() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimJavaScriptTemplate and returns a new instance.
+func (t *SlimJavaScriptTemplate) Slot(name string, templates ...goht.Template) *SlimJavaScriptTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimJavaScriptTemplate.
+func (t *SlimJavaScriptTemplate) WithChildren(templates ...goht.Template) *SlimJavaScriptTemplate {
+	return t.Slot("children", templates...)
 }

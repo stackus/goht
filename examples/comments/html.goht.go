@@ -12,36 +12,19 @@ import "github.com/stackus/goht"
 // HTML comments are added using the forward slash at the beginning
 // of the line
 
-func HtmlComments() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p>This is a paragraph</p>\n<!--This is a HTML comment-->\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type HtmlCommentsTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlHtmlComments() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// HtmlComments returns a new instance of HtmlCommentsTemplate.
+// Slots: children.
+func HtmlComments() *HtmlCommentsTemplate {
+	return &HtmlCommentsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is a paragraph</p>\n<!--This is a HTML comment-->\n"); __err != nil {
 			return
 		}
@@ -49,22 +32,72 @@ func HamlHtmlComments() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HtmlCommentsTemplate and returns a new instance.
+func (t *HtmlCommentsTemplate) Slot(name string, templates ...goht.Template) *HtmlCommentsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HtmlCommentsTemplate.
+func (t *HtmlCommentsTemplate) WithChildren(templates ...goht.Template) *HtmlCommentsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlHtmlCommentsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlHtmlComments returns a new instance of HamlHtmlCommentsTemplate.
+// Slots: children.
+func HamlHtmlComments() *HamlHtmlCommentsTemplate {
+	return &HamlHtmlCommentsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>This is a paragraph</p>\n<!--This is a HTML comment-->\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlHtmlCommentsTemplate and returns a new instance.
+func (t *HamlHtmlCommentsTemplate) Slot(name string, templates ...goht.Template) *HamlHtmlCommentsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlHtmlCommentsTemplate.
+func (t *HamlHtmlCommentsTemplate) WithChildren(templates ...goht.Template) *HamlHtmlCommentsTemplate {
+	return t.Slot("children", templates...)
 }
 
 // HTML comments in the Slim syntax use "/!" to indicate the start of
 // the comment.
 
-func SlimHtmlComments() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type SlimHtmlCommentsTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimHtmlComments returns a new instance of SlimHtmlCommentsTemplate.
+// Slots: children.
+func SlimHtmlComments() *SlimHtmlCommentsTemplate {
+	return &SlimHtmlCommentsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is a paragraph</p><!--This is a HTML comment-->\n"); __err != nil {
 			return
 		}
@@ -72,23 +105,38 @@ func SlimHtmlComments() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimHtmlCommentsTemplate and returns a new instance.
+func (t *SlimHtmlCommentsTemplate) Slot(name string, templates ...goht.Template) *SlimHtmlCommentsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimHtmlCommentsTemplate.
+func (t *SlimHtmlCommentsTemplate) WithChildren(templates ...goht.Template) *SlimHtmlCommentsTemplate {
+	return t.Slot("children", templates...)
 }
 
 // You may also use them to comment out nested elements. This does
 // not stop the nested elements from being parsed, just from being
 // displayed.
 
-func HtmlCommentsNested() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type HtmlCommentsNestedTemplate struct {
+	goht.SlotTemplate
+}
+
+// HtmlCommentsNested returns a new instance of HtmlCommentsNestedTemplate.
+// Slots: children.
+func HtmlCommentsNested() *HtmlCommentsNestedTemplate {
+	return &HtmlCommentsNestedTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is a paragraph</p>\n<!--\n<p>This is a paragraph that is commented out</p>\n-->\n"); __err != nil {
 			return
 		}
@@ -96,19 +144,34 @@ func HtmlCommentsNested() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlHtmlCommentsNested() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HtmlCommentsNestedTemplate and returns a new instance.
+func (t *HtmlCommentsNestedTemplate) Slot(name string, templates ...goht.Template) *HtmlCommentsNestedTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HtmlCommentsNestedTemplate.
+func (t *HtmlCommentsNestedTemplate) WithChildren(templates ...goht.Template) *HtmlCommentsNestedTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlHtmlCommentsNestedTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlHtmlCommentsNested returns a new instance of HamlHtmlCommentsNestedTemplate.
+// Slots: children.
+func HamlHtmlCommentsNested() *HamlHtmlCommentsNestedTemplate {
+	return &HamlHtmlCommentsNestedTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is a paragraph</p>\n<!--\n<p>This is a paragraph that is commented out</p>\n-->\n"); __err != nil {
 			return
 		}
@@ -116,19 +179,34 @@ func HamlHtmlCommentsNested() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimHtmlCommentsNested() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlHtmlCommentsNestedTemplate and returns a new instance.
+func (t *HamlHtmlCommentsNestedTemplate) Slot(name string, templates ...goht.Template) *HamlHtmlCommentsNestedTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlHtmlCommentsNestedTemplate.
+func (t *HamlHtmlCommentsNestedTemplate) WithChildren(templates ...goht.Template) *HamlHtmlCommentsNestedTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimHtmlCommentsNestedTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimHtmlCommentsNested returns a new instance of SlimHtmlCommentsNestedTemplate.
+// Slots: children.
+func SlimHtmlCommentsNested() *SlimHtmlCommentsNestedTemplate {
+	return &SlimHtmlCommentsNestedTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is a paragraph</p><!--p This is a paragraph that is commented out-->\n"); __err != nil {
 			return
 		}
@@ -136,5 +214,17 @@ func SlimHtmlCommentsNested() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimHtmlCommentsNestedTemplate and returns a new instance.
+func (t *SlimHtmlCommentsNestedTemplate) Slot(name string, templates ...goht.Template) *SlimHtmlCommentsNestedTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimHtmlCommentsNestedTemplate.
+func (t *SlimHtmlCommentsNestedTemplate) WithChildren(templates ...goht.Template) *SlimHtmlCommentsNestedTemplate {
+	return t.Slot("children", templates...)
 }

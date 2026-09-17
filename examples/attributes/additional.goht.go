@@ -23,16 +23,19 @@ var strAttrs = map[string]string{
 	"value": "foo",
 }
 
-func AttributesCmd() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type AttributesCmdTemplate struct {
+	goht.SlotTemplate
+}
+
+// AttributesCmd returns a new instance of AttributesCmdTemplate.
+// Slots: children.
+func AttributesCmd() *AttributesCmdTemplate {
+	return &AttributesCmdTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<input"); __err != nil {
 			return
 		}
@@ -51,19 +54,34 @@ func AttributesCmd() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlAttributesCmd() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for AttributesCmdTemplate and returns a new instance.
+func (t *AttributesCmdTemplate) Slot(name string, templates ...goht.Template) *AttributesCmdTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for AttributesCmdTemplate.
+func (t *AttributesCmdTemplate) WithChildren(templates ...goht.Template) *AttributesCmdTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlAttributesCmdTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlAttributesCmd returns a new instance of HamlAttributesCmdTemplate.
+// Slots: children.
+func HamlAttributesCmd() *HamlAttributesCmdTemplate {
+	return &HamlAttributesCmdTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<input"); __err != nil {
 			return
 		}
@@ -82,19 +100,34 @@ func HamlAttributesCmd() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimAttributesCmd() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlAttributesCmdTemplate and returns a new instance.
+func (t *HamlAttributesCmdTemplate) Slot(name string, templates ...goht.Template) *HamlAttributesCmdTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlAttributesCmdTemplate.
+func (t *HamlAttributesCmdTemplate) WithChildren(templates ...goht.Template) *HamlAttributesCmdTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimAttributesCmdTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimAttributesCmd returns a new instance of SlimAttributesCmdTemplate.
+// Slots: children.
+func SlimAttributesCmd() *SlimAttributesCmdTemplate {
+	return &SlimAttributesCmdTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<input"); __err != nil {
 			return
 		}
@@ -113,5 +146,17 @@ func SlimAttributesCmd() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimAttributesCmdTemplate and returns a new instance.
+func (t *SlimAttributesCmdTemplate) Slot(name string, templates ...goht.Template) *SlimAttributesCmdTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimAttributesCmdTemplate.
+func (t *SlimAttributesCmdTemplate) WithChildren(templates ...goht.Template) *SlimAttributesCmdTemplate {
+	return t.Slot("children", templates...)
 }

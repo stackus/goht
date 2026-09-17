@@ -32,52 +32,19 @@ func (f *Foo) ObjectClass() string {
 // if obj below has the id "bar" then the output will be:
 // <article id="foo_bar" class="foo">Foo article</article>
 
-func ObjectRefs(obj Foo) goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<article"); __err != nil {
-			return
-		}
-		if __var1 := goht.ObjectID(obj); __var1 != "" {
-			if _, __err = __buf.WriteString(" id=\"" + __var1 + "\""); __err != nil {
-				return
-			}
-		}
-		var __var2 string
-		__var2, __err = goht.BuildClassList(goht.ObjectClass(obj))
-		if __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(">Foo article</article>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type ObjectRefsTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlObjectRefs(obj Foo) goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// ObjectRefs returns a new instance of ObjectRefsTemplate.
+// Slots: children.
+func ObjectRefs(obj Foo) *ObjectRefsTemplate {
+	return &ObjectRefsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<article"); __err != nil {
 			return
 		}
@@ -101,74 +68,88 @@ func HamlObjectRefs(obj Foo) goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for ObjectRefsTemplate and returns a new instance.
+func (t *ObjectRefsTemplate) Slot(name string, templates ...goht.Template) *ObjectRefsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for ObjectRefsTemplate.
+func (t *ObjectRefsTemplate) WithChildren(templates ...goht.Template) *ObjectRefsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlObjectRefsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlObjectRefs returns a new instance of HamlObjectRefsTemplate.
+// Slots: children.
+func HamlObjectRefs(obj Foo) *HamlObjectRefsTemplate {
+	return &HamlObjectRefsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<article"); __err != nil {
+			return
+		}
+		if __var1 := goht.ObjectID(obj); __var1 != "" {
+			if _, __err = __buf.WriteString(" id=\"" + __var1 + "\""); __err != nil {
+				return
+			}
+		}
+		var __var2 string
+		__var2, __err = goht.BuildClassList(goht.ObjectClass(obj))
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(">Foo article</article>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlObjectRefsTemplate and returns a new instance.
+func (t *HamlObjectRefsTemplate) Slot(name string, templates ...goht.Template) *HamlObjectRefsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlObjectRefsTemplate.
+func (t *HamlObjectRefsTemplate) WithChildren(templates ...goht.Template) *HamlObjectRefsTemplate {
+	return t.Slot("children", templates...)
 }
 
 // You may include a prefix to be used with the id and class.
 var prefixVar = "article"
 
-func PrefixedObjectRefs(obj Foo) goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<article"); __err != nil {
-			return
-		}
-		if __var1 := goht.ObjectID(obj, "prefix"); __var1 != "" {
-			if _, __err = __buf.WriteString(" id=\"" + __var1 + "\""); __err != nil {
-				return
-			}
-		}
-		var __var2 string
-		__var2, __err = goht.BuildClassList(goht.ObjectClass(obj, "prefix"))
-		if __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(">Foo article with id \"prefix_foo_bar\" and class \"prefix_foo\"</article>\n<article"); __err != nil {
-			return
-		}
-		if __var3 := goht.ObjectID(obj, prefixVar); __var3 != "" {
-			if _, __err = __buf.WriteString(" id=\"" + __var3 + "\""); __err != nil {
-				return
-			}
-		}
-		var __var4 string
-		__var4, __err = goht.BuildClassList(goht.ObjectClass(obj, prefixVar))
-		if __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" class=\"" + __var4 + "\""); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(">Foo article with id \"article_foo_bar\" and class \"article_foo\"</article>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type PrefixedObjectRefsTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlPrefixedObjectRefs(obj Foo) goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// PrefixedObjectRefs returns a new instance of PrefixedObjectRefsTemplate.
+// Slots: children.
+func PrefixedObjectRefs(obj Foo) *PrefixedObjectRefsTemplate {
+	return &PrefixedObjectRefsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<article"); __err != nil {
 			return
 		}
@@ -208,5 +189,84 @@ func HamlPrefixedObjectRefs(obj Foo) goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for PrefixedObjectRefsTemplate and returns a new instance.
+func (t *PrefixedObjectRefsTemplate) Slot(name string, templates ...goht.Template) *PrefixedObjectRefsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for PrefixedObjectRefsTemplate.
+func (t *PrefixedObjectRefsTemplate) WithChildren(templates ...goht.Template) *PrefixedObjectRefsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlPrefixedObjectRefsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlPrefixedObjectRefs returns a new instance of HamlPrefixedObjectRefsTemplate.
+// Slots: children.
+func HamlPrefixedObjectRefs(obj Foo) *HamlPrefixedObjectRefsTemplate {
+	return &HamlPrefixedObjectRefsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<article"); __err != nil {
+			return
+		}
+		if __var1 := goht.ObjectID(obj, "prefix"); __var1 != "" {
+			if _, __err = __buf.WriteString(" id=\"" + __var1 + "\""); __err != nil {
+				return
+			}
+		}
+		var __var2 string
+		__var2, __err = goht.BuildClassList(goht.ObjectClass(obj, "prefix"))
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var2 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(">Foo article with id \"prefix_foo_bar\" and class \"prefix_foo\"</article>\n<article"); __err != nil {
+			return
+		}
+		if __var3 := goht.ObjectID(obj, prefixVar); __var3 != "" {
+			if _, __err = __buf.WriteString(" id=\"" + __var3 + "\""); __err != nil {
+				return
+			}
+		}
+		var __var4 string
+		__var4, __err = goht.BuildClassList(goht.ObjectClass(obj, prefixVar))
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var4 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(">Foo article with id \"article_foo_bar\" and class \"article_foo\"</article>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlPrefixedObjectRefsTemplate and returns a new instance.
+func (t *HamlPrefixedObjectRefsTemplate) Slot(name string, templates ...goht.Template) *HamlPrefixedObjectRefsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlPrefixedObjectRefsTemplate.
+func (t *HamlPrefixedObjectRefsTemplate) WithChildren(templates ...goht.Template) *HamlPrefixedObjectRefsTemplate {
+	return t.Slot("children", templates...)
 }

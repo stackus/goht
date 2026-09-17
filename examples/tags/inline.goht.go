@@ -10,16 +10,19 @@ import "github.com/stackus/goht"
 // Slim allows you to inline tags for those times when you really
 // want to keep things concise.
 
-func SlimInlineTags() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type SlimInlineTagsTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimInlineTags returns a new instance of SlimInlineTagsTemplate.
+// Slots: children.
+func SlimInlineTags() *SlimInlineTagsTemplate {
+	return &SlimInlineTagsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<ul><li><a class=\"first\">First Item</a></li><li><a class=\"second\">First Item</a></li><li><a class=\"third\">First Item</a></li></ul>\n"); __err != nil {
 			return
 		}
@@ -27,5 +30,17 @@ func SlimInlineTags() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimInlineTagsTemplate and returns a new instance.
+func (t *SlimInlineTagsTemplate) Slot(name string, templates ...goht.Template) *SlimInlineTagsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimInlineTagsTemplate.
+func (t *SlimInlineTagsTemplate) WithChildren(templates ...goht.Template) *SlimInlineTagsTemplate {
+	return t.Slot("children", templates...)
 }

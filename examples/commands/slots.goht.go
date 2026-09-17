@@ -17,16 +17,19 @@ import "github.com/stackus/goht"
 //
 // err := AdminName("SuperAdminUser").Render(ctx, w)
 
-func Name(userName string) goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type NameTemplate struct {
+	goht.SlotTemplate
+}
+
+// Name returns a new instance of NameTemplate.
+// Slots: children.
+func Name(userName string) *NameTemplate {
+	return &NameTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"user\">\n<span>"); __err != nil {
 			return
 		}
@@ -44,19 +47,34 @@ func Name(userName string) goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func AdminName(adminName string) goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for NameTemplate and returns a new instance.
+func (t *NameTemplate) Slot(name string, templates ...goht.Template) *NameTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for NameTemplate.
+func (t *NameTemplate) WithChildren(templates ...goht.Template) *NameTemplate {
+	return t.Slot("children", templates...)
+}
+
+type AdminNameTemplate struct {
+	goht.SlotTemplate
+}
+
+// AdminName returns a new instance of AdminNameTemplate.
+// Slots: children.
+func AdminName(adminName string) *AdminNameTemplate {
+	return &AdminNameTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"admin\">\n<span>"); __err != nil {
 			return
 		}
@@ -74,20 +92,28 @@ func AdminName(adminName string) goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-// In your application code, you can also slot in either of the two "Name"
-// templates by passing in the template as an optional third argument to
-// the `Render` call for the main "parent" template.
+// Slot sets a named slot for AdminNameTemplate and returns a new instance.
+func (t *AdminNameTemplate) Slot(name string, templates ...goht.Template) *AdminNameTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for AdminNameTemplate.
+func (t *AdminNameTemplate) WithChildren(templates ...goht.Template) *AdminNameTemplate {
+	return t.Slot("children", templates...)
+}
+
+// In your application code, you can fill the named slot with either of the two
+// "Name" templates using the generated fluent method.
 //
-// err := SlotTemplate().Render(ctx, w,
-// 	AdminName("SuperAdminUser").Slot("name"),
-// )
+// err := SlotTemplate().WithName(AdminName("SuperAdminUser")).Render(ctx, w)
 //
-// All we did was swap out a call to `Render()` with a call to `Slot()` to
-// reuse an existing template as a slotted template. We need to pass in the
-// name of the slot we want to use, which in this case is "name".
+// The generated `WithName` method identifies the slot it fills, so composition
+// remains type-directed and `Render` only receives its context and writer.
 //
 // The following SlotTemplate has no idea what content will ultimately be
 // passed in. If it receives a Template for its `name` slot, it will render the
@@ -97,29 +123,32 @@ func AdminName(adminName string) goht.Template {
 // will not be rendered in the final output. However, if we provide default content
 // then we can have a fallback to use if no content is passed in.
 
-func SlotTemplate() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type SlotTemplateTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlotTemplate returns a new instance of SlotTemplateTemplate.
+// Slots: children, name, actions.
+func SlotTemplate() *SlotTemplateTemplate {
+	return &SlotTemplateTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"name-content\">"); __err != nil {
 			return
 		}
-		if __st := goht.GetSlottedTemplate(__sts, "name"); __st != nil {
-			if __err = __st.Render(ctx, __buf, append(__st.SlottedTemplates(), __sts...)...); __err != nil {
+		if __slot, __hasSlot := __slots.Has("name"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
 		}
 		if _, __err = __buf.WriteString("</div><div class=\"actions\">"); __err != nil {
 			return
 		}
-		if __st := goht.GetSlottedTemplate(__sts, "actions"); __st != nil {
-			if __err = __st.Render(ctx, __buf, append(__st.SlottedTemplates(), __sts...)...); __err != nil {
+		if __slot, __hasSlot := __slots.Has("actions"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
 		} else {
@@ -134,24 +163,49 @@ func SlotTemplate() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children", "name", "actions")}
 }
 
-func SlotWithDefaultTemplate() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for SlotTemplateTemplate and returns a new instance.
+func (t *SlotTemplateTemplate) Slot(name string, templates ...goht.Template) *SlotTemplateTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlotTemplateTemplate.
+func (t *SlotTemplateTemplate) WithChildren(templates ...goht.Template) *SlotTemplateTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithName sets the "name" slot for SlotTemplateTemplate.
+func (t *SlotTemplateTemplate) WithName(templates ...goht.Template) *SlotTemplateTemplate {
+	return t.Slot("name", templates...)
+}
+
+// WithActions sets the "actions" slot for SlotTemplateTemplate.
+func (t *SlotTemplateTemplate) WithActions(templates ...goht.Template) *SlotTemplateTemplate {
+	return t.Slot("actions", templates...)
+}
+
+type SlotWithDefaultTemplateTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlotWithDefaultTemplate returns a new instance of SlotWithDefaultTemplateTemplate.
+// Slots: children, name, actions.
+func SlotWithDefaultTemplate() *SlotWithDefaultTemplateTemplate {
+	return &SlotWithDefaultTemplateTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"name-content\">\n\t"); __err != nil {
 			return
 		}
-		if __st := goht.GetSlottedTemplate(__sts, "name"); __st != nil {
-			if __err = __st.Render(ctx, __buf, append(__st.SlottedTemplates(), __sts...)...); __err != nil {
+		if __slot, __hasSlot := __slots.Has("name"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
 		} else {
@@ -162,8 +216,8 @@ func SlotWithDefaultTemplate() goht.Template {
 		if _, __err = __buf.WriteString("</div>\n<div class=\"actions\">\n\t"); __err != nil {
 			return
 		}
-		if __st := goht.GetSlottedTemplate(__sts, "actions"); __st != nil {
-			if __err = __st.Render(ctx, __buf, append(__st.SlottedTemplates(), __sts...)...); __err != nil {
+		if __slot, __hasSlot := __slots.Has("actions"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
 		} else {
@@ -178,21 +232,41 @@ func SlotWithDefaultTemplate() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children", "name", "actions")}
+}
+
+// Slot sets a named slot for SlotWithDefaultTemplateTemplate and returns a new instance.
+func (t *SlotWithDefaultTemplateTemplate) Slot(name string, templates ...goht.Template) *SlotWithDefaultTemplateTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlotWithDefaultTemplateTemplate.
+func (t *SlotWithDefaultTemplateTemplate) WithChildren(templates ...goht.Template) *SlotWithDefaultTemplateTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithName sets the "name" slot for SlotWithDefaultTemplateTemplate.
+func (t *SlotWithDefaultTemplateTemplate) WithName(templates ...goht.Template) *SlotWithDefaultTemplateTemplate {
+	return t.Slot("name", templates...)
+}
+
+// WithActions sets the "actions" slot for SlotWithDefaultTemplateTemplate.
+func (t *SlotWithDefaultTemplateTemplate) WithActions(templates ...goht.Template) *SlotWithDefaultTemplateTemplate {
+	return t.Slot("actions", templates...)
 }
 
 // When you pass in a template to a slot, that template can also have its own
-// slots. This is done by adding one templates to the optional second parameter
-// to the `Slot` method.
+// slots. Compose nested templates with their generated `With<Slot>` methods.
 //
-// err := Layout(layoutProps).Render(ctx, w,
-//   Sidebar(sidebarProps).Slot("sidebar"),
-//   Header(headerProps).Slot("header"),
-//   UserDetailsPage(userProps).Slot("main",
-//     LastActionResults(resultsProps).Slot("notifications"),
-//   ),
-//   Footer(footerProps).Slot("footer"),
-// )
+// err := Layout(layoutProps).
+//   WithSidebar(Sidebar(sidebarProps)).
+//   WithHeader(Header(headerProps)).
+//   WithMain(UserDetailsPage(userProps).
+//     WithNotifications(LastActionResults(resultsProps))).
+//   WithFooter(Footer(footerProps)).
+//   Render(ctx, w)
 
 //
 // The above example shows how you can pass in a template to a slot, and that

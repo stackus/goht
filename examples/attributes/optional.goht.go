@@ -21,16 +21,19 @@ var disabled = true
 
 var foo = "bar"
 
-func ConditionalAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type ConditionalAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// ConditionalAttrs returns a new instance of ConditionalAttrsTemplate.
+// Slots: children.
+func ConditionalAttrs() *ConditionalAttrsTemplate {
+	return &ConditionalAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<button"); __err != nil {
 			return
 		}
@@ -54,19 +57,34 @@ func ConditionalAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlConditionalAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for ConditionalAttrsTemplate and returns a new instance.
+func (t *ConditionalAttrsTemplate) Slot(name string, templates ...goht.Template) *ConditionalAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for ConditionalAttrsTemplate.
+func (t *ConditionalAttrsTemplate) WithChildren(templates ...goht.Template) *ConditionalAttrsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlConditionalAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlConditionalAttrs returns a new instance of HamlConditionalAttrsTemplate.
+// Slots: children.
+func HamlConditionalAttrs() *HamlConditionalAttrsTemplate {
+	return &HamlConditionalAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<button"); __err != nil {
 			return
 		}
@@ -90,19 +108,34 @@ func HamlConditionalAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimConditionalAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlConditionalAttrsTemplate and returns a new instance.
+func (t *HamlConditionalAttrsTemplate) Slot(name string, templates ...goht.Template) *HamlConditionalAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlConditionalAttrsTemplate.
+func (t *HamlConditionalAttrsTemplate) WithChildren(templates ...goht.Template) *HamlConditionalAttrsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimConditionalAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimConditionalAttrs returns a new instance of SlimConditionalAttrsTemplate.
+// Slots: children.
+func SlimConditionalAttrs() *SlimConditionalAttrsTemplate {
+	return &SlimConditionalAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<button"); __err != nil {
 			return
 		}
@@ -126,5 +159,17 @@ func SlimConditionalAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimConditionalAttrsTemplate and returns a new instance.
+func (t *SlimConditionalAttrsTemplate) Slot(name string, templates ...goht.Template) *SlimConditionalAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimConditionalAttrsTemplate.
+func (t *SlimConditionalAttrsTemplate) WithChildren(templates ...goht.Template) *SlimConditionalAttrsTemplate {
+	return t.Slot("children", templates...)
 }

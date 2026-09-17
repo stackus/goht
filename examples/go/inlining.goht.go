@@ -15,16 +15,19 @@ import (
 
 var isAdmin = true
 
-func Conditional() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type ConditionalTemplate struct {
+	goht.SlotTemplate
+}
+
+// Conditional returns a new instance of ConditionalTemplate.
+// Slots: children.
+func Conditional() *ConditionalTemplate {
+	return &ConditionalTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"actions\">\n"); __err != nil {
 			return
 		}
@@ -44,19 +47,34 @@ func Conditional() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlConditional() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for ConditionalTemplate and returns a new instance.
+func (t *ConditionalTemplate) Slot(name string, templates ...goht.Template) *ConditionalTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for ConditionalTemplate.
+func (t *ConditionalTemplate) WithChildren(templates ...goht.Template) *ConditionalTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlConditionalTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlConditional returns a new instance of HamlConditionalTemplate.
+// Slots: children.
+func HamlConditional() *HamlConditionalTemplate {
+	return &HamlConditionalTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"actions\">\n"); __err != nil {
 			return
 		}
@@ -76,19 +94,34 @@ func HamlConditional() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimConditional() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlConditionalTemplate and returns a new instance.
+func (t *HamlConditionalTemplate) Slot(name string, templates ...goht.Template) *HamlConditionalTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlConditionalTemplate.
+func (t *HamlConditionalTemplate) WithChildren(templates ...goht.Template) *HamlConditionalTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimConditionalTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimConditional returns a new instance of SlimConditionalTemplate.
+// Slots: children.
+func SlimConditional() *SlimConditionalTemplate {
+	return &SlimConditionalTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"actions\">"); __err != nil {
 			return
 		}
@@ -108,7 +141,19 @@ func SlimConditional() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimConditionalTemplate and returns a new instance.
+func (t *SlimConditionalTemplate) Slot(name string, templates ...goht.Template) *SlimConditionalTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimConditionalTemplate.
+func (t *SlimConditionalTemplate) WithChildren(templates ...goht.Template) *SlimConditionalTemplate {
+	return t.Slot("children", templates...)
 }
 
 // However, we are using Haml and so we're into shortcuts. We can
@@ -119,16 +164,19 @@ func SlimConditional() goht.Template {
 // Shorthand statements include:
 // for, if, else, else if, switch
 
-func ShorthandConditional() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type ShorthandConditionalTemplate struct {
+	goht.SlotTemplate
+}
+
+// ShorthandConditional returns a new instance of ShorthandConditionalTemplate.
+// Slots: children.
+func ShorthandConditional() *ShorthandConditionalTemplate {
+	return &ShorthandConditionalTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"actions\">\n"); __err != nil {
 			return
 		}
@@ -148,19 +196,34 @@ func ShorthandConditional() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlShorthandConditional() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for ShorthandConditionalTemplate and returns a new instance.
+func (t *ShorthandConditionalTemplate) Slot(name string, templates ...goht.Template) *ShorthandConditionalTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for ShorthandConditionalTemplate.
+func (t *ShorthandConditionalTemplate) WithChildren(templates ...goht.Template) *ShorthandConditionalTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlShorthandConditionalTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlShorthandConditional returns a new instance of HamlShorthandConditionalTemplate.
+// Slots: children.
+func HamlShorthandConditional() *HamlShorthandConditionalTemplate {
+	return &HamlShorthandConditionalTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"actions\">\n"); __err != nil {
 			return
 		}
@@ -180,19 +243,34 @@ func HamlShorthandConditional() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimShorthandConditional() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlShorthandConditionalTemplate and returns a new instance.
+func (t *HamlShorthandConditionalTemplate) Slot(name string, templates ...goht.Template) *HamlShorthandConditionalTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlShorthandConditionalTemplate.
+func (t *HamlShorthandConditionalTemplate) WithChildren(templates ...goht.Template) *HamlShorthandConditionalTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimShorthandConditionalTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimShorthandConditional returns a new instance of SlimShorthandConditionalTemplate.
+// Slots: children.
+func SlimShorthandConditional() *SlimShorthandConditionalTemplate {
+	return &SlimShorthandConditionalTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"actions\">"); __err != nil {
 			return
 		}
@@ -212,23 +290,38 @@ func SlimShorthandConditional() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimShorthandConditionalTemplate and returns a new instance.
+func (t *SlimShorthandConditionalTemplate) Slot(name string, templates ...goht.Template) *SlimShorthandConditionalTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimShorthandConditionalTemplate.
+func (t *SlimShorthandConditionalTemplate) WithChildren(templates ...goht.Template) *SlimShorthandConditionalTemplate {
+	return t.Slot("children", templates...)
 }
 
 // With a switch statement, we can use the case and default keywords
 // but we will need to nest these statements if we're using the
 // shorthand syntax. (win some, lose some)
 
-func ShorthandSwitch() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type ShorthandSwitchTemplate struct {
+	goht.SlotTemplate
+}
+
+// ShorthandSwitch returns a new instance of ShorthandSwitchTemplate.
+// Slots: children.
+func ShorthandSwitch() *ShorthandSwitchTemplate {
+	return &ShorthandSwitchTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"actions\">\n"); __err != nil {
 			return
 		}
@@ -249,19 +342,34 @@ func ShorthandSwitch() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlShorthandSwitch() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for ShorthandSwitchTemplate and returns a new instance.
+func (t *ShorthandSwitchTemplate) Slot(name string, templates ...goht.Template) *ShorthandSwitchTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for ShorthandSwitchTemplate.
+func (t *ShorthandSwitchTemplate) WithChildren(templates ...goht.Template) *ShorthandSwitchTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlShorthandSwitchTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlShorthandSwitch returns a new instance of HamlShorthandSwitchTemplate.
+// Slots: children.
+func HamlShorthandSwitch() *HamlShorthandSwitchTemplate {
+	return &HamlShorthandSwitchTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"actions\">\n"); __err != nil {
 			return
 		}
@@ -282,19 +390,34 @@ func HamlShorthandSwitch() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimShorthandSwitch() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlShorthandSwitchTemplate and returns a new instance.
+func (t *HamlShorthandSwitchTemplate) Slot(name string, templates ...goht.Template) *HamlShorthandSwitchTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlShorthandSwitchTemplate.
+func (t *HamlShorthandSwitchTemplate) WithChildren(templates ...goht.Template) *HamlShorthandSwitchTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimShorthandSwitchTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimShorthandSwitch returns a new instance of SlimShorthandSwitchTemplate.
+// Slots: children.
+func SlimShorthandSwitch() *SlimShorthandSwitchTemplate {
+	return &SlimShorthandSwitchTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"actions\">"); __err != nil {
 			return
 		}
@@ -315,7 +438,19 @@ func SlimShorthandSwitch() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimShorthandSwitchTemplate and returns a new instance.
+func (t *SlimShorthandSwitchTemplate) Slot(name string, templates ...goht.Template) *SlimShorthandSwitchTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimShorthandSwitchTemplate.
+func (t *SlimShorthandSwitchTemplate) WithChildren(templates ...goht.Template) *SlimShorthandSwitchTemplate {
+	return t.Slot("children", templates...)
 }
 
 // Haml supported splitting long code lines across multiple lines
@@ -323,16 +458,19 @@ func SlimShorthandSwitch() goht.Template {
 // one additional level. To keep continuing the statement, you can
 // end the line with a comma.
 
-func HamlLongStatement() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type HamlLongStatementTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlLongStatement returns a new instance of HamlLongStatementTemplate.
+// Slots: children.
+func HamlLongStatement() *HamlLongStatementTemplate {
+	return &HamlLongStatementTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"actions\">\n"); __err != nil {
 			return
 		}
@@ -366,7 +504,19 @@ func HamlLongStatement() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlLongStatementTemplate and returns a new instance.
+func (t *HamlLongStatementTemplate) Slot(name string, templates ...goht.Template) *HamlLongStatementTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlLongStatementTemplate.
+func (t *HamlLongStatementTemplate) WithChildren(templates ...goht.Template) *HamlLongStatementTemplate {
+	return t.Slot("children", templates...)
 }
 
 // Slim supports splitting the control code across multiple lines which
@@ -381,16 +531,19 @@ type longType struct {
 	actions string
 }
 
-func SlimLongStatement() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type SlimLongStatementTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimLongStatement returns a new instance of SlimLongStatementTemplate.
+// Slots: children.
+func SlimLongStatement() *SlimLongStatementTemplate {
+	return &SlimLongStatementTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"actions\">"); __err != nil {
 			return
 		}
@@ -422,5 +575,17 @@ func SlimLongStatement() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimLongStatementTemplate and returns a new instance.
+func (t *SlimLongStatementTemplate) Slot(name string, templates ...goht.Template) *SlimLongStatementTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimLongStatementTemplate.
+func (t *SlimLongStatementTemplate) WithChildren(templates ...goht.Template) *SlimLongStatementTemplate {
+	return t.Slot("children", templates...)
 }

@@ -15,16 +15,19 @@ import "github.com/stackus/goht"
 // Nesting content inside a self closing tag will cause the parser
 // to display an error.
 
-func SelfClosing() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type SelfClosingTemplate struct {
+	goht.SlotTemplate
+}
+
+// SelfClosing returns a new instance of SelfClosingTemplate.
+// Slots: children.
+func SelfClosing() *SelfClosingTemplate {
+	return &SelfClosingTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<img src=\"logo.png\" alt=\"logo\"><p>\nA paragraph is not self closing.\n<img src=\"logo.png\" alt=\"logo\"></p>\n"); __err != nil {
 			return
 		}
@@ -32,19 +35,34 @@ func SelfClosing() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlSelfClosing() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for SelfClosingTemplate and returns a new instance.
+func (t *SelfClosingTemplate) Slot(name string, templates ...goht.Template) *SelfClosingTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SelfClosingTemplate.
+func (t *SelfClosingTemplate) WithChildren(templates ...goht.Template) *SelfClosingTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlSelfClosingTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlSelfClosing returns a new instance of HamlSelfClosingTemplate.
+// Slots: children.
+func HamlSelfClosing() *HamlSelfClosingTemplate {
+	return &HamlSelfClosingTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<img src=\"logo.png\" alt=\"logo\"><p>\nA paragraph is not self closing.\n<img src=\"logo.png\" alt=\"logo\"></p>\n"); __err != nil {
 			return
 		}
@@ -52,19 +70,34 @@ func HamlSelfClosing() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimSelfClosing() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlSelfClosingTemplate and returns a new instance.
+func (t *HamlSelfClosingTemplate) Slot(name string, templates ...goht.Template) *HamlSelfClosingTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlSelfClosingTemplate.
+func (t *HamlSelfClosingTemplate) WithChildren(templates ...goht.Template) *HamlSelfClosingTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimSelfClosingTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimSelfClosing returns a new instance of SlimSelfClosingTemplate.
+// Slots: children.
+func SlimSelfClosing() *SlimSelfClosingTemplate {
+	return &SlimSelfClosingTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<img src=\"logo.png\" alt=\"logo\"><p>A paragraph is not self closing.<img src=\"logo.png\" alt=\"logo\"></p>\n"); __err != nil {
 			return
 		}
@@ -72,7 +105,19 @@ func SlimSelfClosing() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimSelfClosingTemplate and returns a new instance.
+func (t *SlimSelfClosingTemplate) Slot(name string, templates ...goht.Template) *SlimSelfClosingTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimSelfClosingTemplate.
+func (t *SlimSelfClosingTemplate) WithChildren(templates ...goht.Template) *SlimSelfClosingTemplate {
+	return t.Slot("children", templates...)
 }
 
 // You may also use the self closing tag syntax to create a tag
@@ -85,16 +130,19 @@ func SlimSelfClosing() goht.Template {
 // 	"isindex", "keygen", "link", "menuitem",
 // 	"meta", "param", "source", "track", "wbr",
 
-func AlsoSelfClosing() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type AlsoSelfClosingTemplate struct {
+	goht.SlotTemplate
+}
+
+// AlsoSelfClosing returns a new instance of AlsoSelfClosingTemplate.
+// Slots: children.
+func AlsoSelfClosing() *AlsoSelfClosingTemplate {
+	return &AlsoSelfClosingTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<isNowSelfClosing/>"); __err != nil {
 			return
 		}
@@ -102,19 +150,34 @@ func AlsoSelfClosing() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlAlsoSelfClosing() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for AlsoSelfClosingTemplate and returns a new instance.
+func (t *AlsoSelfClosingTemplate) Slot(name string, templates ...goht.Template) *AlsoSelfClosingTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for AlsoSelfClosingTemplate.
+func (t *AlsoSelfClosingTemplate) WithChildren(templates ...goht.Template) *AlsoSelfClosingTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlAlsoSelfClosingTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlAlsoSelfClosing returns a new instance of HamlAlsoSelfClosingTemplate.
+// Slots: children.
+func HamlAlsoSelfClosing() *HamlAlsoSelfClosingTemplate {
+	return &HamlAlsoSelfClosingTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<isNowSelfClosing/>"); __err != nil {
 			return
 		}
@@ -122,19 +185,34 @@ func HamlAlsoSelfClosing() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimAlsoSelfClosing() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlAlsoSelfClosingTemplate and returns a new instance.
+func (t *HamlAlsoSelfClosingTemplate) Slot(name string, templates ...goht.Template) *HamlAlsoSelfClosingTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlAlsoSelfClosingTemplate.
+func (t *HamlAlsoSelfClosingTemplate) WithChildren(templates ...goht.Template) *HamlAlsoSelfClosingTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimAlsoSelfClosingTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimAlsoSelfClosing returns a new instance of SlimAlsoSelfClosingTemplate.
+// Slots: children.
+func SlimAlsoSelfClosing() *SlimAlsoSelfClosingTemplate {
+	return &SlimAlsoSelfClosingTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<isNowSelfClosing/>\n"); __err != nil {
 			return
 		}
@@ -142,5 +220,17 @@ func SlimAlsoSelfClosing() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimAlsoSelfClosingTemplate and returns a new instance.
+func (t *SlimAlsoSelfClosingTemplate) Slot(name string, templates ...goht.Template) *SlimAlsoSelfClosingTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimAlsoSelfClosingTemplate.
+func (t *SlimAlsoSelfClosingTemplate) WithChildren(templates ...goht.Template) *SlimAlsoSelfClosingTemplate {
+	return t.Slot("children", templates...)
 }

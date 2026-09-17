@@ -16,16 +16,19 @@ func sayHello() string {
 	return "Hello, world!"
 }
 
-func ExecuteCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type ExecuteCodeTemplate struct {
+	goht.SlotTemplate
+}
+
+// ExecuteCode returns a new instance of ExecuteCodeTemplate.
+// Slots: children.
+func ExecuteCode() *ExecuteCodeTemplate {
+	return &ExecuteCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		foo := sayHello()
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
@@ -44,19 +47,34 @@ func ExecuteCode() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlExecuteCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for ExecuteCodeTemplate and returns a new instance.
+func (t *ExecuteCodeTemplate) Slot(name string, templates ...goht.Template) *ExecuteCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for ExecuteCodeTemplate.
+func (t *ExecuteCodeTemplate) WithChildren(templates ...goht.Template) *ExecuteCodeTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlExecuteCodeTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlExecuteCode returns a new instance of HamlExecuteCodeTemplate.
+// Slots: children.
+func HamlExecuteCode() *HamlExecuteCodeTemplate {
+	return &HamlExecuteCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		foo := sayHello()
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
@@ -75,19 +93,34 @@ func HamlExecuteCode() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimExecuteCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlExecuteCodeTemplate and returns a new instance.
+func (t *HamlExecuteCodeTemplate) Slot(name string, templates ...goht.Template) *HamlExecuteCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlExecuteCodeTemplate.
+func (t *HamlExecuteCodeTemplate) WithChildren(templates ...goht.Template) *HamlExecuteCodeTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimExecuteCodeTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimExecuteCode returns a new instance of SlimExecuteCodeTemplate.
+// Slots: children.
+func SlimExecuteCode() *SlimExecuteCodeTemplate {
+	return &SlimExecuteCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		foo := sayHello()
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
@@ -106,19 +139,34 @@ func SlimExecuteCode() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func RenderCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for SlimExecuteCodeTemplate and returns a new instance.
+func (t *SlimExecuteCodeTemplate) Slot(name string, templates ...goht.Template) *SlimExecuteCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimExecuteCodeTemplate.
+func (t *SlimExecuteCodeTemplate) WithChildren(templates ...goht.Template) *SlimExecuteCodeTemplate {
+	return t.Slot("children", templates...)
+}
+
+type RenderCodeTemplate struct {
+	goht.SlotTemplate
+}
+
+// RenderCode returns a new instance of RenderCodeTemplate.
+// Slots: children.
+func RenderCode() *RenderCodeTemplate {
+	return &RenderCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
@@ -136,19 +184,34 @@ func RenderCode() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlRenderCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for RenderCodeTemplate and returns a new instance.
+func (t *RenderCodeTemplate) Slot(name string, templates ...goht.Template) *RenderCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for RenderCodeTemplate.
+func (t *RenderCodeTemplate) WithChildren(templates ...goht.Template) *RenderCodeTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlRenderCodeTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlRenderCode returns a new instance of HamlRenderCodeTemplate.
+// Slots: children.
+func HamlRenderCode() *HamlRenderCodeTemplate {
+	return &HamlRenderCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
@@ -166,19 +229,34 @@ func HamlRenderCode() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimRenderCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlRenderCodeTemplate and returns a new instance.
+func (t *HamlRenderCodeTemplate) Slot(name string, templates ...goht.Template) *HamlRenderCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlRenderCodeTemplate.
+func (t *HamlRenderCodeTemplate) WithChildren(templates ...goht.Template) *HamlRenderCodeTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimRenderCodeTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimRenderCode returns a new instance of SlimRenderCodeTemplate.
+// Slots: children.
+func SlimRenderCode() *SlimRenderCodeTemplate {
+	return &SlimRenderCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
@@ -196,5 +274,17 @@ func SlimRenderCode() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimRenderCodeTemplate and returns a new instance.
+func (t *SlimRenderCodeTemplate) Slot(name string, templates ...goht.Template) *SlimRenderCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimRenderCodeTemplate.
+func (t *SlimRenderCodeTemplate) WithChildren(templates ...goht.Template) *SlimRenderCodeTemplate {
+	return t.Slot("children", templates...)
 }

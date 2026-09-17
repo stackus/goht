@@ -12,46 +12,19 @@ import "github.com/stackus/goht"
 
 var someVar = "Hello"
 
-func InterpolateCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p>"); __err != nil {
-			return
-		}
-		var __var1 string
-		if __var1, __err = goht.CaptureErrors(goht.EscapeString(someVar)); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(__var1); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(", World!</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type InterpolateCodeTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlInterpolateCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// InterpolateCode returns a new instance of InterpolateCodeTemplate.
+// Slots: children.
+func InterpolateCode() *InterpolateCodeTemplate {
+	return &InterpolateCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
@@ -69,19 +42,34 @@ func HamlInterpolateCode() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimInterpolateCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for InterpolateCodeTemplate and returns a new instance.
+func (t *InterpolateCodeTemplate) Slot(name string, templates ...goht.Template) *InterpolateCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for InterpolateCodeTemplate.
+func (t *InterpolateCodeTemplate) WithChildren(templates ...goht.Template) *InterpolateCodeTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlInterpolateCodeTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlInterpolateCode returns a new instance of HamlInterpolateCodeTemplate.
+// Slots: children.
+func HamlInterpolateCode() *HamlInterpolateCodeTemplate {
+	return &HamlInterpolateCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
@@ -99,20 +87,80 @@ func SlimInterpolateCode() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlInterpolateCodeTemplate and returns a new instance.
+func (t *HamlInterpolateCodeTemplate) Slot(name string, templates ...goht.Template) *HamlInterpolateCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlInterpolateCodeTemplate.
+func (t *HamlInterpolateCodeTemplate) WithChildren(templates ...goht.Template) *HamlInterpolateCodeTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimInterpolateCodeTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimInterpolateCode returns a new instance of SlimInterpolateCodeTemplate.
+// Slots: children.
+func SlimInterpolateCode() *SlimInterpolateCodeTemplate {
+	return &SlimInterpolateCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>"); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors(goht.EscapeString(someVar)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(", World!</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimInterpolateCodeTemplate and returns a new instance.
+func (t *SlimInterpolateCodeTemplate) Slot(name string, templates ...goht.Template) *SlimInterpolateCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimInterpolateCodeTemplate.
+func (t *SlimInterpolateCodeTemplate) WithChildren(templates ...goht.Template) *SlimInterpolateCodeTemplate {
+	return t.Slot("children", templates...)
 }
 
 // Interpolation is not done within Go code or within a string literal.
-func NoInterpolation() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type NoInterpolationTemplate struct {
+	goht.SlotTemplate
+}
+
+// NoInterpolation returns a new instance of NoInterpolationTemplate.
+// Slots: children.
+func NoInterpolation() *NoInterpolationTemplate {
+	return &NoInterpolationTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>Do the following; No interpolation is necessary.</p>\n<p>"); __err != nil {
 			return
 		}
@@ -140,19 +188,34 @@ func NoInterpolation() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlNoInterpolation() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for NoInterpolationTemplate and returns a new instance.
+func (t *NoInterpolationTemplate) Slot(name string, templates ...goht.Template) *NoInterpolationTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for NoInterpolationTemplate.
+func (t *NoInterpolationTemplate) WithChildren(templates ...goht.Template) *NoInterpolationTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlNoInterpolationTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlNoInterpolation returns a new instance of HamlNoInterpolationTemplate.
+// Slots: children.
+func HamlNoInterpolation() *HamlNoInterpolationTemplate {
+	return &HamlNoInterpolationTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>Do the following; No interpolation is necessary.</p>\n<p>"); __err != nil {
 			return
 		}
@@ -180,19 +243,34 @@ func HamlNoInterpolation() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimNoInterpolation() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlNoInterpolationTemplate and returns a new instance.
+func (t *HamlNoInterpolationTemplate) Slot(name string, templates ...goht.Template) *HamlNoInterpolationTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlNoInterpolationTemplate.
+func (t *HamlNoInterpolationTemplate) WithChildren(templates ...goht.Template) *HamlNoInterpolationTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimNoInterpolationTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimNoInterpolation returns a new instance of SlimNoInterpolationTemplate.
+// Slots: children.
+func SlimNoInterpolation() *SlimNoInterpolationTemplate {
+	return &SlimNoInterpolationTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>Do the following; No interpolation is necessary.</p><p>"); __err != nil {
 			return
 		}
@@ -220,7 +298,19 @@ func SlimNoInterpolation() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimNoInterpolationTemplate and returns a new instance.
+func (t *SlimNoInterpolationTemplate) Slot(name string, templates ...goht.Template) *SlimNoInterpolationTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimNoInterpolationTemplate.
+func (t *SlimNoInterpolationTemplate) WithChildren(templates ...goht.Template) *SlimNoInterpolationTemplate {
+	return t.Slot("children", templates...)
 }
 
 // Because the interpolation and tag id share the same starting character,
@@ -229,53 +319,19 @@ func SlimNoInterpolation() goht.Template {
 // This is only necessary when it is the first character of a line and not
 // when it is the first character of text following a tag.
 
-func EscapeInterpolation() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		var __var1 string
-		if __var1, __err = goht.CaptureErrors(goht.EscapeString(someVar)); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(__var1); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(", World!\n<p>"); __err != nil {
-			return
-		}
-		var __var2 string
-		if __var2, __err = goht.CaptureErrors(goht.EscapeString(someVar)); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(__var2); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(", World!</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type EscapeInterpolationTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlEscapeInterpolation() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// EscapeInterpolation returns a new instance of EscapeInterpolationTemplate.
+// Slots: children.
+func EscapeInterpolation() *EscapeInterpolationTemplate {
+	return &EscapeInterpolationTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		var __var1 string
 		if __var1, __err = goht.CaptureErrors(goht.EscapeString(someVar)); __err != nil {
 			return
@@ -300,7 +356,71 @@ func HamlEscapeInterpolation() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for EscapeInterpolationTemplate and returns a new instance.
+func (t *EscapeInterpolationTemplate) Slot(name string, templates ...goht.Template) *EscapeInterpolationTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for EscapeInterpolationTemplate.
+func (t *EscapeInterpolationTemplate) WithChildren(templates ...goht.Template) *EscapeInterpolationTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlEscapeInterpolationTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlEscapeInterpolation returns a new instance of HamlEscapeInterpolationTemplate.
+// Slots: children.
+func HamlEscapeInterpolation() *HamlEscapeInterpolationTemplate {
+	return &HamlEscapeInterpolationTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors(goht.EscapeString(someVar)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(", World!\n<p>"); __err != nil {
+			return
+		}
+		var __var2 string
+		if __var2, __err = goht.CaptureErrors(goht.EscapeString(someVar)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var2); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(", World!</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlEscapeInterpolationTemplate and returns a new instance.
+func (t *HamlEscapeInterpolationTemplate) Slot(name string, templates ...goht.Template) *HamlEscapeInterpolationTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlEscapeInterpolationTemplate.
+func (t *HamlEscapeInterpolationTemplate) WithChildren(templates ...goht.Template) *HamlEscapeInterpolationTemplate {
+	return t.Slot("children", templates...)
 }
 
 // There are also times when you want to ignore the interpolation and just
@@ -317,36 +437,19 @@ func HamlEscapeInterpolation() goht.Template {
 // All three of the following uses of "someVar" are not interpolated, and
 // will render as "#{someVar}" in the final HTML.
 
-func IgnoreInterpolation() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("#{someVar}, World!\n<p>\n#{someVar}, World!\n</p>\nA greeting: #{someVar}, World!\n. this line begins with a period\n# this line begins with a hash\n% this line begins with a percent\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type IgnoreInterpolationTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlIgnoreInterpolation() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// IgnoreInterpolation returns a new instance of IgnoreInterpolationTemplate.
+// Slots: children.
+func IgnoreInterpolation() *IgnoreInterpolationTemplate {
+	return &IgnoreInterpolationTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("#{someVar}, World!\n<p>\n#{someVar}, World!\n</p>\nA greeting: #{someVar}, World!\n. this line begins with a period\n# this line begins with a hash\n% this line begins with a percent\n"); __err != nil {
 			return
 		}
@@ -354,5 +457,52 @@ func HamlIgnoreInterpolation() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for IgnoreInterpolationTemplate and returns a new instance.
+func (t *IgnoreInterpolationTemplate) Slot(name string, templates ...goht.Template) *IgnoreInterpolationTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for IgnoreInterpolationTemplate.
+func (t *IgnoreInterpolationTemplate) WithChildren(templates ...goht.Template) *IgnoreInterpolationTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlIgnoreInterpolationTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlIgnoreInterpolation returns a new instance of HamlIgnoreInterpolationTemplate.
+// Slots: children.
+func HamlIgnoreInterpolation() *HamlIgnoreInterpolationTemplate {
+	return &HamlIgnoreInterpolationTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("#{someVar}, World!\n<p>\n#{someVar}, World!\n</p>\nA greeting: #{someVar}, World!\n. this line begins with a period\n# this line begins with a hash\n% this line begins with a percent\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlIgnoreInterpolationTemplate and returns a new instance.
+func (t *HamlIgnoreInterpolationTemplate) Slot(name string, templates ...goht.Template) *HamlIgnoreInterpolationTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlIgnoreInterpolationTemplate.
+func (t *HamlIgnoreInterpolationTemplate) WithChildren(templates ...goht.Template) *HamlIgnoreInterpolationTemplate {
+	return t.Slot("children", templates...)
 }

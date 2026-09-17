@@ -16,36 +16,19 @@ import "github.com/stackus/goht"
 // not the parsed by the compiler and will not be included in the
 // output.
 
-func RubyStyle() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type RubyStyleTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlRubyStyle() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// RubyStyle returns a new instance of RubyStyleTemplate.
+// Slots: children.
+func RubyStyle() *RubyStyleTemplate {
+	return &RubyStyleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>\n"); __err != nil {
 			return
 		}
@@ -53,22 +36,72 @@ func HamlRubyStyle() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for RubyStyleTemplate and returns a new instance.
+func (t *RubyStyleTemplate) Slot(name string, templates ...goht.Template) *RubyStyleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for RubyStyleTemplate.
+func (t *RubyStyleTemplate) WithChildren(templates ...goht.Template) *RubyStyleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlRubyStyleTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlRubyStyle returns a new instance of HamlRubyStyleTemplate.
+// Slots: children.
+func HamlRubyStyle() *HamlRubyStyleTemplate {
+	return &HamlRubyStyleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlRubyStyleTemplate and returns a new instance.
+func (t *HamlRubyStyleTemplate) Slot(name string, templates ...goht.Template) *HamlRubyStyleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlRubyStyleTemplate.
+func (t *HamlRubyStyleTemplate) WithChildren(templates ...goht.Template) *HamlRubyStyleTemplate {
+	return t.Slot("children", templates...)
 }
 
 // In the Slim syntax "RubyStyle" comments use a "/" to indicate the
 // start of the comment
 
-func SlimRubyStyle() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type SlimRubyStyleTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimRubyStyle returns a new instance of SlimRubyStyleTemplate.
+// Slots: children.
+func SlimRubyStyle() *SlimRubyStyleTemplate {
+	return &SlimRubyStyleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>\n"); __err != nil {
 			return
 		}
@@ -76,41 +109,36 @@ func SlimRubyStyle() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimRubyStyleTemplate and returns a new instance.
+func (t *SlimRubyStyleTemplate) Slot(name string, templates ...goht.Template) *SlimRubyStyleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimRubyStyleTemplate.
+func (t *SlimRubyStyleTemplate) WithChildren(templates ...goht.Template) *SlimRubyStyleTemplate {
+	return t.Slot("children", templates...)
 }
 
 // Ruby style comments can comment nested content.
 
-func RubyStyleNested() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type RubyStyleNestedTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlRubyStyleNested() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// RubyStyleNested returns a new instance of RubyStyleNestedTemplate.
+// Slots: children.
+func RubyStyleNested() *RubyStyleNestedTemplate {
+	return &RubyStyleNestedTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>\n"); __err != nil {
 			return
 		}
@@ -118,19 +146,34 @@ func HamlRubyStyleNested() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimRubyStyleNested() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for RubyStyleNestedTemplate and returns a new instance.
+func (t *RubyStyleNestedTemplate) Slot(name string, templates ...goht.Template) *RubyStyleNestedTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for RubyStyleNestedTemplate.
+func (t *RubyStyleNestedTemplate) WithChildren(templates ...goht.Template) *RubyStyleNestedTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlRubyStyleNestedTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlRubyStyleNested returns a new instance of HamlRubyStyleNestedTemplate.
+// Slots: children.
+func HamlRubyStyleNested() *HamlRubyStyleNestedTemplate {
+	return &HamlRubyStyleNestedTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>\n"); __err != nil {
 			return
 		}
@@ -138,5 +181,52 @@ func SlimRubyStyleNested() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlRubyStyleNestedTemplate and returns a new instance.
+func (t *HamlRubyStyleNestedTemplate) Slot(name string, templates ...goht.Template) *HamlRubyStyleNestedTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlRubyStyleNestedTemplate.
+func (t *HamlRubyStyleNestedTemplate) WithChildren(templates ...goht.Template) *HamlRubyStyleNestedTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimRubyStyleNestedTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimRubyStyleNested returns a new instance of SlimRubyStyleNestedTemplate.
+// Slots: children.
+func SlimRubyStyleNested() *SlimRubyStyleNestedTemplate {
+	return &SlimRubyStyleNestedTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimRubyStyleNestedTemplate and returns a new instance.
+func (t *SlimRubyStyleNestedTemplate) Slot(name string, templates ...goht.Template) *SlimRubyStyleNestedTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimRubyStyleNestedTemplate.
+func (t *SlimRubyStyleNestedTemplate) WithChildren(templates ...goht.Template) *SlimRubyStyleNestedTemplate {
+	return t.Slot("children", templates...)
 }

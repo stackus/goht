@@ -12,36 +12,19 @@ import "github.com/stackus/goht"
 // not be a problem as the Ruby 1.9 style is very similar to the style used
 // by Go for maps and the HTML style is familiar to most web develoeprs.
 
-func StaticAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p class=\"foo\" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type StaticAttrsTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlStaticAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// StaticAttrs returns a new instance of StaticAttrsTemplate.
+// Slots: children.
+func StaticAttrs() *StaticAttrsTemplate {
+	return &StaticAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p class=\"foo\" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
 			return
 		}
@@ -49,19 +32,34 @@ func HamlStaticAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimStaticAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for StaticAttrsTemplate and returns a new instance.
+func (t *StaticAttrsTemplate) Slot(name string, templates ...goht.Template) *StaticAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for StaticAttrsTemplate.
+func (t *StaticAttrsTemplate) WithChildren(templates ...goht.Template) *StaticAttrsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlStaticAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlStaticAttrs returns a new instance of HamlStaticAttrsTemplate.
+// Slots: children.
+func HamlStaticAttrs() *HamlStaticAttrsTemplate {
+	return &HamlStaticAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p class=\"foo\" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
 			return
 		}
@@ -69,7 +67,54 @@ func SlimStaticAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlStaticAttrsTemplate and returns a new instance.
+func (t *HamlStaticAttrsTemplate) Slot(name string, templates ...goht.Template) *HamlStaticAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlStaticAttrsTemplate.
+func (t *HamlStaticAttrsTemplate) WithChildren(templates ...goht.Template) *HamlStaticAttrsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimStaticAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimStaticAttrs returns a new instance of SlimStaticAttrsTemplate.
+// Slots: children.
+func SlimStaticAttrs() *SlimStaticAttrsTemplate {
+	return &SlimStaticAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p class=\"foo\" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimStaticAttrsTemplate and returns a new instance.
+func (t *SlimStaticAttrsTemplate) Slot(name string, templates ...goht.Template) *SlimStaticAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimStaticAttrsTemplate.
+func (t *SlimStaticAttrsTemplate) WithChildren(templates ...goht.Template) *SlimStaticAttrsTemplate {
+	return t.Slot("children", templates...)
 }
 
 // You can also use dynamic values for your attributes. Dynamic attribute
@@ -78,47 +123,19 @@ func SlimStaticAttrs() goht.Template {
 
 var myDynamicValue = "foo"
 
-func DynamicAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p"); __err != nil {
-			return
-		}
-		var __var1 string
-		__var1, __err = goht.BuildClassList(myDynamicValue)
-		if __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type DynamicAttrsTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlDynamicAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// DynamicAttrs returns a new instance of DynamicAttrsTemplate.
+// Slots: children.
+func DynamicAttrs() *DynamicAttrsTemplate {
+	return &DynamicAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p"); __err != nil {
 			return
 		}
@@ -137,19 +154,34 @@ func HamlDynamicAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimDynamicAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for DynamicAttrsTemplate and returns a new instance.
+func (t *DynamicAttrsTemplate) Slot(name string, templates ...goht.Template) *DynamicAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for DynamicAttrsTemplate.
+func (t *DynamicAttrsTemplate) WithChildren(templates ...goht.Template) *DynamicAttrsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlDynamicAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlDynamicAttrs returns a new instance of HamlDynamicAttrsTemplate.
+// Slots: children.
+func HamlDynamicAttrs() *HamlDynamicAttrsTemplate {
+	return &HamlDynamicAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p"); __err != nil {
 			return
 		}
@@ -168,7 +200,65 @@ func SlimDynamicAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlDynamicAttrsTemplate and returns a new instance.
+func (t *HamlDynamicAttrsTemplate) Slot(name string, templates ...goht.Template) *HamlDynamicAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlDynamicAttrsTemplate.
+func (t *HamlDynamicAttrsTemplate) WithChildren(templates ...goht.Template) *HamlDynamicAttrsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimDynamicAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimDynamicAttrs returns a new instance of SlimDynamicAttrsTemplate.
+// Slots: children.
+func SlimDynamicAttrs() *SlimDynamicAttrsTemplate {
+	return &SlimDynamicAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p"); __err != nil {
+			return
+		}
+		var __var1 string
+		__var1, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimDynamicAttrsTemplate and returns a new instance.
+func (t *SlimDynamicAttrsTemplate) Slot(name string, templates ...goht.Template) *SlimDynamicAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimDynamicAttrsTemplate.
+func (t *SlimDynamicAttrsTemplate) WithChildren(templates ...goht.Template) *SlimDynamicAttrsTemplate {
+	return t.Slot("children", templates...)
 }
 
 // There are times when you have a lot of attributes and you want to keep
@@ -177,47 +267,19 @@ func SlimDynamicAttrs() goht.Template {
 // You may include a comma after the last attribute if you wish but it is
 // not required.
 
-func MultilineAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p"); __err != nil {
-			return
-		}
-		var __var1 string
-		__var1, __err = goht.BuildClassList(myDynamicValue)
-		if __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type MultilineAttrsTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlMultilineAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// MultilineAttrs returns a new instance of MultilineAttrsTemplate.
+// Slots: children.
+func MultilineAttrs() *MultilineAttrsTemplate {
+	return &MultilineAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p"); __err != nil {
 			return
 		}
@@ -236,81 +298,34 @@ func HamlMultilineAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimMultilineAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p"); __err != nil {
-			return
-		}
-		var __var1 string
-		__var1, __err = goht.BuildClassList(myDynamicValue)
-		if __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+// Slot sets a named slot for MultilineAttrsTemplate and returns a new instance.
+func (t *MultilineAttrsTemplate) Slot(name string, templates ...goht.Template) *MultilineAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
 }
 
-func HamlMultilineHtmlStyleAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p"); __err != nil {
-			return
-		}
-		var __var1 string
-		__var1, __err = goht.BuildClassList(myDynamicValue)
-		if __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+// WithChildren sets the "children" slot for MultilineAttrsTemplate.
+func (t *MultilineAttrsTemplate) WithChildren(templates ...goht.Template) *MultilineAttrsTemplate {
+	return t.Slot("children", templates...)
 }
 
-func SlimMultilineHtmlStyleAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type HamlMultilineAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlMultilineAttrs returns a new instance of HamlMultilineAttrsTemplate.
+// Slots: children.
+func HamlMultilineAttrs() *HamlMultilineAttrsTemplate {
+	return &HamlMultilineAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p"); __err != nil {
 			return
 		}
@@ -329,22 +344,175 @@ func SlimMultilineHtmlStyleAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlMultilineAttrsTemplate and returns a new instance.
+func (t *HamlMultilineAttrsTemplate) Slot(name string, templates ...goht.Template) *HamlMultilineAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlMultilineAttrsTemplate.
+func (t *HamlMultilineAttrsTemplate) WithChildren(templates ...goht.Template) *HamlMultilineAttrsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimMultilineAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimMultilineAttrs returns a new instance of SlimMultilineAttrsTemplate.
+// Slots: children.
+func SlimMultilineAttrs() *SlimMultilineAttrsTemplate {
+	return &SlimMultilineAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p"); __err != nil {
+			return
+		}
+		var __var1 string
+		__var1, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimMultilineAttrsTemplate and returns a new instance.
+func (t *SlimMultilineAttrsTemplate) Slot(name string, templates ...goht.Template) *SlimMultilineAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimMultilineAttrsTemplate.
+func (t *SlimMultilineAttrsTemplate) WithChildren(templates ...goht.Template) *SlimMultilineAttrsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlMultilineHtmlStyleAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlMultilineHtmlStyleAttrs returns a new instance of HamlMultilineHtmlStyleAttrsTemplate.
+// Slots: children.
+func HamlMultilineHtmlStyleAttrs() *HamlMultilineHtmlStyleAttrsTemplate {
+	return &HamlMultilineHtmlStyleAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p"); __err != nil {
+			return
+		}
+		var __var1 string
+		__var1, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlMultilineHtmlStyleAttrsTemplate and returns a new instance.
+func (t *HamlMultilineHtmlStyleAttrsTemplate) Slot(name string, templates ...goht.Template) *HamlMultilineHtmlStyleAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlMultilineHtmlStyleAttrsTemplate.
+func (t *HamlMultilineHtmlStyleAttrsTemplate) WithChildren(templates ...goht.Template) *HamlMultilineHtmlStyleAttrsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimMultilineHtmlStyleAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimMultilineHtmlStyleAttrs returns a new instance of SlimMultilineHtmlStyleAttrsTemplate.
+// Slots: children.
+func SlimMultilineHtmlStyleAttrs() *SlimMultilineHtmlStyleAttrsTemplate {
+	return &SlimMultilineHtmlStyleAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p"); __err != nil {
+			return
+		}
+		var __var1 string
+		__var1, __err = goht.BuildClassList(myDynamicValue)
+		if __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimMultilineHtmlStyleAttrsTemplate and returns a new instance.
+func (t *SlimMultilineHtmlStyleAttrsTemplate) Slot(name string, templates ...goht.Template) *SlimMultilineHtmlStyleAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimMultilineHtmlStyleAttrsTemplate.
+func (t *SlimMultilineHtmlStyleAttrsTemplate) WithChildren(templates ...goht.Template) *SlimMultilineHtmlStyleAttrsTemplate {
+	return t.Slot("children", templates...)
 }
 
 // You may include as much whitespace as you wish between the attribute,
 // operator, value, and attribute separator. The following are all valid.
 
-func WhitespaceAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type WhitespaceAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// WhitespaceAttrs returns a new instance of WhitespaceAttrsTemplate.
+// Slots: children.
+func WhitespaceAttrs() *WhitespaceAttrsTemplate {
+	return &WhitespaceAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p"); __err != nil {
 			return
 		}
@@ -396,19 +564,34 @@ func WhitespaceAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlWhitespaceAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for WhitespaceAttrsTemplate and returns a new instance.
+func (t *WhitespaceAttrsTemplate) Slot(name string, templates ...goht.Template) *WhitespaceAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for WhitespaceAttrsTemplate.
+func (t *WhitespaceAttrsTemplate) WithChildren(templates ...goht.Template) *WhitespaceAttrsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlWhitespaceAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlWhitespaceAttrs returns a new instance of HamlWhitespaceAttrsTemplate.
+// Slots: children.
+func HamlWhitespaceAttrs() *HamlWhitespaceAttrsTemplate {
+	return &HamlWhitespaceAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p"); __err != nil {
 			return
 		}
@@ -493,19 +676,34 @@ func HamlWhitespaceAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimWhitespaceAttrs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlWhitespaceAttrsTemplate and returns a new instance.
+func (t *HamlWhitespaceAttrsTemplate) Slot(name string, templates ...goht.Template) *HamlWhitespaceAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlWhitespaceAttrsTemplate.
+func (t *HamlWhitespaceAttrsTemplate) WithChildren(templates ...goht.Template) *HamlWhitespaceAttrsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimWhitespaceAttrsTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimWhitespaceAttrs returns a new instance of SlimWhitespaceAttrsTemplate.
+// Slots: children.
+func SlimWhitespaceAttrs() *SlimWhitespaceAttrsTemplate {
+	return &SlimWhitespaceAttrsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p"); __err != nil {
 			return
 		}
@@ -590,7 +788,19 @@ func SlimWhitespaceAttrs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimWhitespaceAttrsTemplate and returns a new instance.
+func (t *SlimWhitespaceAttrsTemplate) Slot(name string, templates ...goht.Template) *SlimWhitespaceAttrsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimWhitespaceAttrsTemplate.
+func (t *SlimWhitespaceAttrsTemplate) WithChildren(templates ...goht.Template) *SlimWhitespaceAttrsTemplate {
+	return t.Slot("children", templates...)
 }
 
 // The dynamic attribute values may also include formatting rules just like
@@ -599,42 +809,19 @@ func SlimWhitespaceAttrs() goht.Template {
 
 var intVar = 10
 
-func FormattedValue() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<textarea rows=\""); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(goht.EscapeString(goht.FormatString("%d", intVar)) + "\""); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" cols=\"80\"></textarea>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type FormattedValueTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlFormattedValue() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// FormattedValue returns a new instance of FormattedValueTemplate.
+// Slots: children.
+func FormattedValue() *FormattedValueTemplate {
+	return &FormattedValueTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<textarea rows=\""); __err != nil {
 			return
 		}
@@ -648,19 +835,34 @@ func HamlFormattedValue() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimFormattedValue() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for FormattedValueTemplate and returns a new instance.
+func (t *FormattedValueTemplate) Slot(name string, templates ...goht.Template) *FormattedValueTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for FormattedValueTemplate.
+func (t *FormattedValueTemplate) WithChildren(templates ...goht.Template) *FormattedValueTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlFormattedValueTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlFormattedValue returns a new instance of HamlFormattedValueTemplate.
+// Slots: children.
+func HamlFormattedValue() *HamlFormattedValueTemplate {
+	return &HamlFormattedValueTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<textarea rows=\""); __err != nil {
 			return
 		}
@@ -674,5 +876,58 @@ func SlimFormattedValue() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlFormattedValueTemplate and returns a new instance.
+func (t *HamlFormattedValueTemplate) Slot(name string, templates ...goht.Template) *HamlFormattedValueTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlFormattedValueTemplate.
+func (t *HamlFormattedValueTemplate) WithChildren(templates ...goht.Template) *HamlFormattedValueTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimFormattedValueTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimFormattedValue returns a new instance of SlimFormattedValueTemplate.
+// Slots: children.
+func SlimFormattedValue() *SlimFormattedValueTemplate {
+	return &SlimFormattedValueTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<textarea rows=\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(goht.EscapeString(goht.FormatString("%d", intVar)) + "\""); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" cols=\"80\"></textarea>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimFormattedValueTemplate and returns a new instance.
+func (t *SlimFormattedValueTemplate) Slot(name string, templates ...goht.Template) *SlimFormattedValueTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimFormattedValueTemplate.
+func (t *SlimFormattedValueTemplate) WithChildren(templates ...goht.Template) *SlimFormattedValueTemplate {
+	return t.Slot("children", templates...)
 }

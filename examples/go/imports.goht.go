@@ -17,46 +17,19 @@ import (
 // imports used by the Goht compiler itself. Duplicate imports
 // will be removed.
 
-func ImportExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p>"); __err != nil {
-			return
-		}
-		var __var1 string
-		if __var1, __err = goht.CaptureErrors(goht.EscapeString(fmt.Sprintf("Hello, %s!", strings.TrimSuffix("World!", "!")))); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(__var1); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type ImportExampleTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlImportExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// ImportExample returns a new instance of ImportExampleTemplate.
+// Slots: children.
+func ImportExample() *ImportExampleTemplate {
+	return &ImportExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
@@ -74,19 +47,34 @@ func HamlImportExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimImportExample() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for ImportExampleTemplate and returns a new instance.
+func (t *ImportExampleTemplate) Slot(name string, templates ...goht.Template) *ImportExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for ImportExampleTemplate.
+func (t *ImportExampleTemplate) WithChildren(templates ...goht.Template) *ImportExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlImportExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlImportExample returns a new instance of HamlImportExampleTemplate.
+// Slots: children.
+func HamlImportExample() *HamlImportExampleTemplate {
+	return &HamlImportExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
@@ -104,5 +92,62 @@ func SlimImportExample() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlImportExampleTemplate and returns a new instance.
+func (t *HamlImportExampleTemplate) Slot(name string, templates ...goht.Template) *HamlImportExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlImportExampleTemplate.
+func (t *HamlImportExampleTemplate) WithChildren(templates ...goht.Template) *HamlImportExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimImportExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimImportExample returns a new instance of SlimImportExampleTemplate.
+// Slots: children.
+func SlimImportExample() *SlimImportExampleTemplate {
+	return &SlimImportExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>"); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors(goht.EscapeString(fmt.Sprintf("Hello, %s!", strings.TrimSuffix("World!", "!")))); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimImportExampleTemplate and returns a new instance.
+func (t *SlimImportExampleTemplate) Slot(name string, templates ...goht.Template) *SlimImportExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimImportExampleTemplate.
+func (t *SlimImportExampleTemplate) WithChildren(templates ...goht.Template) *SlimImportExampleTemplate {
+	return t.Slot("children", templates...)
 }

@@ -12,16 +12,19 @@ import "github.com/stackus/goht"
 // be ignored.
 // Variable interpolation is still performed.
 
-func Plain() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type PlainTemplate struct {
+	goht.SlotTemplate
+}
+
+// Plain returns a new instance of PlainTemplate.
+// Slots: children.
+func Plain() *PlainTemplate {
+	return &PlainTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>\nThis is plain text. It <pre>will</pre> be displayed as HTML.\n"); __err != nil {
 			return
 		}
@@ -39,19 +42,34 @@ func Plain() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlPlain() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for PlainTemplate and returns a new instance.
+func (t *PlainTemplate) Slot(name string, templates ...goht.Template) *PlainTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for PlainTemplate.
+func (t *PlainTemplate) WithChildren(templates ...goht.Template) *PlainTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlPlainTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlPlain returns a new instance of HamlPlainTemplate.
+// Slots: children.
+func HamlPlain() *HamlPlainTemplate {
+	return &HamlPlainTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>\nThis is plain text. It <pre>will</pre> be displayed as HTML.\n"); __err != nil {
 			return
 		}
@@ -69,19 +87,34 @@ func HamlPlain() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func Escaped() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlPlainTemplate and returns a new instance.
+func (t *HamlPlainTemplate) Slot(name string, templates ...goht.Template) *HamlPlainTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlPlainTemplate.
+func (t *HamlPlainTemplate) WithChildren(templates ...goht.Template) *HamlPlainTemplate {
+	return t.Slot("children", templates...)
+}
+
+type EscapedTemplate struct {
+	goht.SlotTemplate
+}
+
+// Escaped returns a new instance of EscapedTemplate.
+// Slots: children.
+func Escaped() *EscapedTemplate {
+	return &EscapedTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>\nThis is escaped text. It &lt;pre&gt;will not&lt;/pre&gt; be displayed as HTML.\n"); __err != nil {
 			return
 		}
@@ -99,19 +132,34 @@ func Escaped() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlEscaped() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for EscapedTemplate and returns a new instance.
+func (t *EscapedTemplate) Slot(name string, templates ...goht.Template) *EscapedTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for EscapedTemplate.
+func (t *EscapedTemplate) WithChildren(templates ...goht.Template) *EscapedTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlEscapedTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlEscaped returns a new instance of HamlEscapedTemplate.
+// Slots: children.
+func HamlEscaped() *HamlEscapedTemplate {
+	return &HamlEscapedTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>\nThis is escaped text. It &lt;pre&gt;will not&lt;/pre&gt; be displayed as HTML.\n"); __err != nil {
 			return
 		}
@@ -129,19 +177,34 @@ func HamlEscaped() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func Preserve() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlEscapedTemplate and returns a new instance.
+func (t *HamlEscapedTemplate) Slot(name string, templates ...goht.Template) *HamlEscapedTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlEscapedTemplate.
+func (t *HamlEscapedTemplate) WithChildren(templates ...goht.Template) *HamlEscapedTemplate {
+	return t.Slot("children", templates...)
+}
+
+type PreserveTemplate struct {
+	goht.SlotTemplate
+}
+
+// Preserve returns a new instance of PreserveTemplate.
+// Slots: children.
+func Preserve() *PreserveTemplate {
+	return &PreserveTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>\nThis is preserved text. It <pre>will</pre> be displayed as HTML.&#x000A;"); __err != nil {
 			return
 		}
@@ -159,19 +222,34 @@ func Preserve() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlPreserve() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for PreserveTemplate and returns a new instance.
+func (t *PreserveTemplate) Slot(name string, templates ...goht.Template) *PreserveTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for PreserveTemplate.
+func (t *PreserveTemplate) WithChildren(templates ...goht.Template) *PreserveTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlPreserveTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlPreserve returns a new instance of HamlPreserveTemplate.
+// Slots: children.
+func HamlPreserve() *HamlPreserveTemplate {
+	return &HamlPreserveTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>\nThis is preserved text. It <pre>will</pre> be displayed as HTML.&#x000A;"); __err != nil {
 			return
 		}
@@ -189,5 +267,17 @@ func HamlPreserve() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlPreserveTemplate and returns a new instance.
+func (t *HamlPreserveTemplate) Slot(name string, templates ...goht.Template) *HamlPreserveTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlPreserveTemplate.
+func (t *HamlPreserveTemplate) WithChildren(templates ...goht.Template) *HamlPreserveTemplate {
+	return t.Slot("children", templates...)
 }

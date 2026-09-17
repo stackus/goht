@@ -12,36 +12,19 @@ import "github.com/stackus/goht"
 // that contain alphanumeric characters, dashes (-), and
 // underscores (_) are all acceptable as-is.
 
-func SimpleNames() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" data-foo=\"bar\" odd_name=\"baz\" _=\"I&#39;m a _hyperscript attribute!\">Goht</a>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type SimpleNamesTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlSimpleNames() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// SimpleNames returns a new instance of SimpleNamesTemplate.
+// Slots: children.
+func SimpleNames() *SimpleNamesTemplate {
+	return &SimpleNamesTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" data-foo=\"bar\" odd_name=\"baz\" _=\"I&#39;m a _hyperscript attribute!\">Goht</a>\n"); __err != nil {
 			return
 		}
@@ -49,19 +32,34 @@ func HamlSimpleNames() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimSimpleNames() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for SimpleNamesTemplate and returns a new instance.
+func (t *SimpleNamesTemplate) Slot(name string, templates ...goht.Template) *SimpleNamesTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SimpleNamesTemplate.
+func (t *SimpleNamesTemplate) WithChildren(templates ...goht.Template) *SimpleNamesTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlSimpleNamesTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlSimpleNames returns a new instance of HamlSimpleNamesTemplate.
+// Slots: children.
+func HamlSimpleNames() *HamlSimpleNamesTemplate {
+	return &HamlSimpleNamesTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" data-foo=\"bar\" odd_name=\"baz\" _=\"I&#39;m a _hyperscript attribute!\">Goht</a>\n"); __err != nil {
 			return
 		}
@@ -69,7 +67,54 @@ func SlimSimpleNames() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlSimpleNamesTemplate and returns a new instance.
+func (t *HamlSimpleNamesTemplate) Slot(name string, templates ...goht.Template) *HamlSimpleNamesTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlSimpleNamesTemplate.
+func (t *HamlSimpleNamesTemplate) WithChildren(templates ...goht.Template) *HamlSimpleNamesTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimSimpleNamesTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimSimpleNames returns a new instance of SlimSimpleNamesTemplate.
+// Slots: children.
+func SlimSimpleNames() *SlimSimpleNamesTemplate {
+	return &SlimSimpleNamesTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" data-foo=\"bar\" odd_name=\"baz\" _=\"I&#39;m a _hyperscript attribute!\">Goht</a>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimSimpleNamesTemplate and returns a new instance.
+func (t *SlimSimpleNamesTemplate) Slot(name string, templates ...goht.Template) *SlimSimpleNamesTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimSimpleNamesTemplate.
+func (t *SlimSimpleNamesTemplate) WithChildren(templates ...goht.Template) *SlimSimpleNamesTemplate {
+	return t.Slot("children", templates...)
 }
 
 // For more complex names, such as data attributes, you can use
@@ -79,36 +124,19 @@ func SlimSimpleNames() goht.Template {
 // - Names that contain a question mark (?).
 // The names will be rendered into the HTML without the quotes.
 
-func ComplexNames() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" :class=\"show ? &#39;&#39; : &#39;hidden&#39;\" @click=\"show = !show\">Goht</a>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type ComplexNamesTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlComplexNames() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// ComplexNames returns a new instance of ComplexNamesTemplate.
+// Slots: children.
+func ComplexNames() *ComplexNamesTemplate {
+	return &ComplexNamesTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" :class=\"show ? &#39;&#39; : &#39;hidden&#39;\" @click=\"show = !show\">Goht</a>\n"); __err != nil {
 			return
 		}
@@ -116,19 +144,34 @@ func HamlComplexNames() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimComplexNames() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for ComplexNamesTemplate and returns a new instance.
+func (t *ComplexNamesTemplate) Slot(name string, templates ...goht.Template) *ComplexNamesTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for ComplexNamesTemplate.
+func (t *ComplexNamesTemplate) WithChildren(templates ...goht.Template) *ComplexNamesTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlComplexNamesTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlComplexNames returns a new instance of HamlComplexNamesTemplate.
+// Slots: children.
+func HamlComplexNames() *HamlComplexNamesTemplate {
+	return &HamlComplexNamesTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" :class=\"show ? &#39;&#39; : &#39;hidden&#39;\" @click=\"show = !show\">Goht</a>\n"); __err != nil {
 			return
 		}
@@ -136,5 +179,52 @@ func SlimComplexNames() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlComplexNamesTemplate and returns a new instance.
+func (t *HamlComplexNamesTemplate) Slot(name string, templates ...goht.Template) *HamlComplexNamesTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlComplexNamesTemplate.
+func (t *HamlComplexNamesTemplate) WithChildren(templates ...goht.Template) *HamlComplexNamesTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimComplexNamesTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimComplexNames returns a new instance of SlimComplexNamesTemplate.
+// Slots: children.
+func SlimComplexNames() *SlimComplexNamesTemplate {
+	return &SlimComplexNamesTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" :class=\"show ? &#39;&#39; : &#39;hidden&#39;\" @click=\"show = !show\">Goht</a>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimComplexNamesTemplate and returns a new instance.
+func (t *SlimComplexNamesTemplate) Slot(name string, templates ...goht.Template) *SlimComplexNamesTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimComplexNamesTemplate.
+func (t *SlimComplexNamesTemplate) WithChildren(templates ...goht.Template) *SlimComplexNamesTemplate {
+	return t.Slot("children", templates...)
 }

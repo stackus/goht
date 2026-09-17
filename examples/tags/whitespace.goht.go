@@ -24,36 +24,19 @@ import "github.com/stackus/goht"
 // Whitespace can have subtle effects on the final output of the
 // rendered HTML, so it is important to understand how it works.
 
-func Whitespace() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p>This text has no whitespace between it and the tag.</p>\n<p>\nThis text has whitespace between it and the tag.\n<p>This tag has whitespace between it and the tag above.</p>\n</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type WhitespaceTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlWhitespace() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Whitespace returns a new instance of WhitespaceTemplate.
+// Slots: children.
+func Whitespace() *WhitespaceTemplate {
+	return &WhitespaceTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This text has no whitespace between it and the tag.</p>\n<p>\nThis text has whitespace between it and the tag.\n<p>This tag has whitespace between it and the tag above.</p>\n</p>\n"); __err != nil {
 			return
 		}
@@ -61,21 +44,71 @@ func HamlWhitespace() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for WhitespaceTemplate and returns a new instance.
+func (t *WhitespaceTemplate) Slot(name string, templates ...goht.Template) *WhitespaceTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for WhitespaceTemplate.
+func (t *WhitespaceTemplate) WithChildren(templates ...goht.Template) *WhitespaceTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlWhitespaceTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlWhitespace returns a new instance of HamlWhitespaceTemplate.
+// Slots: children.
+func HamlWhitespace() *HamlWhitespaceTemplate {
+	return &HamlWhitespaceTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>This text has no whitespace between it and the tag.</p>\n<p>\nThis text has whitespace between it and the tag.\n<p>This tag has whitespace between it and the tag above.</p>\n</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlWhitespaceTemplate and returns a new instance.
+func (t *HamlWhitespaceTemplate) Slot(name string, templates ...goht.Template) *HamlWhitespaceTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlWhitespaceTemplate.
+func (t *HamlWhitespaceTemplate) WithChildren(templates ...goht.Template) *HamlWhitespaceTemplate {
+	return t.Slot("children", templates...)
 }
 
 // Slim does not keep whitespace between tags by default.
 
-func SlimWhitespace() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type SlimWhitespaceTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimWhitespace returns a new instance of SlimWhitespaceTemplate.
+// Slots: children.
+func SlimWhitespace() *SlimWhitespaceTemplate {
+	return &SlimWhitespaceTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This text has no whitespace between it and the tag.</p><p><This>text has NO whitespace between it and the tag.</This><p>This tag has NO whitespace between it and the tag above.</p></p>\n"); __err != nil {
 			return
 		}
@@ -83,7 +116,19 @@ func SlimWhitespace() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimWhitespaceTemplate and returns a new instance.
+func (t *SlimWhitespaceTemplate) Slot(name string, templates ...goht.Template) *SlimWhitespaceTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimWhitespaceTemplate.
+func (t *SlimWhitespaceTemplate) WithChildren(templates ...goht.Template) *SlimWhitespaceTemplate {
+	return t.Slot("children", templates...)
 }
 
 // You can control the whitespace that will be rendered between tags
@@ -95,36 +140,19 @@ func SlimWhitespace() goht.Template {
 // You can use either or both of these operators on a tag, when using
 // both, the order does not matter.
 
-func RemoveWhitespace() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p>~☢<\nThis text has no whitespace between it and the parent tag.\n>☢~</p>\n<p>\nThere is whitespace between this text and the parent tag.\n>☢~<p>~☢<\nThis text has no whitespace between it and the parent tag.\nThere is also no whitespace between this tag and the sibling text above it.\nFinally, the tag has no whitespace between it and the outer tag.\n>☢~</p>~☢<</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type RemoveWhitespaceTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlRemoveWhitespace() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// RemoveWhitespace returns a new instance of RemoveWhitespaceTemplate.
+// Slots: children.
+func RemoveWhitespace() *RemoveWhitespaceTemplate {
+	return &RemoveWhitespaceTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>~☢<\nThis text has no whitespace between it and the parent tag.\n>☢~</p>\n<p>\nThere is whitespace between this text and the parent tag.\n>☢~<p>~☢<\nThis text has no whitespace between it and the parent tag.\nThere is also no whitespace between this tag and the sibling text above it.\nFinally, the tag has no whitespace between it and the outer tag.\n>☢~</p>~☢<</p>\n"); __err != nil {
 			return
 		}
@@ -132,7 +160,54 @@ func HamlRemoveWhitespace() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for RemoveWhitespaceTemplate and returns a new instance.
+func (t *RemoveWhitespaceTemplate) Slot(name string, templates ...goht.Template) *RemoveWhitespaceTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for RemoveWhitespaceTemplate.
+func (t *RemoveWhitespaceTemplate) WithChildren(templates ...goht.Template) *RemoveWhitespaceTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlRemoveWhitespaceTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlRemoveWhitespace returns a new instance of HamlRemoveWhitespaceTemplate.
+// Slots: children.
+func HamlRemoveWhitespace() *HamlRemoveWhitespaceTemplate {
+	return &HamlRemoveWhitespaceTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>~☢<\nThis text has no whitespace between it and the parent tag.\n>☢~</p>\n<p>\nThere is whitespace between this text and the parent tag.\n>☢~<p>~☢<\nThis text has no whitespace between it and the parent tag.\nThere is also no whitespace between this tag and the sibling text above it.\nFinally, the tag has no whitespace between it and the outer tag.\n>☢~</p>~☢<</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlRemoveWhitespaceTemplate and returns a new instance.
+func (t *HamlRemoveWhitespaceTemplate) Slot(name string, templates ...goht.Template) *HamlRemoveWhitespaceTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlRemoveWhitespaceTemplate.
+func (t *HamlRemoveWhitespaceTemplate) WithChildren(templates ...goht.Template) *HamlRemoveWhitespaceTemplate {
+	return t.Slot("children", templates...)
 }
 
 // You can add whitespace between tags by using the `>` and `<` operators.
@@ -144,16 +219,19 @@ func HamlRemoveWhitespace() goht.Template {
 // p< Text
 // p<> Text
 
-func SlimAddWhitespace() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type SlimAddWhitespaceTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimAddWhitespace returns a new instance of SlimAddWhitespaceTemplate.
+// Slots: children.
+func SlimAddWhitespace() *SlimAddWhitespaceTemplate {
+	return &SlimAddWhitespaceTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div>This tag has whitespace after it.</div> <div>There is whitespace between this text and the parent tag. <p>There is whitespace before and after this tag.</p> </div>\n"); __err != nil {
 			return
 		}
@@ -161,5 +239,17 @@ func SlimAddWhitespace() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimAddWhitespaceTemplate and returns a new instance.
+func (t *SlimAddWhitespaceTemplate) Slot(name string, templates ...goht.Template) *SlimAddWhitespaceTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimAddWhitespaceTemplate.
+func (t *SlimAddWhitespaceTemplate) WithChildren(templates ...goht.Template) *SlimAddWhitespaceTemplate {
+	return t.Slot("children", templates...)
 }

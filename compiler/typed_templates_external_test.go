@@ -3,11 +3,14 @@ package compiler_test
 import (
 	"context"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/stackus/goht"
 	"github.com/stackus/goht/compiler/testdata"
+	"github.com/stackus/goht/compiler/testdata/integration"
 )
 
 func TestGeneratedTypedTemplateAPI(t *testing.T) {
@@ -97,6 +100,26 @@ func TestGeneratedSlotDirectives(t *testing.T) {
 				t.Errorf("Render() = %q, want %q", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestFluentCompositionIntegration(t *testing.T) {
+	items := goht.Fragment{integration.ListItem("one"), integration.ListItem("two")}
+	template := integration.Layout().
+		WithHeader(integration.Header("Title")).
+		WithContent(integration.Panel().WithBody(items)).
+		WithChildren(integration.Footer())
+
+	var output strings.Builder
+	if err := template.Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	want, err := os.ReadFile(filepath.Join("testdata", "integration", "composition.html"))
+	if err != nil {
+		t.Fatalf("read golden output: %v", err)
+	}
+	if got := output.String(); got != string(want) {
+		t.Errorf("Render() = %q, want %q", got, want)
 	}
 }
 

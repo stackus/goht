@@ -15,16 +15,19 @@ import "github.com/stackus/goht"
 // when you are sure that the text is safe. If you are unsure, then
 // you should use the default escaping.
 
-func UnescapeCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type UnescapeCodeTemplate struct {
+	goht.SlotTemplate
+}
+
+// UnescapeCode returns a new instance of UnescapeCodeTemplate.
+// Slots: children.
+func UnescapeCode() *UnescapeCodeTemplate {
+	return &UnescapeCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
@@ -52,19 +55,34 @@ func UnescapeCode() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlUnescapeCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for UnescapeCodeTemplate and returns a new instance.
+func (t *UnescapeCodeTemplate) Slot(name string, templates ...goht.Template) *UnescapeCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for UnescapeCodeTemplate.
+func (t *UnescapeCodeTemplate) WithChildren(templates ...goht.Template) *UnescapeCodeTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlUnescapeCodeTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlUnescapeCode returns a new instance of HamlUnescapeCodeTemplate.
+// Slots: children.
+func HamlUnescapeCode() *HamlUnescapeCodeTemplate {
+	return &HamlUnescapeCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
@@ -92,19 +110,34 @@ func HamlUnescapeCode() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimUnescapeCode() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlUnescapeCodeTemplate and returns a new instance.
+func (t *HamlUnescapeCodeTemplate) Slot(name string, templates ...goht.Template) *HamlUnescapeCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlUnescapeCodeTemplate.
+func (t *HamlUnescapeCodeTemplate) WithChildren(templates ...goht.Template) *HamlUnescapeCodeTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimUnescapeCodeTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimUnescapeCode returns a new instance of SlimUnescapeCodeTemplate.
+// Slots: children.
+func SlimUnescapeCode() *SlimUnescapeCodeTemplate {
+	return &SlimUnescapeCodeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
@@ -132,62 +165,36 @@ func SlimUnescapeCode() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimUnescapeCodeTemplate and returns a new instance.
+func (t *SlimUnescapeCodeTemplate) Slot(name string, templates ...goht.Template) *SlimUnescapeCodeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimUnescapeCodeTemplate.
+func (t *SlimUnescapeCodeTemplate) WithChildren(templates ...goht.Template) *SlimUnescapeCodeTemplate {
+	return t.Slot("children", templates...)
 }
 
 // It can also affect the interpolated values.
 
-func UnescapeInterpolation() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		var html = "<em>is</em>"
-		if _, __err = __buf.WriteString("<p>This "); __err != nil {
-			return
-		}
-		var __var1 string
-		if __var1, __err = goht.CaptureErrors(goht.EscapeString(html)); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(__var1); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" is escaped. (Ampersands everywhere!)</p>\n<p>This "); __err != nil {
-			return
-		}
-		var __var2 string
-		if __var2, __err = goht.CaptureErrors(html); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(__var2); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString(" is NOT escaped.</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type UnescapeInterpolationTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlUnescapeInterpolation() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// UnescapeInterpolation returns a new instance of UnescapeInterpolationTemplate.
+// Slots: children.
+func UnescapeInterpolation() *UnescapeInterpolationTemplate {
+	return &UnescapeInterpolationTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		var html = "<em>is</em>"
 		if _, __err = __buf.WriteString("<p>This "); __err != nil {
 			return
@@ -216,43 +223,94 @@ func HamlUnescapeInterpolation() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for UnescapeInterpolationTemplate and returns a new instance.
+func (t *UnescapeInterpolationTemplate) Slot(name string, templates ...goht.Template) *UnescapeInterpolationTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for UnescapeInterpolationTemplate.
+func (t *UnescapeInterpolationTemplate) WithChildren(templates ...goht.Template) *UnescapeInterpolationTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlUnescapeInterpolationTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlUnescapeInterpolation returns a new instance of HamlUnescapeInterpolationTemplate.
+// Slots: children.
+func HamlUnescapeInterpolation() *HamlUnescapeInterpolationTemplate {
+	return &HamlUnescapeInterpolationTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		var html = "<em>is</em>"
+		if _, __err = __buf.WriteString("<p>This "); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors(goht.EscapeString(html)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" is escaped. (Ampersands everywhere!)</p>\n<p>This "); __err != nil {
+			return
+		}
+		var __var2 string
+		if __var2, __err = goht.CaptureErrors(html); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var2); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" is NOT escaped.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlUnescapeInterpolationTemplate and returns a new instance.
+func (t *HamlUnescapeInterpolationTemplate) Slot(name string, templates ...goht.Template) *HamlUnescapeInterpolationTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlUnescapeInterpolationTemplate.
+func (t *HamlUnescapeInterpolationTemplate) WithChildren(templates ...goht.Template) *HamlUnescapeInterpolationTemplate {
+	return t.Slot("children", templates...)
 }
 
 // The plain text that you write into your Goht templates will not be
 // altered by the addition of the `!` operator. It is expected that this
 // text has already been HTML escaped properly.
 
-func UnescapeText() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<p>This <em>is</em> HTML.</p>\n<p>This <em>is</em> HTML.</p>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type UnescapeTextTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlUnescapeText() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// UnescapeText returns a new instance of UnescapeTextTemplate.
+// Slots: children.
+func UnescapeText() *UnescapeTextTemplate {
+	return &UnescapeTextTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This <em>is</em> HTML.</p>\n<p>This <em>is</em> HTML.</p>\n"); __err != nil {
 			return
 		}
@@ -260,5 +318,52 @@ func HamlUnescapeText() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for UnescapeTextTemplate and returns a new instance.
+func (t *UnescapeTextTemplate) Slot(name string, templates ...goht.Template) *UnescapeTextTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for UnescapeTextTemplate.
+func (t *UnescapeTextTemplate) WithChildren(templates ...goht.Template) *UnescapeTextTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlUnescapeTextTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlUnescapeText returns a new instance of HamlUnescapeTextTemplate.
+// Slots: children.
+func HamlUnescapeText() *HamlUnescapeTextTemplate {
+	return &HamlUnescapeTextTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>This <em>is</em> HTML.</p>\n<p>This <em>is</em> HTML.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlUnescapeTextTemplate and returns a new instance.
+func (t *HamlUnescapeTextTemplate) Slot(name string, templates ...goht.Template) *HamlUnescapeTextTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlUnescapeTextTemplate.
+func (t *HamlUnescapeTextTemplate) WithChildren(templates ...goht.Template) *HamlUnescapeTextTemplate {
+	return t.Slot("children", templates...)
 }

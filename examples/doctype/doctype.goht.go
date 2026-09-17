@@ -9,36 +9,19 @@ import "github.com/stackus/goht"
 
 // Adds a doctype to the top of the page
 // HTML5 doctype is the default
-func Doctype() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
-		__buf, __isBuf := __w.(goht.Buffer)
-		if !__isBuf {
-			__buf = goht.GetBuffer()
-			defer goht.ReleaseBuffer(__buf)
-		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
-		if _, __err = __buf.WriteString("<!DOCTYPE html>\n"); __err != nil {
-			return
-		}
-		if !__isBuf {
-			_, __err = __w.Write(__buf.Bytes())
-		}
-		return
-	})
+type DoctypeTemplate struct {
+	goht.SlotTemplate
 }
 
-func HamlDoctype() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Doctype returns a new instance of DoctypeTemplate.
+// Slots: children.
+func Doctype() *DoctypeTemplate {
+	return &DoctypeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<!DOCTYPE html>\n"); __err != nil {
 			return
 		}
@@ -46,19 +29,34 @@ func HamlDoctype() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimDoctype() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for DoctypeTemplate and returns a new instance.
+func (t *DoctypeTemplate) Slot(name string, templates ...goht.Template) *DoctypeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for DoctypeTemplate.
+func (t *DoctypeTemplate) WithChildren(templates ...goht.Template) *DoctypeTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlDoctypeTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlDoctype returns a new instance of HamlDoctypeTemplate.
+// Slots: children.
+func HamlDoctype() *HamlDoctypeTemplate {
+	return &HamlDoctypeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<!DOCTYPE html>\n"); __err != nil {
 			return
 		}
@@ -66,5 +64,52 @@ func SlimDoctype() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for HamlDoctypeTemplate and returns a new instance.
+func (t *HamlDoctypeTemplate) Slot(name string, templates ...goht.Template) *HamlDoctypeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlDoctypeTemplate.
+func (t *HamlDoctypeTemplate) WithChildren(templates ...goht.Template) *HamlDoctypeTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimDoctypeTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimDoctype returns a new instance of SlimDoctypeTemplate.
+// Slots: children.
+func SlimDoctype() *SlimDoctypeTemplate {
+	return &SlimDoctypeTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<!DOCTYPE html>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimDoctypeTemplate and returns a new instance.
+func (t *SlimDoctypeTemplate) Slot(name string, templates ...goht.Template) *SlimDoctypeTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimDoctypeTemplate.
+func (t *SlimDoctypeTemplate) WithChildren(templates ...goht.Template) *SlimDoctypeTemplate {
+	return t.Slot("children", templates...)
 }

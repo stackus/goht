@@ -14,16 +14,19 @@ import "github.com/stackus/goht"
 // asking for trouble IMO but you may use tabs in one template and
 // spaces in another.
 
-func UsingTabs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type UsingTabsTemplate struct {
+	goht.SlotTemplate
+}
+
+// UsingTabs returns a new instance of UsingTabsTemplate.
+// Slots: children.
+func UsingTabs() *UsingTabsTemplate {
+	return &UsingTabsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>\nHello World\n</title>\n</head>\n<body>\n<h1>\nHello World\n</h1>\n<p>\nHello World\n</p>\n</body>\n</html>\n"); __err != nil {
 			return
 		}
@@ -31,19 +34,34 @@ func UsingTabs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlUsingTabs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for UsingTabsTemplate and returns a new instance.
+func (t *UsingTabsTemplate) Slot(name string, templates ...goht.Template) *UsingTabsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for UsingTabsTemplate.
+func (t *UsingTabsTemplate) WithChildren(templates ...goht.Template) *UsingTabsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlUsingTabsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlUsingTabs returns a new instance of HamlUsingTabsTemplate.
+// Slots: children.
+func HamlUsingTabs() *HamlUsingTabsTemplate {
+	return &HamlUsingTabsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>\nHello World\n</title>\n</head>\n<body>\n<h1>\nHello World\n</h1>\n<p>\nHello World\n</p>\n</body>\n</html>\n"); __err != nil {
 			return
 		}
@@ -51,19 +69,34 @@ func HamlUsingTabs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimUsingTabs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlUsingTabsTemplate and returns a new instance.
+func (t *HamlUsingTabsTemplate) Slot(name string, templates ...goht.Template) *HamlUsingTabsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlUsingTabsTemplate.
+func (t *HamlUsingTabsTemplate) WithChildren(templates ...goht.Template) *HamlUsingTabsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimUsingTabsTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimUsingTabs returns a new instance of SlimUsingTabsTemplate.
+// Slots: children.
+func SlimUsingTabs() *SlimUsingTabsTemplate {
+	return &SlimUsingTabsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Hello World</title></head><body><h1>Hello World</h1><p>Hello World</p></body></html>\n"); __err != nil {
 			return
 		}
@@ -71,5 +104,17 @@ func SlimUsingTabs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimUsingTabsTemplate and returns a new instance.
+func (t *SlimUsingTabsTemplate) Slot(name string, templates ...goht.Template) *SlimUsingTabsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimUsingTabsTemplate.
+func (t *SlimUsingTabsTemplate) WithChildren(templates ...goht.Template) *SlimUsingTabsTemplate {
+	return t.Slot("children", templates...)
 }

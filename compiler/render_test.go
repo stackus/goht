@@ -3,6 +3,7 @@ package compiler
 import (
 	"bytes"
 	"context"
+	"io"
 	"path/filepath"
 	"testing"
 
@@ -74,7 +75,11 @@ func TestRender(t *testing.T) {
 			htmlFile: "rendering",
 		},
 		"slots": {
-			template: testdata.SlotTest(),
+			template: testdata.SlotTest().
+				WithFirst(templateText("first")).
+				WithSecond(goht.Fragment{templateText("second one"), templateText("second two")}).
+				WithThird(templateText("discarded")).
+				WithThird(templateText("third")),
 			htmlFile: "slots",
 		},
 		"slots with defaults": {
@@ -125,5 +130,12 @@ func TestRender(t *testing.T) {
 				t.Errorf("diff:\n%s", dmp.DiffPrettyText(diffs))
 			}
 		})
+	}
+}
+
+func templateText(value string) goht.TemplateFunc {
+	return func(_ context.Context, w io.Writer, _ goht.Slots) error {
+		_, err := io.WriteString(w, value)
+		return err
 	}
 }

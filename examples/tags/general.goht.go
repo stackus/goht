@@ -9,16 +9,19 @@ import "github.com/stackus/goht"
 
 // You may specify the type of tag that you want created with `%`.
 
-func SpecifyTag() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type SpecifyTagTemplate struct {
+	goht.SlotTemplate
+}
+
+// SpecifyTag returns a new instance of SpecifyTagTemplate.
+// Slots: children.
+func SpecifyTag() *SpecifyTagTemplate {
+	return &SpecifyTagTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is a paragraph tag.</p>\n<main>This is a main tag.</main>\n"); __err != nil {
 			return
 		}
@@ -26,19 +29,34 @@ func SpecifyTag() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlSpecifyTag() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for SpecifyTagTemplate and returns a new instance.
+func (t *SpecifyTagTemplate) Slot(name string, templates ...goht.Template) *SpecifyTagTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SpecifyTagTemplate.
+func (t *SpecifyTagTemplate) WithChildren(templates ...goht.Template) *SpecifyTagTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlSpecifyTagTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlSpecifyTag returns a new instance of HamlSpecifyTagTemplate.
+// Slots: children.
+func HamlSpecifyTag() *HamlSpecifyTagTemplate {
+	return &HamlSpecifyTagTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is a paragraph tag.</p>\n<main>This is a main tag.</main>\n"); __err != nil {
 			return
 		}
@@ -46,19 +64,34 @@ func HamlSpecifyTag() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimSpecifyTag() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlSpecifyTagTemplate and returns a new instance.
+func (t *HamlSpecifyTagTemplate) Slot(name string, templates ...goht.Template) *HamlSpecifyTagTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlSpecifyTagTemplate.
+func (t *HamlSpecifyTagTemplate) WithChildren(templates ...goht.Template) *HamlSpecifyTagTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimSpecifyTagTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimSpecifyTag returns a new instance of SlimSpecifyTagTemplate.
+// Slots: children.
+func SlimSpecifyTag() *SlimSpecifyTagTemplate {
+	return &SlimSpecifyTagTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>This is a paragraph tag.</p><main>This is a main tag.</main>\n"); __err != nil {
 			return
 		}
@@ -66,22 +99,37 @@ func SlimSpecifyTag() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimSpecifyTagTemplate and returns a new instance.
+func (t *SlimSpecifyTagTemplate) Slot(name string, templates ...goht.Template) *SlimSpecifyTagTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimSpecifyTagTemplate.
+func (t *SlimSpecifyTagTemplate) WithChildren(templates ...goht.Template) *SlimSpecifyTagTemplate {
+	return t.Slot("children", templates...)
 }
 
 // You may also let the tag default to a `div` when using the id or
 // class syntax's, `#` and `.` respectively.
 
-func DefaultToDivs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type DefaultToDivsTemplate struct {
+	goht.SlotTemplate
+}
+
+// DefaultToDivs returns a new instance of DefaultToDivsTemplate.
+// Slots: children.
+func DefaultToDivs() *DefaultToDivsTemplate {
+	return &DefaultToDivsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div id=\"main\">This is a div tag with an id of `main`.</div>\n<div class=\"main\">This is a div tag with a class of `main`.</div>\n"); __err != nil {
 			return
 		}
@@ -89,19 +137,34 @@ func DefaultToDivs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlDefaultToDivs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for DefaultToDivsTemplate and returns a new instance.
+func (t *DefaultToDivsTemplate) Slot(name string, templates ...goht.Template) *DefaultToDivsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for DefaultToDivsTemplate.
+func (t *DefaultToDivsTemplate) WithChildren(templates ...goht.Template) *DefaultToDivsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlDefaultToDivsTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlDefaultToDivs returns a new instance of HamlDefaultToDivsTemplate.
+// Slots: children.
+func HamlDefaultToDivs() *HamlDefaultToDivsTemplate {
+	return &HamlDefaultToDivsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div id=\"main\">This is a div tag with an id of `main`.</div>\n<div class=\"main\">This is a div tag with a class of `main`.</div>\n"); __err != nil {
 			return
 		}
@@ -109,19 +172,34 @@ func HamlDefaultToDivs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimDefaultToDivs() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlDefaultToDivsTemplate and returns a new instance.
+func (t *HamlDefaultToDivsTemplate) Slot(name string, templates ...goht.Template) *HamlDefaultToDivsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlDefaultToDivsTemplate.
+func (t *HamlDefaultToDivsTemplate) WithChildren(templates ...goht.Template) *HamlDefaultToDivsTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimDefaultToDivsTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimDefaultToDivs returns a new instance of SlimDefaultToDivsTemplate.
+// Slots: children.
+func SlimDefaultToDivs() *SlimDefaultToDivsTemplate {
+	return &SlimDefaultToDivsTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div id=\"main\">This is a div tag with an id of `main`.</div><div class=\"main\">This is a div tag with a class of `main`.</div>\n"); __err != nil {
 			return
 		}
@@ -129,22 +207,37 @@ func SlimDefaultToDivs() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimDefaultToDivsTemplate and returns a new instance.
+func (t *SlimDefaultToDivsTemplate) Slot(name string, templates ...goht.Template) *SlimDefaultToDivsTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimDefaultToDivsTemplate.
+func (t *SlimDefaultToDivsTemplate) WithChildren(templates ...goht.Template) *SlimDefaultToDivsTemplate {
+	return t.Slot("children", templates...)
 }
 
 // The three may also be combined. The `%` must come first, followed
 // by either the `#` or `.`. The `#` and `.` may be in any order.
 
-func Combined() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type CombinedTemplate struct {
+	goht.SlotTemplate
+}
+
+// Combined returns a new instance of CombinedTemplate.
+// Slots: children.
+func Combined() *CombinedTemplate {
+	return &CombinedTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p id=\"main\">This is a paragraph tag with an id of `main`.</p>\n<main class=\"main\">This is a main tag with a class of `main`.</main>\n<div id=\"main\" class=\"main\">This is a div tag with an id and class of `main`.</div>\n<p id=\"main\" class=\"main\">This is a paragraph tag with an id and class of `main`.</p>\n"); __err != nil {
 			return
 		}
@@ -152,19 +245,34 @@ func Combined() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlCombined() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for CombinedTemplate and returns a new instance.
+func (t *CombinedTemplate) Slot(name string, templates ...goht.Template) *CombinedTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for CombinedTemplate.
+func (t *CombinedTemplate) WithChildren(templates ...goht.Template) *CombinedTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlCombinedTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlCombined returns a new instance of HamlCombinedTemplate.
+// Slots: children.
+func HamlCombined() *HamlCombinedTemplate {
+	return &HamlCombinedTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p id=\"main\">This is a paragraph tag with an id of `main`.</p>\n<main class=\"main\">This is a main tag with a class of `main`.</main>\n<div id=\"main\" class=\"main\">This is a div tag with an id and class of `main`.</div>\n<p id=\"main\" class=\"main\">This is a paragraph tag with an id and class of `main`.</p>\n"); __err != nil {
 			return
 		}
@@ -172,19 +280,34 @@ func HamlCombined() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimCombined() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlCombinedTemplate and returns a new instance.
+func (t *HamlCombinedTemplate) Slot(name string, templates ...goht.Template) *HamlCombinedTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlCombinedTemplate.
+func (t *HamlCombinedTemplate) WithChildren(templates ...goht.Template) *HamlCombinedTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimCombinedTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimCombined returns a new instance of SlimCombinedTemplate.
+// Slots: children.
+func SlimCombined() *SlimCombinedTemplate {
+	return &SlimCombinedTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p id=\"main\">This is a paragraph tag with an id of `main`.</p><main class=\"main\">This is a main tag with a class of `main`.</main><div id=\"main\" class=\"main\">This is a div tag with an id and class of `main`.</div><p id=\"main\" class=\"main\">This is a paragraph tag with an id and class of `main`.</p>\n"); __err != nil {
 			return
 		}
@@ -192,23 +315,38 @@ func SlimCombined() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimCombinedTemplate and returns a new instance.
+func (t *SlimCombinedTemplate) Slot(name string, templates ...goht.Template) *SlimCombinedTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimCombinedTemplate.
+func (t *SlimCombinedTemplate) WithChildren(templates ...goht.Template) *SlimCombinedTemplate {
+	return t.Slot("children", templates...)
 }
 
 // The class operator may be repeated to add multiple classes.
 // Repeating the id operator will result in the id being overwritten
 // but will not throw an error.
 
-func MultipleClasses() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type MultipleClassesTemplate struct {
+	goht.SlotTemplate
+}
+
+// MultipleClasses returns a new instance of MultipleClassesTemplate.
+// Slots: children.
+func MultipleClasses() *MultipleClassesTemplate {
+	return &MultipleClassesTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"main main2\">This is a div tag with two classes, `main` and `main2`.</div>\n<div id=\"main2\">This is a div tag with an id of `main2`.</div>\n"); __err != nil {
 			return
 		}
@@ -216,19 +354,34 @@ func MultipleClasses() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlMultipleClasses() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for MultipleClassesTemplate and returns a new instance.
+func (t *MultipleClassesTemplate) Slot(name string, templates ...goht.Template) *MultipleClassesTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for MultipleClassesTemplate.
+func (t *MultipleClassesTemplate) WithChildren(templates ...goht.Template) *MultipleClassesTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlMultipleClassesTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlMultipleClasses returns a new instance of HamlMultipleClassesTemplate.
+// Slots: children.
+func HamlMultipleClasses() *HamlMultipleClassesTemplate {
+	return &HamlMultipleClassesTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"main main2\">This is a div tag with two classes, `main` and `main2`.</div>\n<div id=\"main2\">This is a div tag with an id of `main2`.</div>\n"); __err != nil {
 			return
 		}
@@ -236,19 +389,34 @@ func HamlMultipleClasses() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimMultipleClasses() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlMultipleClassesTemplate and returns a new instance.
+func (t *HamlMultipleClassesTemplate) Slot(name string, templates ...goht.Template) *HamlMultipleClassesTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlMultipleClassesTemplate.
+func (t *HamlMultipleClassesTemplate) WithChildren(templates ...goht.Template) *HamlMultipleClassesTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimMultipleClassesTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimMultipleClasses returns a new instance of SlimMultipleClassesTemplate.
+// Slots: children.
+func SlimMultipleClasses() *SlimMultipleClassesTemplate {
+	return &SlimMultipleClassesTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<div class=\"main main2\">This is a div tag with two classes, `main` and `main2`.</div><div id=\"main2\">This is a div tag with an id of `main2`.</div>\n"); __err != nil {
 			return
 		}
@@ -256,5 +424,17 @@ func SlimMultipleClasses() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimMultipleClassesTemplate and returns a new instance.
+func (t *SlimMultipleClassesTemplate) Slot(name string, templates ...goht.Template) *SlimMultipleClassesTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimMultipleClassesTemplate.
+func (t *SlimMultipleClassesTemplate) WithChildren(templates ...goht.Template) *SlimMultipleClassesTemplate {
+	return t.Slot("children", templates...)
 }

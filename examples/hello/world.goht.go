@@ -17,21 +17,26 @@ func foo() {
 	}
 }
 
-func termsWrapper(term string) goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type termsWrapperTemplate struct {
+	goht.SlotTemplate
+}
+
+// termsWrapper returns a new instance of termsWrapperTemplate.
+// Slots: children.
+func termsWrapper(term string) *termsWrapperTemplate {
+	return &termsWrapperTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
-		if __err = __children.Render(ctx, __buf, __sts...); __err != nil {
-			return
+		if __children, __hasChildren := __slots.Has("children"); __hasChildren {
+			if __err = __children.Render(ctx, __buf); __err != nil {
+				return
+			}
 		}
 		if _, __err = __buf.WriteString("</p>\n<p>And it was passed in as well "); __err != nil {
 			return
@@ -50,24 +55,41 @@ func termsWrapper(term string) goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func hamlTermsWrapper(term string) goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for termsWrapperTemplate and returns a new instance.
+func (t *termsWrapperTemplate) Slot(name string, templates ...goht.Template) *termsWrapperTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for termsWrapperTemplate.
+func (t *termsWrapperTemplate) WithChildren(templates ...goht.Template) *termsWrapperTemplate {
+	return t.Slot("children", templates...)
+}
+
+type hamlTermsWrapperTemplate struct {
+	goht.SlotTemplate
+}
+
+// hamlTermsWrapper returns a new instance of hamlTermsWrapperTemplate.
+// Slots: children.
+func hamlTermsWrapper(term string) *hamlTermsWrapperTemplate {
+	return &hamlTermsWrapperTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
-		if __err = __children.Render(ctx, __buf, __sts...); __err != nil {
-			return
+		if __children, __hasChildren := __slots.Has("children"); __hasChildren {
+			if __err = __children.Render(ctx, __buf); __err != nil {
+				return
+			}
 		}
 		if _, __err = __buf.WriteString("</p>\n<p>And it was passed in as well "); __err != nil {
 			return
@@ -86,24 +108,41 @@ func hamlTermsWrapper(term string) goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func slimTermsWrapper(term string) goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for hamlTermsWrapperTemplate and returns a new instance.
+func (t *hamlTermsWrapperTemplate) Slot(name string, templates ...goht.Template) *hamlTermsWrapperTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for hamlTermsWrapperTemplate.
+func (t *hamlTermsWrapperTemplate) WithChildren(templates ...goht.Template) *hamlTermsWrapperTemplate {
+	return t.Slot("children", templates...)
+}
+
+type slimTermsWrapperTemplate struct {
+	goht.SlotTemplate
+}
+
+// slimTermsWrapper returns a new instance of slimTermsWrapperTemplate.
+// Slots: children.
+func slimTermsWrapper(term string) *slimTermsWrapperTemplate {
+	return &slimTermsWrapperTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
-		if __err = __children.Render(ctx, __buf, __sts...); __err != nil {
-			return
+		if __children, __hasChildren := __slots.Has("children"); __hasChildren {
+			if __err = __children.Render(ctx, __buf); __err != nil {
+				return
+			}
 		}
 		if _, __err = __buf.WriteString("</p><p>And it was passed in as well "); __err != nil {
 			return
@@ -122,24 +161,39 @@ func slimTermsWrapper(term string) goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func World() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for slimTermsWrapperTemplate and returns a new instance.
+func (t *slimTermsWrapperTemplate) Slot(name string, templates ...goht.Template) *slimTermsWrapperTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for slimTermsWrapperTemplate.
+func (t *slimTermsWrapperTemplate) WithChildren(templates ...goht.Template) *slimTermsWrapperTemplate {
+	return t.Slot("children", templates...)
+}
+
+type WorldTemplate struct {
+	goht.SlotTemplate
+}
+
+// World returns a new instance of WorldTemplate.
+// Slots: children.
+func World() *WorldTemplate {
+	return &WorldTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<p>the following will loop a slice of strings and will pass each string into a child template</p>\n"); __err != nil {
 			return
 		}
 		for _, term := range terms {
-			__var1 := goht.TemplateFunc(func(ctx context.Context, __w io.Writer, _ ...goht.SlottedTemplate) (__err error) {
+			__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 				__buf, __isBuf := __w.(goht.Buffer)
 				if !__isBuf {
 					__buf = goht.GetBuffer()
@@ -162,8 +216,8 @@ func World() goht.Template {
 					_, __err = io.Copy(__w, __buf)
 				}
 				return
-			})
-			if __err = termsWrapper(term).Render(goht.PushChildren(ctx, __var1), __buf, __sts...); __err != nil {
+			})}
+			if __err = termsWrapper(term).WithChildren(__var1...).Render(ctx, __buf); __err != nil {
 				return
 			}
 		}
@@ -174,24 +228,39 @@ func World() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlWorld() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for WorldTemplate and returns a new instance.
+func (t *WorldTemplate) Slot(name string, templates ...goht.Template) *WorldTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for WorldTemplate.
+func (t *WorldTemplate) WithChildren(templates ...goht.Template) *WorldTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlWorldTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlWorld returns a new instance of HamlWorldTemplate.
+// Slots: children.
+func HamlWorld() *HamlWorldTemplate {
+	return &HamlWorldTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\"><title>Hello World</title>\n<style>\nbody {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head>\n<body>\n<h1>Hello World</h1>\n<div>the following will loop a slice of strings and will pass each string into a child template</div>\n"); __err != nil {
 			return
 		}
 		for _, term := range terms {
-			__var1 := goht.TemplateFunc(func(ctx context.Context, __w io.Writer, _ ...goht.SlottedTemplate) (__err error) {
+			__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 				__buf, __isBuf := __w.(goht.Buffer)
 				if !__isBuf {
 					__buf = goht.GetBuffer()
@@ -214,8 +283,8 @@ func HamlWorld() goht.Template {
 					_, __err = io.Copy(__w, __buf)
 				}
 				return
-			})
-			if __err = hamlTermsWrapper(term).Render(goht.PushChildren(ctx, __var1), __buf, __sts...); __err != nil {
+			})}
+			if __err = hamlTermsWrapper(term).WithChildren(__var1...).Render(ctx, __buf); __err != nil {
 				return
 			}
 		}
@@ -226,24 +295,39 @@ func HamlWorld() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimWorld() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlWorldTemplate and returns a new instance.
+func (t *HamlWorldTemplate) Slot(name string, templates ...goht.Template) *HamlWorldTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlWorldTemplate.
+func (t *HamlWorldTemplate) WithChildren(templates ...goht.Template) *HamlWorldTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimWorldTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimWorld returns a new instance of SlimWorldTemplate.
+// Slots: children.
+func SlimWorld() *SlimWorldTemplate {
+	return &SlimWorldTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Hello World</title><style>\nbody {\n\tcolor: white;\n\tfont-family: sans-serif;\n\tbackground-color: #333;\n}\n.term {\n\tfont-weight: bold;\n\tcolor: #99f;\n}\n</style></head><body><h1>Hello World</h1><p>the following will loop a slice of strings and will pass each string into a child template</p>"); __err != nil {
 			return
 		}
 		for _, term := range terms {
-			__var1 := goht.TemplateFunc(func(ctx context.Context, __w io.Writer, _ ...goht.SlottedTemplate) (__err error) {
+			__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 				__buf, __isBuf := __w.(goht.Buffer)
 				if !__isBuf {
 					__buf = goht.GetBuffer()
@@ -266,8 +350,8 @@ func SlimWorld() goht.Template {
 					_, __err = io.Copy(__w, __buf)
 				}
 				return
-			})
-			if __err = slimTermsWrapper(term).Render(goht.PushChildren(ctx, __var1), __buf, __sts...); __err != nil {
+			})}
+			if __err = slimTermsWrapper(term).WithChildren(__var1...).Render(ctx, __buf); __err != nil {
 				return
 			}
 		}
@@ -278,24 +362,39 @@ func SlimWorld() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func EgoWorld() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for SlimWorldTemplate and returns a new instance.
+func (t *SlimWorldTemplate) Slot(name string, templates ...goht.Template) *SlimWorldTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimWorldTemplate.
+func (t *SlimWorldTemplate) WithChildren(templates ...goht.Template) *SlimWorldTemplate {
+	return t.Slot("children", templates...)
+}
+
+type EgoWorldTemplate struct {
+	goht.SlotTemplate
+}
+
+// EgoWorld returns a new instance of EgoWorldTemplate.
+// Slots: children.
+func EgoWorld() *EgoWorldTemplate {
+	return &EgoWorldTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<!DOCTYPE html>\n<html lang=\"en\">\n\t<head>\n\t\t<meta charset=\"utf-8\">\n\t\t<title>Hello World</title>\n\t\t<style>\n\t\t\tbody {\n\t\t\t\tcolor: white;\n\t\t\t\tfont-family: sans-serif;\n\t\t\t\tbackground-color: #333;\n\t\t\t}\n\t\t\t.term {\n\t\t\t\tfont-weight: bold;\n\t\t\t\tcolor: #99f;\n\t\t\t}\n\t\t</style>\n\t</head>\n\t<body>\n\t\t<h1>Hello World</h1>\n\t\t<p>the following will loop a slice of strings and will pass each string into a child template</p>\n\t\t"); __err != nil {
 			return
 		}
 		for _, term := range terms {
-			__var1 := goht.TemplateFunc(func(ctx context.Context, __w io.Writer, _ ...goht.SlottedTemplate) (__err error) {
+			__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 				__buf, __isBuf := __w.(goht.Buffer)
 				if !__isBuf {
 					__buf = goht.GetBuffer()
@@ -318,8 +417,8 @@ func EgoWorld() goht.Template {
 					_, __err = io.Copy(__w, __buf)
 				}
 				return
-			})
-			if __err = termsWrapper(term).Render(goht.PushChildren(ctx, __var1), __buf, __sts...); __err != nil {
+			})}
+			if __err = termsWrapper(term).WithChildren(__var1...).Render(ctx, __buf); __err != nil {
 				return
 			}
 		}
@@ -330,5 +429,17 @@ func EgoWorld() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for EgoWorldTemplate and returns a new instance.
+func (t *EgoWorldTemplate) Slot(name string, templates ...goht.Template) *EgoWorldTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for EgoWorldTemplate.
+func (t *EgoWorldTemplate) WithChildren(templates ...goht.Template) *EgoWorldTemplate {
+	return t.Slot("children", templates...)
 }

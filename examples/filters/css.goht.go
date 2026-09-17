@@ -12,16 +12,19 @@ import "github.com/stackus/goht"
 
 var color = "red"
 
-func Css() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+type CssTemplate struct {
+	goht.SlotTemplate
+}
+
+// Css returns a new instance of CssTemplate.
+// Slots: children.
+func Css() *CssTemplate {
+	return &CssTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<style>\n.color {\n\tcolor: "); __err != nil {
 			return
 		}
@@ -39,19 +42,34 @@ func Css() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func HamlCss() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for CssTemplate and returns a new instance.
+func (t *CssTemplate) Slot(name string, templates ...goht.Template) *CssTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for CssTemplate.
+func (t *CssTemplate) WithChildren(templates ...goht.Template) *CssTemplate {
+	return t.Slot("children", templates...)
+}
+
+type HamlCssTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlCss returns a new instance of HamlCssTemplate.
+// Slots: children.
+func HamlCss() *HamlCssTemplate {
+	return &HamlCssTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<style>\n.color {\n\tcolor: "); __err != nil {
 			return
 		}
@@ -69,19 +87,34 @@ func HamlCss() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
 }
 
-func SlimCss() goht.Template {
-	return goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __sts ...goht.SlottedTemplate) (__err error) {
+// Slot sets a named slot for HamlCssTemplate and returns a new instance.
+func (t *HamlCssTemplate) Slot(name string, templates ...goht.Template) *HamlCssTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlCssTemplate.
+func (t *HamlCssTemplate) WithChildren(templates ...goht.Template) *HamlCssTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimCssTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimCss returns a new instance of SlimCssTemplate.
+// Slots: children.
+func SlimCss() *SlimCssTemplate {
+	return &SlimCssTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
 		__buf, __isBuf := __w.(goht.Buffer)
 		if !__isBuf {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		var __children goht.Template
-		ctx, __children = goht.PopChildren(ctx)
-		_ = __children
 		if _, __err = __buf.WriteString("<style>\n.color {\n\tcolor: "); __err != nil {
 			return
 		}
@@ -99,5 +132,17 @@ func SlimCss() goht.Template {
 			_, __err = __w.Write(__buf.Bytes())
 		}
 		return
-	})
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimCssTemplate and returns a new instance.
+func (t *SlimCssTemplate) Slot(name string, templates ...goht.Template) *SlimCssTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimCssTemplate.
+func (t *SlimCssTemplate) WithChildren(templates ...goht.Template) *SlimCssTemplate {
+	return t.Slot("children", templates...)
 }
