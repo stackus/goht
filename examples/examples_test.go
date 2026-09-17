@@ -619,3 +619,23 @@ func TestEgoExamples(t *testing.T) {
 		})
 	}
 }
+
+func TestFluentSlotCompositionExample(t *testing.T) {
+	items := goht.Fragment{commands.FluentItem("one"), commands.FluentItem("two")}
+	template := commands.FluentLayout().
+		WithHeader(commands.FluentHeader("Activity")).
+		WithContent(commands.FluentList().WithItems(items)).
+		WithChildren(commands.FluentFallback())
+
+	var output bytes.Buffer
+	if err := template.Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	want, err := goldenFile(t, filepath.Join("testdata", "haml", "commands_fluentSlots.html"), output.Bytes(), *update)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(want, output.Bytes()) {
+		t.Errorf("Render() = %q, want %q", output.Bytes(), want)
+	}
+}

@@ -8,6 +8,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Breaking Changes
+
+- Named-slot composition now uses generated `With<Slot>` and `WithChildren`
+  methods on typed template constructors. `Render` accepts only `context.Context`
+  and `io.Writer`; `SlottedTemplate` and context-based slot helpers are removed.
+- Run `goht generate` before building, then migrate legacy variadic `Render` and
+  `.Slot(...)` composition calls to fluent methods. This pre-1.0 release does
+  not provide backward compatibility.
+
+## [v0.8.5](https://github.com/stackus/goht/compare/v0.8.4...v0.8.5) - 2026-05-22
+
+### Added
+
+- Added HTML-style attributes for Haml, Slim, and EGO templates.
+- Added support for generating code from individual `.goht` files.
+- Added semantic token support to the language server.
+
+### Changed
+
+- Moved the language-server protocol implementation to
+  `github.com/stackus/protocol`.
+- Updated GoHT syntax definitions for Haml, Slim, and EGO templates.
+
+## [v0.8.4](https://github.com/stackus/goht/compare/v0.8.3...v0.8.4) - 2026-05-16
+
+### Added
+
+- Added concurrent template generation, configurable worker limits, directory
+  skipping, file watching, and orphaned generated-file cleanup controls.
+
+### Changed
+
+- Improved language-server diagnostics, completion edits, capability handling,
+  and position encoding.
+
+### Fixed
+
+- Fixed attribute parsing.
+
 ## [v0.8.3](https://github.com/stackus/goht/compare/v0.8.2...v0.8.3) - 2025-07-25
 
 ### Fixed
@@ -32,6 +71,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Addressed a stack overflow caused by slotted templates incorrectly calling `Render` on themselves and not the original template.
 
 ## [v0.8.0](https://github.com/stackus/goht/compare/v0.7.0...v0.8.0) - 2025-04-30
+
+> **Historical API (removed):** The slot examples in this release use the
+> legacy variadic `Render` and `.Slot(...)` composition API. They are retained
+> as release history only; use the Unreleased migration guidance instead.
 
 **BREAKING CHANGE**: The signature of the generated Go code has changed. Regenerate all templates prior to this version.
 

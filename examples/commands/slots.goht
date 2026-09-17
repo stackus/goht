@@ -70,3 +70,36 @@ package commands
 //
 // The above example shows how you can pass in a template to a slot, and that
 // template can also have its own slots.
+
+// FluentLayout and its supporting templates are a runnable example of fluent
+// composition, fallback slots, and conditional slot iteration.
+@haml FluentLayout() {
+	.layout
+		%header
+			=@slot header
+		%main
+			=@slot content
+		%footer
+			=@children
+}
+
+@haml FluentHeader(title string) {
+	%h1= title
+}
+
+@haml FluentList() {
+	%ul
+		= @ifslot items
+			= @eachslot item in items
+				= @render item
+}
+
+@haml FluentItem(label string) {
+	%li= label
+}
+
+@haml FluentFallback() {
+	.fallback
+		=@slot content
+			%span Fallback content.
+}

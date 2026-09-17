@@ -271,3 +271,267 @@ func (t *SlotWithDefaultTemplateTemplate) WithActions(templates ...goht.Template
 //
 // The above example shows how you can pass in a template to a slot, and that
 // template can also have its own slots.
+
+// FluentLayout and its supporting templates are a runnable example of fluent
+// composition, fallback slots, and conditional slot iteration.
+type FluentLayoutTemplate struct {
+	goht.SlotTemplate
+}
+
+// FluentLayout returns a new instance of FluentLayoutTemplate.
+// Slots: children, header, content.
+func FluentLayout() *FluentLayoutTemplate {
+	return &FluentLayoutTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<div class=\"layout\">\n<header>\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("header"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("</header>\n<main>\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("content"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("</main>\n<footer>\n"); __err != nil {
+			return
+		}
+		if __children, __hasChildren := __slots.Has("children"); __hasChildren {
+			if __err = __children.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("</footer>\n</div>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "header", "content")}
+}
+
+// Slot sets a named slot for FluentLayoutTemplate and returns a new instance.
+func (t *FluentLayoutTemplate) Slot(name string, templates ...goht.Template) *FluentLayoutTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for FluentLayoutTemplate.
+func (t *FluentLayoutTemplate) WithChildren(templates ...goht.Template) *FluentLayoutTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithHeader sets the "header" slot for FluentLayoutTemplate.
+func (t *FluentLayoutTemplate) WithHeader(templates ...goht.Template) *FluentLayoutTemplate {
+	return t.Slot("header", templates...)
+}
+
+// WithContent sets the "content" slot for FluentLayoutTemplate.
+func (t *FluentLayoutTemplate) WithContent(templates ...goht.Template) *FluentLayoutTemplate {
+	return t.Slot("content", templates...)
+}
+
+type FluentHeaderTemplate struct {
+	goht.SlotTemplate
+}
+
+// FluentHeader returns a new instance of FluentHeaderTemplate.
+// Slots: children.
+func FluentHeader(title string) *FluentHeaderTemplate {
+	return &FluentHeaderTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<h1>"); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors(goht.EscapeString(title)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</h1>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for FluentHeaderTemplate and returns a new instance.
+func (t *FluentHeaderTemplate) Slot(name string, templates ...goht.Template) *FluentHeaderTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for FluentHeaderTemplate.
+func (t *FluentHeaderTemplate) WithChildren(templates ...goht.Template) *FluentHeaderTemplate {
+	return t.Slot("children", templates...)
+}
+
+type FluentListTemplate struct {
+	goht.SlotTemplate
+}
+
+// FluentList returns a new instance of FluentListTemplate.
+// Slots: children, items.
+func FluentList() *FluentListTemplate {
+	return &FluentListTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<ul>\n"); __err != nil {
+			return
+		}
+		if _, __hasSlot := __slots.Has("items"); __hasSlot {
+			__var1, _ := __slots.Has("items")
+			for _, item := range __var1 {
+				if __err = item.Render(ctx, __buf); __err != nil {
+					return
+				}
+			}
+		}
+		if _, __err = __buf.WriteString("</ul>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "items")}
+}
+
+// Slot sets a named slot for FluentListTemplate and returns a new instance.
+func (t *FluentListTemplate) Slot(name string, templates ...goht.Template) *FluentListTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for FluentListTemplate.
+func (t *FluentListTemplate) WithChildren(templates ...goht.Template) *FluentListTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithItems sets the "items" slot for FluentListTemplate.
+func (t *FluentListTemplate) WithItems(templates ...goht.Template) *FluentListTemplate {
+	return t.Slot("items", templates...)
+}
+
+type FluentItemTemplate struct {
+	goht.SlotTemplate
+}
+
+// FluentItem returns a new instance of FluentItemTemplate.
+// Slots: children.
+func FluentItem(label string) *FluentItemTemplate {
+	return &FluentItemTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<li>"); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors(goht.EscapeString(label)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</li>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for FluentItemTemplate and returns a new instance.
+func (t *FluentItemTemplate) Slot(name string, templates ...goht.Template) *FluentItemTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for FluentItemTemplate.
+func (t *FluentItemTemplate) WithChildren(templates ...goht.Template) *FluentItemTemplate {
+	return t.Slot("children", templates...)
+}
+
+type FluentFallbackTemplate struct {
+	goht.SlotTemplate
+}
+
+// FluentFallback returns a new instance of FluentFallbackTemplate.
+// Slots: children, content.
+func FluentFallback() *FluentFallbackTemplate {
+	return &FluentFallbackTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<div class=\"fallback\">\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("content"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		} else {
+			if _, __err = __buf.WriteString("<span>Fallback content.</span>\n"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("</div>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "content")}
+}
+
+// Slot sets a named slot for FluentFallbackTemplate and returns a new instance.
+func (t *FluentFallbackTemplate) Slot(name string, templates ...goht.Template) *FluentFallbackTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for FluentFallbackTemplate.
+func (t *FluentFallbackTemplate) WithChildren(templates ...goht.Template) *FluentFallbackTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithContent sets the "content" slot for FluentFallbackTemplate.
+func (t *FluentFallbackTemplate) WithContent(templates ...goht.Template) *FluentFallbackTemplate {
+	return t.Slot("content", templates...)
+}

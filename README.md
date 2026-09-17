@@ -879,75 +879,84 @@ Any content nested under the `@render` directive will be passed into the templat
 
 ### Named Slots
 
-Named slots are a feature that allows you to define places in your templates that you want to populate with any template content.
-This allows you to create more complex templates that can be reused in different contexts.
+Named slots are declared with `@slot`. Generated constructors return named
+`*NameTemplate` values with a `With<Slot>` method for every declared slot and
+`WithChildren` for the reserved `children` slot. Composition returns a copied
+template, so a base template can be reused safely; calling the same `WithX`
+method again replaces that slot's prior content.
+
+This runnable example is covered by the command-example test:
+
+```go
+items := goht.Fragment{
+  commands.FluentItem("one"),
+  commands.FluentItem("two"),
+}
+layout := commands.FluentLayout().
+  WithHeader(commands.FluentHeader("Activity")).
+  WithContent(commands.FluentList().WithItems(items)).
+  WithChildren(commands.FluentFallback())
+
+if err := layout.Render(ctx, w); err != nil {
+  return err
+}
+```
+
+`goht.Fragment` renders its templates in order and is useful for grouping a
+list into one slot value. A `WithX` method also accepts multiple templates
+directly. An absent slot renders nothing; a slot with nested content supplies
+the fallback instead. `FluentFallback().WithContent(...)` replaces its fallback.
+
+`children` is reserved for nested `@render` content and cannot be declared with
+`@slot`. Typed `WithX` methods only exist for known slots. The generated direct
+`Slot(name, ...)` method is for dynamic callers; an unknown name is reported by
+`Render` before it writes output.
+
+#### Conditional and iterated slots
+
+Use `@ifslot <name>` to render a body only when a slot was assigned, including
+an explicitly empty assignment. Use the single iteration spelling
+`@eachslot <template> in <slot>` to bind each assigned template; render it
+explicitly with `@render <template>`.
 
 **Haml:**
 ```haml
-@haml HamlSlots() {
-  .basic
-    =@slot basic
-  .with-default-content
-    =@slot defaults
-      %span Displayed when nothing is passed in for "defaults"
-}
+= @ifslot items
+  = @eachslot item in items
+    = @render item
 ```
 
 **Slim:**
 ```slim
-@slim SlimSlots() {
-  .basic
-    =@slot basic
-  .with-default-content
-    =@slot defaults
-      span Displayed when nothing is passed in for "defaults"
-}
+= @ifslot items
+  = @eachslot item in items
+    = @render item
 ```
 
 **EGO:**
 ```html
-@ego EgoSlots() {
-  <div>
-    <%@slot basic %>
-  </div>
-  <div>
-    <%@slot defaults { %>
-      <span>Displayed when nothing is passed in for "defaults"</span>
-    <% } %>
-  </div>
-}
+<%@ifslot items { %>
+<%@eachslot item in items { %>
+<%@render item %>
+<% } %>
+<% } %>
 ```
 
-In the above examples, the slot for "basic" will only be rendered if content is passed in for it.
-The slot for "defaults" will fall back to the default content if no content is passed in for it.
+#### Migrating from legacy slots
 
-#### Using slots in your program
-Making use of slots in your program is a simple process:
+This pre-1.0 change intentionally has no compatibility layer. Regenerate every
+template with `goht generate` before compiling callers.
 
-```go
-err := SomeTemplate().Render(ctx, w, 
-  OtherTemplate().Slot("basic"),
-)
-```
+| Legacy pattern | Current pattern |
+| --- | --- |
+| `parent.Render(ctx, w, child.Slot("content"))` | `parent.WithContent(child).Render(ctx, w)` |
+| `SlottedTemplate` | generated `*NameTemplate`, `goht.Template`, or `goht.Fragment` as appropriate |
+| direct `.Slot("name", ...)` composition | generated `.WithName(...)` composition |
+| nested render children | `.WithChildren(...)` |
+| `goht.GetSlot(ctx, name)` / `goht.HasSlot(ctx, name)` | template directives or generated internal slot access; no public context lookup |
 
-Start by passing in one or more templates into the optional third parameter of the `Render` method.
-Then instead of calling `Render` on the slotted template, call `Slot` with the name of the slot you want it to fill.
-
-The slotted templates can be any template, and any template can be used as slotted content, including templates that have their own slots.
-
-```go
-err := Layout().Render(ctx, w,
-  Sidebar().Slot("sidebar"),
-  Header(headerProps).Slot("header"),
-  UserDetailsPage(userProps).Slot("main",
-    LastActionResults(resultsProps).Slot("notifications"),
-  ),
-  Footer().Slot("footer"),
-)
-```
-
-Templates can use slots, `@slot <name>` and the internally rendered templates, `@render SomeTemplate()`
-and `@children`, to create templates with incredible levels of reuse and composition.
+Regenerate checked-in `.goht.go` files after changing template sources. Do not
+retain a variadic `Render` call or pass slot state through `context.Context`.
 
 ## Contributing
 Contributions are welcome. Please see the [contributing guide](CONTRIBUTING.md) for more information.
