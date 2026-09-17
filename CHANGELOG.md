@@ -17,6 +17,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `.Slot(...)` composition calls to fluent methods. This pre-1.0 release does
   not provide backward compatibility.
 
+#### Migrating from legacy slots
+
+This pre-1.0 change intentionally has no compatibility layer. Regenerate every
+template with `goht generate` before compiling callers.
+
+| Legacy pattern | Current pattern |
+| --- | --- |
+| `parent.Render(ctx, w, child.Slot("content"))` | `parent.WithContent(child).Render(ctx, w)` |
+| `SlottedTemplate` | generated `*NameTemplate`, `goht.Template`, or `goht.Fragment` as appropriate |
+| direct `.Slot("name", ...)` composition | generated `.WithName(...)` composition |
+| nested render children | `.WithChildren(...)` |
+| `goht.GetSlot(ctx, name)` / `goht.HasSlot(ctx, name)` | template directives or generated internal slot access; no public context lookup |
+
+Regenerate checked-in `.goht.go` files after changing template sources. Do not
+retain a variadic `Render` call or pass slot state through `context.Context`.
+
 ### Added
 
 - Added the `:go` filter for including blocks of Go code in Haml and Slim

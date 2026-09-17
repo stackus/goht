@@ -178,7 +178,7 @@ The opening tags that are supported are:
   - Examples: `<%= unsafeHTML %>`, `<%= %t someBool %>`, `<%= props.Value %>`
 - `<%!` - Start of a Go unescaped output block; supports the formatting directives like `%d`, `%v`, etc.
   - Examples: `<%! safeHTML %>`, `<%! %t someBool %>`, `<%! props.Value %>`
-- `<%@` - Start of a command block; supports `@render`, `@children`, and `@slot`
+- `<%@` - Start of a command block; supports `@render`, `@children`, `@slot`, `@ifslot`, and `@eachslot`
   - Examples: `<%@render ExampleChild(props ChildProps) { %>`, `<%@children %>`, `<%@slot body %>`
 - `<%#` - Start of a comment; the content will be ignored
   - Examples: `<%# This is a comment %>`
@@ -394,9 +394,13 @@ GoHT recognizes these template directives:
 - `@slim` starts a Slim template.
 - `@ego` starts an EGO template.
 - `@goht` starts a Haml template for backward compatibility, but **is deprecated**.
+
+Within the templates you can use these directives:
 - `@render` renders another template and can pass nested content to it.
 - `@children` renders nested content passed by `@render`.
 - `@slot` renders named slot content, optionally with default content.
+- `@ifslot` renders named slot content if it exists, optionally with default content.
+- `@eachslot` renders named slot content for each slot that exists, optionally with default content.
 - `@attributes` expands dynamic attribute maps in Haml and Slim attributes.
 
 ## GoHT Syntax
@@ -879,38 +883,123 @@ Any content nested under the `@render` directive will be passed into the templat
 
 ### Named Slots
 
-Named slots are declared with `@slot`. Generated constructors return named
-`*NameTemplate` values with a `With<Slot>` method for every declared slot and
-`WithChildren` for the reserved `children` slot. Composition returns a copied
-template, so a base template can be reused safely; calling the same `WithX`
-method again replaces that slot's prior content.
+Use a named slot when a template has a place that its caller should fill. Declare
+that place with `@slot`:
 
-This runnable example is covered by the command-example test:
+```haml
+@haml Page() {
+  %main
+    = @slot content
+}
+
+@haml Article() {
+  %p Welcome to the site.
+}
+```
+
+GoHT generates a `WithContent` method from the `content` slot. Call it with the
+template to render in that place, then render the completed page:
 
 ```go
-items := goht.Fragment{
-  commands.FluentItem("one"),
-  commands.FluentItem("two"),
-}
-layout := commands.FluentLayout().
-  WithHeader(commands.FluentHeader("Activity")).
-  WithContent(commands.FluentList().WithItems(items)).
-  WithChildren(commands.FluentFallback())
+page := Page().WithContent(Article())
 
-if err := layout.Render(ctx, w); err != nil {
+if err := page.Render(ctx, w); err != nil {
   return err
 }
 ```
 
-`goht.Fragment` renders its templates in order and is useful for grouping a
-list into one slot value. A `WithX` method also accepts multiple templates
-directly. An absent slot renders nothing; a slot with nested content supplies
-the fallback instead. `FluentFallback().WithContent(...)` replaces its fallback.
+The names above are just examples: `Page` is the outer template, `Article` is
+the content placed into it, and `content` is the name of the place being filled.
+Without `WithContent`, the slot renders nothing.
 
-`children` is reserved for nested `@render` content and cannot be declared with
-`@slot`. Typed `WithX` methods only exist for known slots. The generated direct
-`Slot(name, ...)` method is for dynamic callers; an unknown name is reported by
-`Render` before it writes output.
+#### More than one place
+
+A template may declare several slots. Each one gets its own `With<Slot>` method:
+
+```haml
+@haml Layout() {
+  %header
+    = @slot header
+  %main
+    = @slot content
+}
+```
+
+```go
+page := Layout().
+  WithHeader(Title("Activity")).
+  WithContent(Article())
+```
+
+Slots can themselves receive templates with slots, so templates can be composed
+from the inside out.
+
+#### Default content
+
+Indent content below `@slot` to use it when the caller does not fill that slot:
+
+```haml
+@haml Notice() {
+  .notice
+    = @slot message
+      %p Nothing new right now.
+}
+```
+
+`Notice()` renders the paragraph above. `Notice().WithMessage(Alert())` renders
+`Alert()` instead. Calling `WithMessage` again replaces the earlier message.
+
+#### Nested content
+
+`children` is the built-in slot for content nested below `@render`. It is not a
+name you declare with `@slot`:
+
+```haml
+= @render Panel()
+  %p This is passed to Panel's children slot.
+```
+
+From Go, fill that same slot with `WithChildren(...)`.
+
+#### Multiple templates in one slot
+
+A `With<Slot>` method accepts more than one template, so pass each item directly
+when you have them individually:
+
+```go
+list := List().WithItems(
+  Item("one"),
+  Item("two"),
+)
+```
+
+When the items are already collected in a list, use `goht.Fragment` as the slot
+value. It renders its templates in order:
+
+```go
+items := goht.Fragment{
+  Item("one"),
+  Item("two"),
+}
+list := List().WithItems(items)
+```
+
+Generated `With<Slot>` methods exist only for slots declared by that template.
+For dynamic callers, generated templates also provide `Slot(name, ...)`; an
+unknown slot name is reported by `Render` before it writes output.
+
+Each `With<Slot>` call returns a new template value. This lets you prepare a
+common layout and safely use it as the starting point for several pages:
+
+```go
+activityPanel := Panel().WithHeader(Title("Activity"))
+
+today := activityPanel.WithContent(Article("Today's updates"))
+archive := activityPanel.WithContent(Article("Earlier updates"))
+```
+
+`activityPanel` still has only its header; `today` and `archive` each have the
+same header and their own content.
 
 #### Conditional and iterated slots
 
@@ -941,22 +1030,6 @@ explicitly with `@render <template>`.
 <% } %>
 <% } %>
 ```
-
-#### Migrating from legacy slots
-
-This pre-1.0 change intentionally has no compatibility layer. Regenerate every
-template with `goht generate` before compiling callers.
-
-| Legacy pattern | Current pattern |
-| --- | --- |
-| `parent.Render(ctx, w, child.Slot("content"))` | `parent.WithContent(child).Render(ctx, w)` |
-| `SlottedTemplate` | generated `*NameTemplate`, `goht.Template`, or `goht.Fragment` as appropriate |
-| direct `.Slot("name", ...)` composition | generated `.WithName(...)` composition |
-| nested render children | `.WithChildren(...)` |
-| `goht.GetSlot(ctx, name)` / `goht.HasSlot(ctx, name)` | template directives or generated internal slot access; no public context lookup |
-
-Regenerate checked-in `.goht.go` files after changing template sources. Do not
-retain a variadic `Render` call or pass slot state through `context.Context`.
 
 ## Contributing
 Contributions are welcome. Please see the [contributing guide](CONTRIBUTING.md) for more information.
