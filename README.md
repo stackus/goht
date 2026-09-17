@@ -1163,9 +1163,9 @@ explicitly with `@render <template>`.
 Using `@ifslot` allows you to conditionally add content only when a slot is filled.
 
 Normally, you can output content when a slot is not filled by nesting it under 
-`@slot` in the template. But if you also nest the `@slot` directive under `@ifslot`,
-then that default content will never render. Instead, use `@noslot` to provide
-content only when the slot is not filled.
+`@slot` in the template. But if you also nest the `@slot` directive under `@ifslot`, 
+or you are using `@eachslot`, then that default content will never render. Instead, 
+use `@noslot` to provide content only when the slot is not filled.
 
 ***
 
