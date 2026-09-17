@@ -1,0 +1,29 @@
+package integration
+
+@slim Layout() {
+	.layout
+		header
+			=@slot header
+		main
+			=@slot content
+		footer
+			=@children
+}
+
+@slim Header(title string) {
+	h1= title
+}
+
+@slim Panel() {
+	.panel
+		ul
+			=@slot body
+}
+
+@slim ListItem(value string) {
+	li= value
+}
+
+@slim Footer() {
+	small footer
+}
