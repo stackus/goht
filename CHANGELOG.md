@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.9.0](https://github.com/stackus/goht/compare/v0.8.5...v0.9.0) - 2026-09-16
+
 ### Breaking Changes
 
 - Named-slot composition now uses generated `With<Slot>` and `WithChildren`
