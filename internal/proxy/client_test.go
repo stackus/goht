@@ -32,6 +32,7 @@ func TestClientPublishDiagnosticsPassesThroughNonGohtDiagnostics(t *testing.T) {
 	if client.diagnostics[0].URI != params.URI {
 		t.Fatalf("URI = %q, want %q", client.diagnostics[0].URI, params.URI)
 	}
+
 	assertDiagnostics(t, client.diagnostics[0].Diagnostics, params.Diagnostics)
 }
 
@@ -57,6 +58,7 @@ func TestClientPublishDiagnosticsRemapsGohtGoDiagnostics(t *testing.T) {
 	if client.diagnostics[0].URI != testGohtURI {
 		t.Fatalf("URI = %q, want %q", client.diagnostics[0].URI, testGohtURI)
 	}
+
 	assertDiagnostics(t, client.diagnostics[0].Diagnostics, []protocol.Diagnostic{
 		diagnosticWithRange("mapped", rangeOf(1, 2, 1, 4)),
 	})
@@ -116,6 +118,20 @@ func TestClientPublishDiagnosticsUsesMappedEndPosition(t *testing.T) {
 	assertDiagnostics(t, client.diagnostics[0].Diagnostics, []protocol.Diagnostic{
 		diagnosticWithRange("same line", rangeOf(1, 2, 1, 6)),
 	})
+}
+
+func TestClientPublishDiagnosticsRejectsMissingSourceMap(t *testing.T) {
+	client := &recordingClient{}
+	proxyClient := NewClient(client, NewSourceMapCache(), NewDiagnosticsCache(), zerolog.Nop())
+
+	err := proxyClient.PublishDiagnostics(context.Background(), &protocol.PublishDiagnosticsParams{URI: testGohtGoURI})
+	if err == nil {
+		t.Fatal("PublishDiagnostics() error = nil")
+	}
+
+	if len(client.diagnostics) != 0 {
+		t.Fatalf("diagnostic publishes = %d, want 0", len(client.diagnostics))
+	}
 }
 
 func diagnosticWithRange(message string, diagnosticRange protocol.Range) protocol.Diagnostic {

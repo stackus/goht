@@ -1,7 +1,17 @@
 package main
 
-import "github.com/stackus/goht/cmd/goht/cmd"
+import (
+	"os"
+
+	"github.com/stackus/goht/cmd/goht/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	run(cmd.Execute, os.Exit)
+}
+
+func run(run func() error, exit func(int)) {
+	if err := run(); err != nil {
+		exit(1)
+	}
 }

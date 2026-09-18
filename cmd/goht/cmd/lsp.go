@@ -56,22 +56,24 @@ func init() {
 }
 
 func runLsp() error {
-	var logger zerolog.Logger
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	defer stop()
+	return runLspContext(ctx, os.Stdin, os.Stdout, findAndStartGoPls)
+}
 
+func runLspContext(ctx context.Context, input io.ReadCloser, output io.WriteCloser, startGoPls func(context.Context) (io.ReadWriteCloser, error)) error {
+	logger := logging.NewLogger(os.Stderr, zerolog.ErrorLevel)
 	if lspOptions.logFile != "" {
 		logFile, err := os.OpenFile(lspOptions.logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return fmt.Errorf("unable to open file for logging: %w", err)
 		}
 		logger = logging.NewLogger(logFile, zerolog.InfoLevel)
-	} else {
-		logger = logging.NewLogger(os.Stderr, zerolog.ErrorLevel)
 	}
-
 	logger.Info().Msg("starting goht-lsp")
 
 	conn := jsonrpc2.NewConn(func() jsonrpc2.Stream {
-		stream := jsonrpc2.NewHeaderStream(fakenet.NewConn("stdin", os.Stdin, os.Stdout))
+		stream := jsonrpc2.NewHeaderStream(fakenet.NewConn("stdin", input, output))
 		// stream := jsonrpc2.NewStream(rwc{
 		// 	r: os.Stdin,
 		// 	w: os.Stdout,
@@ -85,10 +87,7 @@ func runLsp() error {
 		}
 	}(conn)
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-	defer stop()
-
-	goPlsRWC, err := findAndStartGoPls(ctx)
+	goPlsRWC, err := startGoPls(ctx)
 	if err != nil {
 		return err
 	}
