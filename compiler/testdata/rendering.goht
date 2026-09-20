@@ -15,6 +15,11 @@ package testdata
 		.after After parent
 }
 
+@haml RenderWithSlotTest() {
+	=@render ChildrenTest("")
+		=@slot content
+}
+
 @haml WrapperTest() {
 	.wrapper
 		.list

@@ -76,7 +76,7 @@ func RenderTest() *RenderTestTemplate {
 		if _, __err = __buf.WriteString("<div class=\"parent\">\n<div class=\"local\">This is local content</div>\n"); __err != nil {
 			return
 		}
-		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __noSlots goht.Slots) (__err error) {
 			__buf, __isBuf := __w.(goht.Buffer)
 			if !__isBuf {
 				__buf = goht.GetBuffer()
@@ -113,6 +113,62 @@ func (t *RenderTestTemplate) Slot(name string, templates ...goht.Template) *Rend
 // WithChildren sets the "children" slot for RenderTestTemplate.
 func (t *RenderTestTemplate) WithChildren(templates ...goht.Template) *RenderTestTemplate {
 	return t.Slot("children", templates...)
+}
+
+type RenderWithSlotTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// RenderWithSlotTest returns a new instance of RenderWithSlotTestTemplate.
+// Slots: children, content.
+func RenderWithSlotTest() *RenderWithSlotTestTemplate {
+	return &RenderWithSlotTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __noSlots goht.Slots) (__err error) {
+			__buf, __isBuf := __w.(goht.Buffer)
+			if !__isBuf {
+				__buf = goht.GetBuffer()
+				defer goht.ReleaseBuffer(__buf)
+			}
+			if __slot, __hasSlot := __slots.Has("content"); __hasSlot {
+				if __err = __slot.Render(ctx, __buf); __err != nil {
+					return
+				}
+			}
+			if !__isBuf {
+				_, __err = io.Copy(__w, __buf)
+			}
+			return
+		})}
+		if __err = ChildrenTest("").WithChildren(__var1...).Render(ctx, __buf); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "content")}
+}
+
+// Slot sets a named slot for RenderWithSlotTestTemplate and returns a new instance.
+func (t *RenderWithSlotTestTemplate) Slot(name string, templates ...goht.Template) *RenderWithSlotTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for RenderWithSlotTestTemplate.
+func (t *RenderWithSlotTestTemplate) WithChildren(templates ...goht.Template) *RenderWithSlotTestTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithContent sets the "content" slot for RenderWithSlotTestTemplate.
+func (t *RenderWithSlotTestTemplate) WithContent(templates ...goht.Template) *RenderWithSlotTestTemplate {
+	return t.Slot("content", templates...)
 }
 
 type WrapperTestTemplate struct {
@@ -216,7 +272,7 @@ func NestedRenderTest() *NestedRenderTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __noSlots goht.Slots) (__err error) {
 			__buf, __isBuf := __w.(goht.Buffer)
 			if !__isBuf {
 				__buf = goht.GetBuffer()

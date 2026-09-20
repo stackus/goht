@@ -74,6 +74,10 @@ func TestRender(t *testing.T) {
 			template: testdata.RenderTest(),
 			htmlFile: "rendering",
 		},
+		"render with slot": {
+			template: testdata.RenderWithSlotTest().WithContent(templateText("slotted content")),
+			htmlFile: "render_with_slot",
+		},
 		"slots": {
 			template: testdata.SlotTest().
 				WithFirst(templateText("first")).
