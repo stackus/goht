@@ -1645,7 +1645,7 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 
 	vName := tw.GetVarName()
 
-	fnLine := vName + " := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {\n"
+	fnLine := vName + " := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __noSlots goht.Slots) (__err error) {\n"
 
 	if _, err := tw.WriteIndent(fnLine); err != nil {
 		return err
