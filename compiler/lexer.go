@@ -138,6 +138,19 @@ func (l *lexer) acceptAhead(length int) {
 	}
 }
 
+// acceptEscape consumes a backslash; a backslash that escapes a hash is discarded so the hash is taken as text.
+func (l *lexer) acceptEscape() {
+	if l.peekAhead(2) != "\\#" {
+		l.next()
+		return
+	}
+	l.skip()
+	// was the backslash being escaped?
+	if !strings.HasSuffix(l.current(), "\\") {
+		l.next()
+	}
+}
+
 // skip discards the next rune.
 func (l *lexer) skip() rune {
 	r := l.next()

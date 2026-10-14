@@ -4,5 +4,7 @@ package testdata
 	%p before
 	- if v
 		%p the condition was true
+	- else
+		the condition was #{"false"}
 	%p after
 }

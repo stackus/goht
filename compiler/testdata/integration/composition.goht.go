@@ -44,7 +44,7 @@ func Layout() *LayoutTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("</footer></div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</footer></div>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -99,7 +99,7 @@ func Header(title string) *HeaderTemplate {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</h1>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</h1>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -142,7 +142,7 @@ func Panel() *PanelTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("</ul></div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</ul></div>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -192,7 +192,7 @@ func ListItem(value string) *ListItemTemplate {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</li>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</li>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -227,7 +227,7 @@ func Footer() *FooterTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<small>footer</small>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<small>footer</small>"); __err != nil {
 			return
 		}
 		if !__isBuf {

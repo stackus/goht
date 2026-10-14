@@ -132,7 +132,7 @@ func SlimSlotDirectives() *SlimSlotDirectivesTemplate {
 				}
 			}
 		}
-		if _, __err = __buf.WriteString("</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -180,7 +180,7 @@ func ChildrenPresence() *ChildrenPresenceTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -238,7 +238,7 @@ func EgoSlotDirectives() *EgoSlotDirectivesTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("\n</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("\n</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {

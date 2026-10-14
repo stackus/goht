@@ -156,7 +156,7 @@ func SlotTemplate() *SlotTemplateTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -225,7 +225,7 @@ func SlotWithDefaultTemplate() *SlotWithDefaultTemplateTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {

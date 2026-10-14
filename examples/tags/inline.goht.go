@@ -23,7 +23,7 @@ func SlimInlineTags() *SlimInlineTagsTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<ul><li><a class=\"first\">First Item</a></li><li><a class=\"second\">First Item</a></li><li><a class=\"third\">First Item</a></li></ul>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<ul><li><a class=\"first\">First Item</a></li><li><a class=\"second\">First Item</a></li><li><a class=\"third\">First Item</a></li></ul>"); __err != nil {
 			return
 		}
 		if !__isBuf {

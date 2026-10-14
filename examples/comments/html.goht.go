@@ -98,7 +98,7 @@ func SlimHtmlComments() *SlimHtmlCommentsTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<p>This is a paragraph</p><!--This is a HTML comment-->\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This is a paragraph</p><!--This is a HTML comment-->"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -207,7 +207,7 @@ func SlimHtmlCommentsNested() *SlimHtmlCommentsNestedTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<p>This is a paragraph</p><!--p This is a paragraph that is commented out-->\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This is a paragraph</p><!--p This is a paragraph that is commented out-->"); __err != nil {
 			return
 		}
 		if !__isBuf {

@@ -20,7 +20,7 @@ func TypedNoSlots() *TypedNoSlotsTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<p>no slots</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>no slots</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -59,9 +59,6 @@ func TypedOneSlot() *TypedOneSlotTemplate {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
-		}
-		if _, __err = __buf.WriteString("\n"); __err != nil {
-			return
 		}
 		if !__isBuf {
 			_, __err = __w.Write(__buf.Bytes())
@@ -109,9 +106,6 @@ func TypedMultipleSlots() *TypedMultipleSlotsTemplate {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
-		}
-		if _, __err = __buf.WriteString("\n"); __err != nil {
-			return
 		}
 		if !__isBuf {
 			_, __err = __w.Write(__buf.Bytes())
@@ -164,9 +158,6 @@ func TypedFallbackSlot() *TypedFallbackSlotTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("\n"); __err != nil {
-			return
-		}
 		if !__isBuf {
 			_, __err = __w.Write(__buf.Bytes())
 		}
@@ -213,9 +204,6 @@ func TypedDuplicateSlot() *TypedDuplicateSlotTemplate {
 			if __err = __slot.Render(ctx, __buf); __err != nil {
 				return
 			}
-		}
-		if _, __err = __buf.WriteString("\n"); __err != nil {
-			return
 		}
 		if !__isBuf {
 			_, __err = __w.Write(__buf.Bytes())

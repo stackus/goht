@@ -1,6 +1,7 @@
 <p>
 Plain <em>text</em>
 Interpolated <em>text</em>
+#{str}
 </p>
 <p>
 	Indented Plain <em>text</em>
@@ -16,6 +17,7 @@ Preserved <em>text</em>&#x000A;Interpolated <em>text</em>&#x000A;
 <div class="nesting">
 <script>
 console.log("Interpolated &lt;em&gt;text&lt;/em&gt;");
+console.log("#{str}\n");
 if (true) {
 	console.log("Interpolated &lt;em&gt;text&lt;/em&gt;");
 }

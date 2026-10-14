@@ -92,7 +92,7 @@ func SlimDoc() *SlimDocTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<div class=\"doc\">An example of package documentation.</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div class=\"doc\">An example of package documentation.</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {

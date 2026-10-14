@@ -47,7 +47,7 @@ func SlimTemplate() *SlimTemplateTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("</body></html>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</body></html>"); __err != nil {
 			return
 		}
 		if !__isBuf {

@@ -47,7 +47,7 @@ func EgoTemplate() *EgoTemplateTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("</body>\n</html>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</body>\n</html>"); __err != nil {
 			return
 		}
 		if !__isBuf {

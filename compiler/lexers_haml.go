@@ -480,16 +480,7 @@ func lexHamlTextContent(l *lexer) lexFn {
 	l.acceptUntil("\\#\n\r")
 	switch l.peek() {
 	case '\\':
-		isHashComing := l.peekAhead(2)
-		if isHashComing == "\\#" {
-			l.skip()
-			// was the backslash being escaped?
-			if !strings.HasSuffix(l.current(), "\\") {
-				l.next()
-			}
-		} else {
-			l.next()
-		}
+		l.acceptEscape()
 		return lexHamlTextContent
 	case '#':
 		return lexHamlDynamicText
@@ -764,8 +755,12 @@ func lexHamlFilterIndent(indent int, textType tokenType) lexFn {
 func lexHamlFilterContent(indent int, textType tokenType) lexFn {
 	return func(l *lexer) lexFn {
 		if textType != tGoCode {
-			l.acceptUntil("#\n\r")
-			if l.peek() == '#' {
+			l.acceptUntil("\\#\n\r")
+			switch l.peek() {
+			case '\\':
+				l.acceptEscape()
+				return lexHamlFilterContent(indent, textType)
+			case '#':
 				return lexHamlFilterDynamicText(textType, lexHamlFilterContent(indent, textType))
 			}
 		} else {

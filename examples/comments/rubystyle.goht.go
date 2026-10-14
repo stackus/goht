@@ -102,7 +102,7 @@ func SlimRubyStyle() *SlimRubyStyleTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -209,7 +209,7 @@ func SlimRubyStyleNested() *SlimRubyStyleNestedTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This is the only paragraph in the output.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {

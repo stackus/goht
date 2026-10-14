@@ -46,9 +46,17 @@ func TestRender(t *testing.T) {
 			template: testdata.InterpolationTest(),
 			htmlFile: "interpolation",
 		},
+		"slim interpolation": {
+			template: testdata.SlimInterpolationTest(),
+			htmlFile: "slim_interpolation",
+		},
 		"comments": {
 			template: testdata.CommentsTest(),
 			htmlFile: "comments",
+		},
+		"slim comments": {
+			template: testdata.SlimCommentsTest(),
+			htmlFile: "slim_comments",
 		},
 		"conditionals.true": {
 			template: testdata.ConditionalsTest(true),
@@ -62,6 +70,10 @@ func TestRender(t *testing.T) {
 			template: testdata.FiltersTest(),
 			htmlFile: "filters",
 		},
+		"slim filters": {
+			template: testdata.SlimFiltersTest(),
+			htmlFile: "slim_filters",
+		},
 		"object references": {
 			template: testdata.ObjectReferencesTest(),
 			htmlFile: "obj_references",
@@ -73,6 +85,10 @@ func TestRender(t *testing.T) {
 		"render": {
 			template: testdata.RenderTest(),
 			htmlFile: "rendering",
+		},
+		"slim render": {
+			template: testdata.SlimRenderTest("child"),
+			htmlFile: "slim_rendering",
 		},
 		"ego render": {
 			template: testdata.EgoRenderTest(),

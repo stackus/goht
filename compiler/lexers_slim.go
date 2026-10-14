@@ -96,7 +96,7 @@ func lexSlimContent(l *lexer) lexFn {
 		return lexSlimInlineTag
 	case ' ', '\t':
 		l.skipRun(" \t")
-		return lexSlimTextBlockContent(l.indent+1, 0, tPlainText)
+		return lexSlimTextBlockContent(l.indent+1, 0, tPlainText, false)
 	case scanner.EOF, '\n', '\r':
 		return lexSlimLineEnd
 	default:
@@ -222,36 +222,39 @@ func lexSlimComment(l *lexer) lexFn {
 
 	l.skip() // eat bang
 	l.skipRun(" \t")
-	return lexSlimTextBlockContent(l.indent+1, 0, tComment)
+	return lexSlimTextBlockContent(l.indent+1, 0, tComment, false)
 }
 
 func lexSlimTextBlock(l *lexer) lexFn {
 	l.skip() // eat pipe
 	// test for a space after the pipe
 	if n := l.peek(); n == ' ' || n == '\t' {
-		return lexSlimTextBlockContent(l.indent+1, 1, tPlainText)
+		return lexSlimTextBlockContent(l.indent+1, 1, tPlainText, false)
 	}
-	return lexSlimTextBlockContent(l.indent+1, 0, tPlainText)
+	return lexSlimTextBlockContent(l.indent+1, 0, tPlainText, false)
 }
 
-func lexSlimTextBlockLineStart(indent int, spaces int, textType tokenType) lexFn {
+func lexSlimTextBlockLineStart(indent int, spaces int, textType tokenType, continued bool) lexFn {
 	return func(l *lexer) lexFn {
 		switch l.peek() {
 		case ' ', '\t':
-			return lexSlimTextBlockIndent(indent, spaces, textType)
+			return lexSlimTextBlockIndent(indent, spaces, textType, continued)
 		case scanner.EOF:
+			if l.current() != "" {
+				l.emit(tNewLine)
+			}
 			l.emit(tEOF)
 			return nil
 		default:
 			if l.current() != "" {
-				l.emit(textType)
+				l.emit(tNewLine)
 			}
 			return lexSlimLineStart
 		}
 	}
 }
 
-func lexSlimTextBlockIndent(indent int, spaces int, textType tokenType) lexFn {
+func lexSlimTextBlockIndent(indent int, spaces int, textType tokenType, continued bool) lexFn {
 	return func(l *lexer) lexFn {
 		// only accept the whitespace that belongs to the indent
 
@@ -260,38 +263,56 @@ func lexSlimTextBlockIndent(indent int, spaces int, textType tokenType) lexFn {
 
 		if len(strings.Trim(indents, "\t")) != 0 {
 			if l.current() != "" {
-				l.emit(textType)
+				l.emit(tNewLine)
 			}
 			return lexSlimLineStart
 		}
 
+		// the newlines between lines of text are part of the text; before any text, they only end the line
+		if !continued && l.current() != "" {
+			l.emit(tNewLine)
+		}
+
 		l.skipAhead(indent)
 
-		return lexSlimTextBlockContent(indent, spaces, textType)
+		return lexSlimTextBlockContent(indent, spaces, textType, continued)
 	}
 }
 
-func lexSlimTextBlockContent(indent int, spaces int, textType tokenType) lexFn {
+func lexSlimTextBlockContent(indent int, spaces int, textType tokenType, continued bool) lexFn {
 	return func(l *lexer) lexFn {
 		if spaces != 0 {
 			if n := l.peek(); n == ' ' || n == '\t' {
 				l.skip() // eat space
 			}
 		}
-		l.acceptUntil("#\n\r")
-		if len(l.current()) > 0 {
-			l.emit(textType)
-		}
+		return lexSlimTextBlockText(indent, spaces, textType, continued)
+	}
+}
 
-		if l.peek() == '#' && !strings.HasSuffix(l.current(), "\\") {
-			// l.emit(textType)
-			return lexSlimFilterDynamicText(textType, lexSlimTextBlockContent(indent, spaces, textType))
+// lexSlimTextBlockText parses the rest of a text block line; whitespace after
+// dynamic text is part of the text, so it is not eaten again.
+func lexSlimTextBlockText(indent int, spaces int, textType tokenType, continued bool) lexFn {
+	return func(l *lexer) lexFn {
+		if textType == tComment {
+			// comments are not interpolated
+			l.acceptUntil("\n\r")
+		} else {
+			l.acceptUntil("\\#\n\r")
+		}
+		switch l.peek() {
+		case '\\':
+			l.acceptEscape()
+			return lexSlimTextBlockText(indent, spaces, textType, continued)
+		case '#':
+			return lexSlimFilterDynamicText(textType, lexSlimTextBlockText(indent, spaces, textType, true))
+		}
+		if l.current() != "" {
+			l.emit(textType)
+			continued = true
 		}
 		l.acceptRun("\n\r")
-		if l.current() != "" {
-			l.emit(tNewLine)
-		}
-		return lexSlimTextBlockLineStart(indent, spaces, textType)
+		return lexSlimTextBlockLineStart(indent, spaces, textType, continued)
 	}
 }
 
@@ -463,9 +484,12 @@ func lexSlimFilterIndent(indent int, textType tokenType) lexFn {
 func lexSlimFilterContent(indent int, textType tokenType) lexFn {
 	return func(l *lexer) lexFn {
 		if textType != tGoCode {
-			l.acceptUntil("#\n\r")
-			// we have reached some interpolation as long as it wasn't escaped
-			if l.peek() == '#' && !strings.HasSuffix(l.current(), "\\") {
+			l.acceptUntil("\\#\n\r")
+			switch l.peek() {
+			case '\\':
+				l.acceptEscape()
+				return lexSlimFilterContent(indent, textType)
+			case '#':
 				return lexSlimFilterDynamicText(textType, lexSlimFilterContent(indent, textType))
 			}
 		} else {

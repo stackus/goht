@@ -95,7 +95,7 @@ func SlimSimpleNames() *SlimSimpleNamesTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" data-foo=\"bar\" odd_name=\"baz\" _=\"I&#39;m a _hyperscript attribute!\">Goht</a>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" data-foo=\"bar\" odd_name=\"baz\" _=\"I&#39;m a _hyperscript attribute!\">Goht</a>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -207,7 +207,7 @@ func SlimComplexNames() *SlimComplexNamesTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" :class=\"show ? &#39;&#39; : &#39;hidden&#39;\" @click=\"show = !show\">Goht</a>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<a href=\"https://github.com/stackus/goht\" :class=\"show ? &#39;&#39; : &#39;hidden&#39;\" @click=\"show = !show\">Goht</a>"); __err != nil {
 			return
 		}
 		if !__isBuf {

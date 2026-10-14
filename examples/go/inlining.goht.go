@@ -134,7 +134,7 @@ func SlimConditional() *SlimConditionalTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("<button>View content</button></div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<button>View content</button></div>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -283,7 +283,7 @@ func SlimShorthandConditional() *SlimShorthandConditionalTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("<button>View content</button></div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<button>View content</button></div>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -431,7 +431,7 @@ func SlimShorthandSwitch() *SlimShorthandSwitchTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("<button>View content</button></div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<button>View content</button></div>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -566,9 +566,6 @@ func SlimLongStatement() *SlimLongStatementTemplate {
 			return
 		}
 		if _, __err = __buf.WriteString(__var2); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString("\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

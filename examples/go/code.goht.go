@@ -132,7 +132,7 @@ func SlimExecuteCode() *SlimExecuteCodeTemplate {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -267,7 +267,7 @@ func SlimRenderCode() *SlimRenderCodeTemplate {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {

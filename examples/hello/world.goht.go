@@ -154,7 +154,7 @@ func slimTermsWrapper(term string) *slimTermsWrapperTemplate {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -355,7 +355,7 @@ func SlimWorld() *SlimWorldTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("</body></html>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</body></html>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -422,7 +422,7 @@ func EgoWorld() *EgoWorldTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString("</body>\n</html>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</body>\n</html>"); __err != nil {
 			return
 		}
 		if !__isBuf {

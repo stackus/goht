@@ -152,7 +152,7 @@ func SlimConditionalAttrs() *SlimConditionalAttrsTemplate {
 				return
 			}
 		}
-		if _, __err = __buf.WriteString(">Click me!</button>\n"); __err != nil {
+		if _, __err = __buf.WriteString(">Click me!</button>"); __err != nil {
 			return
 		}
 		if !__isBuf {

@@ -109,7 +109,7 @@ func SlimWhitespace() *SlimWhitespaceTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<p>This text has no whitespace between it and the tag.</p><p><This>text has NO whitespace between it and the tag.</This><p>This tag has NO whitespace between it and the tag above.</p></p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This text has no whitespace between it and the tag.</p><p><This>text has NO whitespace between it and the tag.</This><p>This tag has NO whitespace between it and the tag above.</p></p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -232,7 +232,7 @@ func SlimAddWhitespace() *SlimAddWhitespaceTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<div>This tag has whitespace after it.</div> <div>There is whitespace between this text and the parent tag. <p>There is whitespace before and after this tag.</p> </div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div>This tag has whitespace after it.</div> <div>There is whitespace between this text and the parent tag. <p>There is whitespace before and after this tag.</p> </div>"); __err != nil {
 			return
 		}
 		if !__isBuf {

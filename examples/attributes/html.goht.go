@@ -74,7 +74,7 @@ func SlimHtmlAttributes() *SlimHtmlAttributesTemplate {
 		if _, __err = __buf.WriteString(goht.EscapeString(id) + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(">Content</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString(">Content</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -156,7 +156,7 @@ func SlimMultiLineHtmlAttributes() *SlimMultiLineHtmlAttributesTemplate {
 		if _, __err = __buf.WriteString(goht.EscapeString(id) + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(">Content</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString(">Content</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -226,7 +226,7 @@ func SlimHtmlWithComplexNames() *SlimHtmlWithComplexNamesTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<div href=\"https://github.com/stackus/goht\" :class=\"show ? &#39;&#39; : &#39;hidden&#39;\" @click=\"show = !show\">Content</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div href=\"https://github.com/stackus/goht\" :class=\"show ? &#39;&#39; : &#39;hidden&#39;\" @click=\"show = !show\">Content</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {

@@ -285,7 +285,7 @@ func SlimIntExample() *SlimIntExampleTemplate {
 		if _, __err = __buf.WriteString(__var6); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") as a character.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString(") as a character.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -570,7 +570,7 @@ func SlimFloatExample() *SlimFloatExampleTemplate {
 		if _, __err = __buf.WriteString(__var6); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(") with 2 decimal places and padded to 9 characters with 0s.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString(") with 2 decimal places and padded to 9 characters with 0s.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -705,7 +705,7 @@ func SlimBoolExample() *SlimBoolExampleTemplate {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(").</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString(").</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -1080,7 +1080,7 @@ func SlimStringExample() *SlimStringExampleTemplate {
 		if _, __err = __buf.WriteString(__var9); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("), truncated to 4 characters and padded to 6 characters and quoted.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("), truncated to 4 characters and padded to 6 characters and quoted.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {

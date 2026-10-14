@@ -166,7 +166,7 @@ func (u User) SlimDetails() *SlimDetailsTemplate {
 		if _, __err = __buf.WriteString(__var2); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {

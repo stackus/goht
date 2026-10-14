@@ -98,7 +98,7 @@ func SlimSelfClosing() *SlimSelfClosingTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<img src=\"logo.png\" alt=\"logo\"><p>A paragraph is not self closing.<img src=\"logo.png\" alt=\"logo\"></p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<img src=\"logo.png\" alt=\"logo\"><p>A paragraph is not self closing.<img src=\"logo.png\" alt=\"logo\"></p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -213,7 +213,7 @@ func SlimAlsoSelfClosing() *SlimAlsoSelfClosingTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<isNowSelfClosing/>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<isNowSelfClosing/>"); __err != nil {
 			return
 		}
 		if !__isBuf {

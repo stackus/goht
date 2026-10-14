@@ -95,7 +95,7 @@ func SlimStaticAttrs() *SlimStaticAttrsTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<p class=\"foo\" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p class=\"foo\" id=\"bar\">This is a paragraph.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -239,7 +239,7 @@ func SlimDynamicAttrs() *SlimDynamicAttrsTemplate {
 		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -383,7 +383,7 @@ func SlimMultilineAttrs() *SlimMultilineAttrsTemplate {
 		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -475,7 +475,7 @@ func SlimMultilineHtmlStyleAttrs() *SlimMultilineHtmlStyleAttrsTemplate {
 		if _, __err = __buf.WriteString(" class=\"" + __var1 + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString(" id=\"bar\">This is a paragraph.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -781,7 +781,7 @@ func SlimWhitespaceAttrs() *SlimWhitespaceAttrsTemplate {
 		if _, __err = __buf.WriteString(" class=\"" + __var7 + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" id=\"bar\">This is</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString(" id=\"bar\">This is</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -910,7 +910,7 @@ func SlimFormattedValue() *SlimFormattedValueTemplate {
 		if _, __err = __buf.WriteString(goht.EscapeString(goht.FormatString("%d", intVar)) + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(" cols=\"80\"></textarea>\n"); __err != nil {
+		if _, __err = __buf.WriteString(" cols=\"80\"></textarea>"); __err != nil {
 			return
 		}
 		if !__isBuf {

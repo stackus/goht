@@ -2219,6 +2219,19 @@ func Test_HamlFilters(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"escaped interpolation": {
+			input: "@goht test() {\n\t:javascript\n\t\tfoo \"\\#{bar}\\n\"\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tFilterStart, lit: "javascript"},
+				{typ: tPlainText, lit: "foo \"#{bar}\\n\"\n"},
+				{typ: tFilterEnd, lit: ""},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"interpolation not closed": {
 			input: "@goht test() {\n\t:javascript\n\t\tfoo #{bar\n}",
 			want: []token{

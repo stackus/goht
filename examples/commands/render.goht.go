@@ -113,7 +113,7 @@ func SlimRenderExample() *SlimRenderExampleTemplate {
 		if __err = SlimChildrenExample().Render(ctx, __buf); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p><p>the other template was rendered above.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</p><p>the other template was rendered above.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -154,7 +154,7 @@ func EgoRenderExample() *EgoRenderExampleTemplate {
 		if __err = SlimChildrenExample().Render(ctx, __buf); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p>\n<p>the other template was rendered above.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</p>\n<p>the other template was rendered above.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -317,9 +317,6 @@ func SlimRenderWithChildrenExample() *SlimRenderWithChildrenExampleTemplate {
 		if __err = SlimChildrenExample().WithChildren(__var1...).Render(ctx, __buf); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("\n"); __err != nil {
-			return
-		}
 		if !__isBuf {
 			_, __err = __w.Write(__buf.Bytes())
 		}
@@ -370,9 +367,6 @@ func EgoRenderWithChildrenExample() *EgoRenderWithChildrenExampleTemplate {
 			return
 		})}
 		if __err = SlimChildrenExample().WithChildren(__var1...).Render(ctx, __buf); __err != nil {
-			return
-		}
-		if _, __err = __buf.WriteString("\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

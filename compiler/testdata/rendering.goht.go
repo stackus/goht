@@ -115,6 +115,71 @@ func (t *RenderTestTemplate) WithChildren(templates ...goht.Template) *RenderTes
 	return t.Slot("children", templates...)
 }
 
+type SlimRenderTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimRenderTest returns a new instance of SlimRenderTestTemplate.
+// Slots: children.
+func SlimRenderTest(v string) *SlimRenderTestTemplate {
+	return &SlimRenderTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<div class=\"parent\">"); __err != nil {
+			return
+		}
+		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __noSlots goht.Slots) (__err error) {
+			__buf, __isBuf := __w.(goht.Buffer)
+			if !__isBuf {
+				__buf = goht.GetBuffer()
+				defer goht.ReleaseBuffer(__buf)
+			}
+			if _, __err = __buf.WriteString("This is "); __err != nil {
+				return
+			}
+			var __var2 string
+			if __var2, __err = goht.CaptureErrors(goht.EscapeString(v)); __err != nil {
+				return
+			}
+			if _, __err = __buf.WriteString(__var2); __err != nil {
+				return
+			}
+			if _, __err = __buf.WriteString(" content"); __err != nil {
+				return
+			}
+			if !__isBuf {
+				_, __err = io.Copy(__w, __buf)
+			}
+			return
+		})}
+		if __err = ChildrenTest("This is passed-in content").WithChildren(__var1...).Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("<div class=\"after\">After parent</div></div>"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimRenderTestTemplate and returns a new instance.
+func (t *SlimRenderTestTemplate) Slot(name string, templates ...goht.Template) *SlimRenderTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimRenderTestTemplate.
+func (t *SlimRenderTestTemplate) WithChildren(templates ...goht.Template) *SlimRenderTestTemplate {
+	return t.Slot("children", templates...)
+}
+
 type RenderWithSlotTestTemplate struct {
 	goht.SlotTemplate
 }
@@ -561,7 +626,7 @@ func EgoRenderTest() *EgoRenderTestTemplate {
 		if __err = WrapperTest().WithChildren(__var3...).Render(ctx, __buf); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("<div class=\"after\">After renders</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div class=\"after\">After renders</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {

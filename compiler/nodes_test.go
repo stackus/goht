@@ -625,6 +625,29 @@ func Test_SilentScriptNode(t *testing.T) {
 			Text(S)
 `,
 		},
+		"nested text": {
+			input: "@goht test() {\n\t- if foo\n\t\tbar #{baz}\n\t%p after\n}",
+			want: `Root
+	Template
+		SilentScript
+			Text(S)
+			Text(D)
+			NewLine
+		Element p()
+			Text(S)
+`,
+		},
+		"nested output": {
+			input: "@goht test() {\n\t- if foo\n\t\t= bar\n\t%p after\n}",
+			want: `Root
+	Template
+		SilentScript
+			Script
+			NewLine
+		Element p()
+			Text(S)
+`,
+		},
 		"shorter indent": {
 			input: "@goht test() {\n\t%p1\n\t\t- if foo\n\t%p2 two\n}",
 			want: `Root
@@ -733,6 +756,15 @@ func Test_CommentNode(t *testing.T) {
 			NewLine
 			Element p()
 				Text(S)
+`,
+		},
+		"slim multiline": {
+			input: "@slim test() {\n\t/! foo\n\t\tbar\n\tp baz\n}",
+			want: `Root
+	Template
+		Comment
+		Element p()
+			Text(S)
 `,
 		},
 	}
@@ -847,6 +879,46 @@ func Test_RenderNode(t *testing.T) {
 			Element p()
 				Text(S)
 		Element p2()
+			Text(S)
+`,
+		},
+		"haml text with interpolation": {
+			input: "@haml test() {\n\t= @render foo()\n\t\tSave #{title}\n}",
+			want: `Root
+	Template
+		RenderCommand
+			Text(S)
+			Text(D)
+			NewLine
+`,
+		},
+		"slim text with interpolation": {
+			input: "@slim test() {\n\t= @render foo()\n\t\t| Save #{title}\n}",
+			want: `Root
+	Template
+		RenderCommand
+			Text(S)
+			Text(D)
+`,
+		},
+		"slim text with interpolation in the middle": {
+			input: "@slim test() {\n\t= @render foo()\n\t\t| Save #{title} now\n}",
+			want: `Root
+	Template
+		RenderCommand
+			Text(S)
+			Text(D)
+			Text(S)
+`,
+		},
+		"slim text with interpolation before a sibling": {
+			input: "@slim test() {\n\t= @render foo()\n\t\t| Save #{title}\n\tp after\n}",
+			want: `Root
+	Template
+		RenderCommand
+			Text(S)
+			Text(D)
+		Element p()
 			Text(S)
 `,
 		},

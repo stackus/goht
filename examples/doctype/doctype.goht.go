@@ -92,7 +92,7 @@ func SlimDoctype() *SlimDoctypeTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<!DOCTYPE html>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<!DOCTYPE html>"); __err != nil {
 			return
 		}
 		if !__isBuf {

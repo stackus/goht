@@ -32,7 +32,64 @@ func InterpolationTest() *InterpolationTestTemplate {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</p>\n<p>"); __err != nil {
+			return
+		}
+		var __var2 string
+		if __var2, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var2); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" starts the line</p>\n<p>"); __err != nil {
+			return
+		}
+		var __var3 string
+		if __var3, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var3); __err != nil {
+			return
+		}
+		var __var4 string
+		if __var4, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var4); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" are adjacent</p>\n<p>This is #{foo} escaped</p>\n<p>This is \\"); __err != nil {
+			return
+		}
+		var __var5 string
+		if __var5, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var5); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" with a backslash</p>\n<p>This is # not interpolation</p>\n<p>\nThis is "); __err != nil {
+			return
+		}
+		var __var6 string
+		if __var6, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var6); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" nested\n"); __err != nil {
+			return
+		}
+		var __var7 string
+		if __var7, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var7); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" starts the line\n</p>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -51,5 +108,127 @@ func (t *InterpolationTestTemplate) Slot(name string, templates ...goht.Template
 
 // WithChildren sets the "children" slot for InterpolationTestTemplate.
 func (t *InterpolationTestTemplate) WithChildren(templates ...goht.Template) *InterpolationTestTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimInterpolationTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimInterpolationTest returns a new instance of SlimInterpolationTestTemplate.
+// Slots: children.
+func SlimInterpolationTest() *SlimInterpolationTestTemplate {
+	return &SlimInterpolationTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>This is "); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</p><p>"); __err != nil {
+			return
+		}
+		var __var2 string
+		if __var2, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var2); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" starts the line</p><p>"); __err != nil {
+			return
+		}
+		var __var3 string
+		if __var3, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var3); __err != nil {
+			return
+		}
+		var __var4 string
+		if __var4, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var4); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" are adjacent</p><p>This is #{foo} escaped</p><p>This is \\"); __err != nil {
+			return
+		}
+		var __var5 string
+		if __var5, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var5); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" with a backslash</p><p>This is # not interpolation</p><p>This is "); __err != nil {
+			return
+		}
+		var __var6 string
+		if __var6, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var6); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" piped"); __err != nil {
+			return
+		}
+		var __var7 string
+		if __var7, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var7); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" starts the pipe</p><p>This is "); __err != nil {
+			return
+		}
+		var __var8 string
+		if __var8, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var8); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" on\nmore than "); __err != nil {
+			return
+		}
+		var __var9 string
+		if __var9, __err = goht.CaptureErrors(goht.EscapeString(foo)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var9); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(" one line\n\nafter a blank line</p>"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimInterpolationTestTemplate and returns a new instance.
+func (t *SlimInterpolationTestTemplate) Slot(name string, templates ...goht.Template) *SlimInterpolationTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimInterpolationTestTemplate.
+func (t *SlimInterpolationTestTemplate) WithChildren(templates ...goht.Template) *SlimInterpolationTestTemplate {
 	return t.Slot("children", templates...)
 }

@@ -176,6 +176,15 @@ func (n *node) errorf(format string, args ...any) error {
 	}
 }
 
+// handleNewLine drops the newline that ends a command's own line; the newlines that end its children's lines are kept
+func (n *node) handleNewLine(p *parser) error {
+	if len(n.children) == 0 {
+		p.next()
+		return nil
+	}
+	return n.handleNode(p, n.indent+1)
+}
+
 func (n *node) handleNode(p *parser, indent int) error {
 	t := p.peek()
 	_ = t
@@ -469,12 +478,6 @@ func (n *TemplateNode) Source(tw *templateWriter) error {
 	itw := tw.Indent(2)
 	for _, c := range n.children {
 		if err := c.Source(itw); err != nil {
-			return err
-		}
-	}
-	// ensure the template ends with a newline
-	if !n.keepNewlines {
-		if _, err := itw.WriteStringLiteral("\\n"); err != nil {
 			return err
 		}
 	}
@@ -1186,7 +1189,8 @@ func NewCommentNode(t token, indent int, keepNewlines bool) *CommentNode {
 
 func (n *CommentNode) Source(tw *templateWriter) error {
 	if n.text != "" {
-		if _, err := tw.WriteStringLiteral("<!--" + html.EscapeString(n.text) + "-->"); err != nil {
+		text := strconv.Quote(html.EscapeString(n.text))
+		if _, err := tw.WriteStringLiteral("<!--" + text[1:len(text)-1] + "-->"); err != nil {
 			return err
 		}
 		if n.keepNewlines {
@@ -1230,6 +1234,11 @@ func (n *CommentNode) parse(p *parser) error {
 		if nextIndent > n.indent && n.text != "" {
 			return n.errorf("illegal nesting: content can't be both given on the same line and nested %s", p.peek())
 		}
+	}
+	if p.peek().Type() == tComment && n.text != "" {
+		// the following lines of a multiline comment belong to the same comment
+		n.text += p.next().lit
+		return nil
 	}
 	return n.handleNode(p, n.indent+1)
 }
@@ -1551,8 +1560,7 @@ func (n *SilentScriptNode) Source(tw *templateWriter) error {
 func (n *SilentScriptNode) parse(p *parser) error {
 	switch p.peek().Type() {
 	case tNewLine:
-		p.next()
-		return nil
+		return n.handleNewLine(p)
 	default:
 		if !n.allowChildren() {
 			return p.backToParent()
@@ -1717,13 +1725,12 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 func (n *RenderCommandNode) parse(p *parser) error {
 	switch p.peek().Type() {
 	case tNewLine:
-		p.next()
-		return nil
+		return n.handleNewLine(p)
 	case tIndent:
 		return n.handleNode(p, n.indent+1)
 	}
-	if !n.opensBlock() {
-		// an EGO render without a block has no children; what follows belongs to the parent
+	if len(n.children) == 0 && !n.opensBlock() {
+		// a render takes children only after an indent; what follows on its own line belongs to the parent
 		return p.backToParent()
 	}
 	return n.handleNode(p, n.indent+1)
@@ -1820,8 +1827,7 @@ func (n *SlotCommandNode) Source(tw *templateWriter) error {
 func (n *SlotCommandNode) parse(p *parser) error {
 	switch p.peek().Type() {
 	case tNewLine:
-		p.next()
-		return nil
+		return n.handleNewLine(p)
 	default:
 		return n.handleNode(p, n.indent+1)
 	}
@@ -1866,8 +1872,7 @@ func (n *IfSlotCommandNode) Source(tw *templateWriter) error {
 func (n *IfSlotCommandNode) parse(p *parser) error {
 	switch p.peek().Type() {
 	case tNewLine:
-		p.next()
-		return nil
+		return n.handleNewLine(p)
 	default:
 		return n.handleNode(p, n.indent+1)
 	}
@@ -1913,8 +1918,7 @@ func (n *NoSlotCommandNode) Source(tw *templateWriter) error {
 func (n *NoSlotCommandNode) parse(p *parser) error {
 	switch p.peek().Type() {
 	case tNewLine:
-		p.next()
-		return nil
+		return n.handleNewLine(p)
 	default:
 		return n.handleNode(p, n.indent+1)
 	}
@@ -1972,8 +1976,7 @@ func (n *EachSlotCommandNode) Source(tw *templateWriter) error {
 func (n *EachSlotCommandNode) parse(p *parser) error {
 	switch p.peek().Type() {
 	case tNewLine:
-		p.next()
-		return nil
+		return n.handleNewLine(p)
 	default:
 		return n.handleNode(p, n.indent+1)
 	}

@@ -4,4 +4,29 @@ var foo = "bar"
 
 @goht InterpolationTest() {
 	%p This is #{foo}
+	%p #{foo} starts the line
+	%p #{foo}#{foo} are adjacent
+	%p This is \#{foo} escaped
+	%p This is \\#{foo} with a backslash
+	%p This is # not interpolation
+	%p
+		This is #{foo} nested
+		\#{foo} starts the line
+}
+
+@slim SlimInterpolationTest() {
+	p This is #{foo}
+	p #{foo} starts the line
+	p #{foo}#{foo} are adjacent
+	p This is \#{foo} escaped
+	p This is \\#{foo} with a backslash
+	p This is # not interpolation
+	p
+		| This is #{foo} piped
+		| #{foo} starts the pipe
+	p
+		| This is #{foo} on
+			more than #{foo} one line
+
+			after a blank line
 }

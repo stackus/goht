@@ -14,4 +14,15 @@ package testdata
 	-#
 		this is a Haml comment
 	%p last
+	/ this \ comment has a backslash and #{"no"} interpolation
+}
+
+@slim SlimCommentsTest() {
+	p before
+	/! this is a HTML comment
+	p after
+	/! this is a HTML comment
+		on more than one line
+	p last
+	/! this \ comment has a backslash and #{"no"} interpolation
 }

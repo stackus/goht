@@ -92,7 +92,7 @@ func SlimSpecifyTag() *SlimSpecifyTagTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<p>This is a paragraph tag.</p><main>This is a main tag.</main>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>This is a paragraph tag.</p><main>This is a main tag.</main>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -200,7 +200,7 @@ func SlimDefaultToDivs() *SlimDefaultToDivsTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<div id=\"main\">This is a div tag with an id of `main`.</div><div class=\"main\">This is a div tag with a class of `main`.</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div id=\"main\">This is a div tag with an id of `main`.</div><div class=\"main\">This is a div tag with a class of `main`.</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -308,7 +308,7 @@ func SlimCombined() *SlimCombinedTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<p id=\"main\">This is a paragraph tag with an id of `main`.</p><main class=\"main\">This is a main tag with a class of `main`.</main><div id=\"main\" class=\"main\">This is a div tag with an id and class of `main`.</div><p id=\"main\" class=\"main\">This is a paragraph tag with an id and class of `main`.</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p id=\"main\">This is a paragraph tag with an id of `main`.</p><main class=\"main\">This is a main tag with a class of `main`.</main><div id=\"main\" class=\"main\">This is a div tag with an id and class of `main`.</div><p id=\"main\" class=\"main\">This is a paragraph tag with an id and class of `main`.</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -417,7 +417,7 @@ func SlimMultipleClasses() *SlimMultipleClassesTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<div class=\"main main2\">This is a div tag with two classes, `main` and `main2`.</div><div id=\"main2\">This is a div tag with an id of `main2`.</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div class=\"main main2\">This is a div tag with two classes, `main` and `main2`.</div><div id=\"main2\">This is a div tag with an id of `main2`.</div>"); __err != nil {
 			return
 		}
 		if !__isBuf {

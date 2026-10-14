@@ -20,7 +20,7 @@ func CommentsTest() *CommentsTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<p>before</p>\n<!--this is a HTML comment-->\n<p>after</p>\n<p>last</p>\n<div>---</div>\n<p>before</p>\n<!--\nthis is a HTML comment\n-->\n<p>after</p>\n<p>last</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<p>before</p>\n<!--this is a HTML comment-->\n<p>after</p>\n<p>last</p>\n<div>---</div>\n<p>before</p>\n<!--\nthis is a HTML comment\n-->\n<p>after</p>\n<p>last</p>\n<!--this \\ comment has a backslash and #{&#34;no&#34;} interpolation-->\n"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -39,5 +39,40 @@ func (t *CommentsTestTemplate) Slot(name string, templates ...goht.Template) *Co
 
 // WithChildren sets the "children" slot for CommentsTestTemplate.
 func (t *CommentsTestTemplate) WithChildren(templates ...goht.Template) *CommentsTestTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimCommentsTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimCommentsTest returns a new instance of SlimCommentsTestTemplate.
+// Slots: children.
+func SlimCommentsTest() *SlimCommentsTestTemplate {
+	return &SlimCommentsTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>before</p><!--this is a HTML comment--><p>after</p><!--this is a HTML comment\non more than one line--><p>last</p><!--this \\ comment has a backslash and #{&#34;no&#34;} interpolation-->"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimCommentsTestTemplate and returns a new instance.
+func (t *SlimCommentsTestTemplate) Slot(name string, templates ...goht.Template) *SlimCommentsTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimCommentsTestTemplate.
+func (t *SlimCommentsTestTemplate) WithChildren(templates ...goht.Template) *SlimCommentsTestTemplate {
 	return t.Slot("children", templates...)
 }

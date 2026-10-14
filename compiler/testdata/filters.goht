@@ -6,6 +6,7 @@ package testdata
 		:plain
 			Plain <em>text</em>
 			#{str}
+			\#{str}
 	%p
 		:plain
 				Indented Plain <em>text</em>
@@ -21,6 +22,7 @@ package testdata
 	.nesting
 		:javascript
 			console.log("#{str}");
+			console.log("\#{str}\n");
 			if (true) {
 				console.log("#{str}");
 			}
@@ -31,5 +33,17 @@ package testdata
 		}
 		.blue {
 			color: blue;
+		}
+}
+
+@slim SlimFiltersTest() {
+	- str := "Interpolated <em>text</em>"
+	:javascript
+		console.log("#{str}");
+		console.log("\#{str}\n");
+	- color := "red"
+	:css
+		.red {
+			color: #{color};
 		}
 }

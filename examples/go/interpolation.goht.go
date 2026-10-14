@@ -125,7 +125,7 @@ func SlimInterpolateCode() *SlimInterpolateCodeTemplate {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(", World!</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString(", World!</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {
@@ -291,7 +291,7 @@ func SlimNoInterpolation() *SlimNoInterpolationTemplate {
 		if _, __err = __buf.WriteString(__var2); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString("</p>"); __err != nil {
 			return
 		}
 		if !__isBuf {

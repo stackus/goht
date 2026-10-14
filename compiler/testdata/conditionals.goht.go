@@ -27,6 +27,20 @@ func ConditionalsTest(v bool) *ConditionalsTestTemplate {
 			if _, __err = __buf.WriteString("<p>the condition was true</p>\n"); __err != nil {
 				return
 			}
+		} else {
+			if _, __err = __buf.WriteString("the condition was "); __err != nil {
+				return
+			}
+			var __var1 string
+			if __var1, __err = goht.CaptureErrors(goht.EscapeString("false")); __err != nil {
+				return
+			}
+			if _, __err = __buf.WriteString(__var1); __err != nil {
+				return
+			}
+			if _, __err = __buf.WriteString("\n"); __err != nil {
+				return
+			}
 		}
 		if _, __err = __buf.WriteString("<p>after</p>\n"); __err != nil {
 			return

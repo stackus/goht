@@ -66,8 +66,8 @@ func TestGeneratedSlotDirectives(t *testing.T) {
 		want     string
 	}{
 		{name: "haml", template: testdata.HamlSlotDirectives().WithContent(items...), want: "<div class=\"items\">\n<div class=\"item\">one</div>\n<div class=\"item\">two</div>\n</div>\n"},
-		{name: "slim", template: testdata.SlimSlotDirectives().WithContent(items...), want: "<div class=\"items\"><div class=\"item\">one</div>\n<div class=\"item\">two</div>\n</div>\n"},
-		{name: "ego", template: testdata.EgoSlotDirectives().WithContent(items...), want: "<div class=\"items\">\n\t\n\t\t\n\t\t\t<div class=\"item\">one</div>\n\n\t\t\n\t\t\t<div class=\"item\">two</div>\n\n\t\t\n\t\n</div>\n"},
+		{name: "slim", template: testdata.SlimSlotDirectives().WithContent(items...), want: "<div class=\"items\"><div class=\"item\">one</div>\n<div class=\"item\">two</div>\n</div>"},
+		{name: "ego", template: testdata.EgoSlotDirectives().WithContent(items...), want: "<div class=\"items\">\n\t\n\t\t\n\t\t\t<div class=\"item\">one</div>\n\n\t\t\n\t\t\t<div class=\"item\">two</div>\n\n\t\t\n\t\n</div>"},
 		{name: "absent", template: testdata.HamlSlotDirectives(), want: "<div class=\"items\">\n<div class=\"empty\">No items</div>\n</div>\n"},
 		{name: "explicitly empty", template: testdata.HamlSlotDirectives().WithContent(), want: "<div class=\"items\">\n</div>\n"},
 	}
@@ -88,8 +88,8 @@ func TestGeneratedSlotDirectives(t *testing.T) {
 		template goht.Template
 		want     string
 	}{
-		{name: "children absent", template: testdata.ChildrenPresence(), want: "<div class=\"container\"></div>\n"},
-		{name: "children present", template: testdata.ChildrenPresence().WithChildren(), want: "<div class=\"container\"><div class=\"present\">children are present</div></div>\n"},
+		{name: "children absent", template: testdata.ChildrenPresence(), want: "<div class=\"container\"></div>"},
+		{name: "children present", template: testdata.ChildrenPresence().WithChildren(), want: "<div class=\"container\"><div class=\"present\">children are present</div></div>"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			var output strings.Builder

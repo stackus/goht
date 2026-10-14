@@ -126,7 +126,7 @@ func SlimJavaScript() *SlimJavaScriptTemplate {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("!\");\n</script>\n"); __err != nil {
+		if _, __err = __buf.WriteString("!\");\n</script>"); __err != nil {
 			return
 		}
 		if !__isBuf {

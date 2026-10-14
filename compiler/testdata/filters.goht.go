@@ -31,7 +31,7 @@ func FiltersTest() *FiltersTestTemplate {
 		if _, __err = __buf.WriteString(__var1); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("\n</p>\n<p>\n\tIndented Plain <em>text</em>\n\t"); __err != nil {
+		if _, __err = __buf.WriteString("\n#{str}\n</p>\n<p>\n\tIndented Plain <em>text</em>\n\t"); __err != nil {
 			return
 		}
 		var __var2 string
@@ -71,7 +71,7 @@ func FiltersTest() *FiltersTestTemplate {
 		if _, __err = __buf.WriteString(__var5); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("\");\nif (true) {\n\tconsole.log(\""); __err != nil {
+		if _, __err = __buf.WriteString("\");\nconsole.log(\"#{str}\\n\");\nif (true) {\n\tconsole.log(\""); __err != nil {
 			return
 		}
 		var __var6 string
@@ -114,5 +114,65 @@ func (t *FiltersTestTemplate) Slot(name string, templates ...goht.Template) *Fil
 
 // WithChildren sets the "children" slot for FiltersTestTemplate.
 func (t *FiltersTestTemplate) WithChildren(templates ...goht.Template) *FiltersTestTemplate {
+	return t.Slot("children", templates...)
+}
+
+type SlimFiltersTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimFiltersTest returns a new instance of SlimFiltersTestTemplate.
+// Slots: children.
+func SlimFiltersTest() *SlimFiltersTestTemplate {
+	return &SlimFiltersTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		str := "Interpolated <em>text</em>"
+		if _, __err = __buf.WriteString("<script>\nconsole.log(\""); __err != nil {
+			return
+		}
+		var __var1 string
+		if __var1, __err = goht.CaptureErrors(goht.EscapeString(str)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var1); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\");\nconsole.log(\"#{str}\\n\");\n</script>"); __err != nil {
+			return
+		}
+		color := "red"
+		if _, __err = __buf.WriteString("<style>\n.red {\n\tcolor: "); __err != nil {
+			return
+		}
+		var __var2 string
+		if __var2, __err = goht.CaptureErrors(goht.EscapeString(color)); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(__var2); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString(";\n}\n</style>"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for SlimFiltersTestTemplate and returns a new instance.
+func (t *SlimFiltersTestTemplate) Slot(name string, templates ...goht.Template) *SlimFiltersTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimFiltersTestTemplate.
+func (t *SlimFiltersTestTemplate) WithChildren(templates ...goht.Template) *SlimFiltersTestTemplate {
 	return t.Slot("children", templates...)
 }

@@ -97,7 +97,7 @@ func SlimUsingTabs() *SlimUsingTabsTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Hello World</title></head><body><h1>Hello World</h1><p>Hello World</p></body></html>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Hello World</title></head><body><h1>Hello World</h1><p>Hello World</p></body></html>"); __err != nil {
 			return
 		}
 		if !__isBuf {
