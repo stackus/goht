@@ -777,6 +777,48 @@ func Test_EgoTrimWhitespace(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"trailing newline before a blank line": {
+			input: "@ego test() {\n\t<% x := 1 $%>\n\n\tbaz\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tSilentScript, lit: "x := 1"},
+				{typ: tRawText, lit: "\nbaz"},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing newline before a blank line after unescaped output": {
+			input: "@ego test() {\n\ta <%! b $%>\n\n\tbaz\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tRawText, lit: "a "},
+				{typ: tUnescaped, lit: ""},
+				{typ: tScript, lit: "b"},
+				{typ: tRawText, lit: "\nbaz"},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing newline before a blank line with an indent": {
+			input: "@ego test() {\n\t<% x := 1 $%>\n\t\n\tbaz\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tSilentScript, lit: "x := 1"},
+				{typ: tRawText, lit: "\nbaz"},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing carriage return and newline": {
+			input: "@ego test() {\r\n\t<% bar $%>\r\n\tbaz\r\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tSilentScript, lit: "bar"},
+				{typ: tRawText, lit: "baz"},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"not indented": {
 			input: "@ego test() {\n\tfoo\n\t<% bar -%>\nbaz",
 			want: []token{

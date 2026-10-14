@@ -585,6 +585,10 @@ func TestEgoExamples(t *testing.T) {
 		template goht.Template
 		htmlFile string
 	}{
+		"commands_renderExample": {
+			template: commands.EgoRenderExample(),
+			htmlFile: "commands_renderExample",
+		},
 		"hello_world": {
 			template: hello.EgoWorld(),
 			htmlFile: "hello_world",

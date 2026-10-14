@@ -52,3 +52,13 @@ package testdata
 		=@slot third
 			%p Default third
 }
+
+@ego EgoRenderTest() {
+	<%@render ChildrenTest("without a block") %>
+	<%@render ChildrenTest("without a block, trimmed newline") $%>
+
+	<%@render ChildrenTest("empty block") { %><% } %>
+	<%@render ChildrenTest("empty block on two lines") { -%>
+	<%- } %>
+	<div class="after">After renders</div>
+}

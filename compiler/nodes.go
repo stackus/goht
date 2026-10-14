@@ -1627,12 +1627,25 @@ func NewRenderCommandNode(t token, indent int, keepNewlines bool) *RenderCommand
 	return n
 }
 
+func (n *RenderCommandNode) opensBlock() bool {
+	return strings.HasSuffix(n.command, "{")
+}
+
 func (n *RenderCommandNode) Source(tw *templateWriter) error {
+	if n.opensBlock() {
+		if p, ok := n.nextSibling.(*SilentScriptNode); ok {
+			// skip the next sibling if it is a closing brace
+			if strings.TrimSpace(p.code) == "}" {
+				p.forRender = true
+			}
+		}
+	}
+
 	if len(n.children) == 0 {
 		if _, err := tw.WriteIndent("if __err = "); err != nil {
 			return err
 		}
-		if r, err := tw.Write(strings.TrimSpace(strings.Replace(n.command, "\n", " ", -1))); err != nil {
+		if r, err := tw.Write(strings.TrimRight(strings.TrimSpace(strings.Replace(n.command, "\n", " ", -1)), " \t{")); err != nil {
 			return err
 		} else {
 			tw.Add(n.origin, r)
@@ -1698,13 +1711,6 @@ func (n *RenderCommandNode) Source(tw *templateWriter) error {
 	if _, err := tw.Write(".WithChildren(" + vName + "...).Render(ctx, __buf); __err != nil { return }\n"); err != nil {
 		return err
 	}
-
-	if p, ok := n.nextSibling.(*SilentScriptNode); ok {
-		// skip the next sibling if it is a closing brace
-		if strings.TrimSpace(p.code) == "}" {
-			p.forRender = true
-		}
-	}
 	return nil
 }
 
@@ -1713,15 +1719,18 @@ func (n *RenderCommandNode) parse(p *parser) error {
 	case tNewLine:
 		p.next()
 		return nil
-	case tRawText:
-		if strings.TrimSpace(p.peek().lit) == "" {
-			p.next()
-			return nil
-		}
-		return n.handleNode(p, n.indent+1)
-	default:
+	case tIndent:
 		return n.handleNode(p, n.indent+1)
 	}
+	if !n.opensBlock() {
+		// an EGO render without a block has no children; what follows belongs to the parent
+		return p.backToParent()
+	}
+	if p.peek().Type() == tRawText && strings.TrimSpace(p.peek().lit) == "" {
+		p.next()
+		return nil
+	}
+	return n.handleNode(p, n.indent+1)
 }
 
 type ChildrenCommandNode struct {

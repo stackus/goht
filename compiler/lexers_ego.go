@@ -195,6 +195,13 @@ func lexEgoClosingTag(l *lexer) lexFn {
 			}
 		case '\r':
 			l.skip() // skip the carriage return
+			if l.peek() == '\n' {
+				l.skip() // skip the newline
+			}
+		}
+		if l.peek() == '\n' || l.peek() == '\r' {
+			// a blank line follows; it is text and does not need an indent
+			return lexEgoText
 		}
 		return lexEgoLineStart(lexEgoText)
 	case '-':

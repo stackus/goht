@@ -135,6 +135,47 @@ func (t *SlimRenderExampleTemplate) WithChildren(templates ...goht.Template) *Sl
 	return t.Slot("children", templates...)
 }
 
+type EgoRenderExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// EgoRenderExample returns a new instance of EgoRenderExampleTemplate.
+// Slots: children.
+func EgoRenderExample() *EgoRenderExampleTemplate {
+	return &EgoRenderExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>"); __err != nil {
+			return
+		}
+		if __err = SlimChildrenExample().Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("</p>\n<p>the other template was rendered above.</p>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for EgoRenderExampleTemplate and returns a new instance.
+func (t *EgoRenderExampleTemplate) Slot(name string, templates ...goht.Template) *EgoRenderExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for EgoRenderExampleTemplate.
+func (t *EgoRenderExampleTemplate) WithChildren(templates ...goht.Template) *EgoRenderExampleTemplate {
+	return t.Slot("children", templates...)
+}
+
 // You may also include nested content to be rendered by the template.
 // You do not need to include any opening or closing braces when you
 // are passing content on to be rendered by another template.

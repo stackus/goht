@@ -230,6 +230,9 @@ func EgoSlotDirectives() *EgoSlotDirectivesTemplate {
 				if __err = item.Render(ctx, __buf); __err != nil {
 					return
 				}
+				if _, __err = __buf.WriteString("\n\t\t"); __err != nil {
+					return
+				}
 			}
 			if _, __err = __buf.WriteString("\n\t"); __err != nil {
 				return

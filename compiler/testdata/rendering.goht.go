@@ -458,3 +458,70 @@ func (t *SlotWithDefaultTestTemplate) WithSecond(templates ...goht.Template) *Sl
 func (t *SlotWithDefaultTestTemplate) WithThird(templates ...goht.Template) *SlotWithDefaultTestTemplate {
 	return t.Slot("third", templates...)
 }
+
+type EgoRenderTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// EgoRenderTest returns a new instance of EgoRenderTestTemplate.
+// Slots: children.
+func EgoRenderTest() *EgoRenderTestTemplate {
+	return &EgoRenderTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if __err = ChildrenTest("without a block").Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\n"); __err != nil {
+			return
+		}
+		if __err = ChildrenTest("without a block, trimmed newline").Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\n"); __err != nil {
+			return
+		}
+		if __err = ChildrenTest("empty block").Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\n"); __err != nil {
+			return
+		}
+		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __noSlots goht.Slots) (__err error) {
+			__buf, __isBuf := __w.(goht.Buffer)
+			if !__isBuf {
+				__buf = goht.GetBuffer()
+				defer goht.ReleaseBuffer(__buf)
+			}
+			if !__isBuf {
+				_, __err = io.Copy(__w, __buf)
+			}
+			return
+		})}
+		if __err = ChildrenTest("empty block on two lines").WithChildren(__var1...).Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\n<div class=\"after\">After renders</div>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for EgoRenderTestTemplate and returns a new instance.
+func (t *EgoRenderTestTemplate) Slot(name string, templates ...goht.Template) *EgoRenderTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for EgoRenderTestTemplate.
+func (t *EgoRenderTestTemplate) WithChildren(templates ...goht.Template) *EgoRenderTestTemplate {
+	return t.Slot("children", templates...)
+}

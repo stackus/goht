@@ -327,6 +327,16 @@ func Test_UnescapeNode(t *testing.T) {
 				Text(S)
 `,
 		},
+		"ego with trimmed newline before a blank line": {
+			input: "@ego test() {\n\ta <%! \"b\" $%>\n\n\tc\n}",
+			want: `Root
+	Template
+		Text
+		Unescape
+			Script
+			Text
+`,
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -660,6 +670,14 @@ func Test_SilentScriptNode(t *testing.T) {
 				Text(S)
 `,
 		},
+		"ego with trimmed newline before a blank line": {
+			input: "@ego test() {\n\t<% x := 1 $%>\n\n\tx\n}",
+			want: `Root
+	Template
+		SilentScript
+		Text
+`,
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -817,6 +835,66 @@ func Test_RenderNode(t *testing.T) {
 			Text(S)
 `,
 		},
+		"ego without a block": {
+			input: "@ego test() {\n\t<%@render foo() %>\n\tafter\n}",
+			want: `Root
+	Template
+		RenderCommand
+		Text
+`,
+		},
+		"ego without a block after text": {
+			input: "@ego test() {\n\tbefore <%@render foo() %>\n\tafter\n}",
+			want: `Root
+	Template
+		Text
+		RenderCommand
+		Text
+`,
+		},
+		"ego without a block twice": {
+			input: "@ego test() {\n\t<%@render foo() %>\n\t<%@render foo() %>\n\tafter\n}",
+			want: `Root
+	Template
+		RenderCommand
+		Text
+		RenderCommand
+		Text
+`,
+		},
+		"ego without a block inside a block": {
+			input: "@ego test() {\n\t<%@render wrap() { %>\n\t<%@render foo() %>\n\tafter\n\t<% } %>\n}",
+			want: `Root
+	Template
+		RenderCommand
+			Text
+			RenderCommand
+			Text
+		SilentScript
+		Text
+`,
+		},
+		"ego without a block inside an if block": {
+			input: "@ego test() {\n\t<% if true { %>\n\t<%@render foo() %>\n\tafter\n\t<% } %>\n}",
+			want: `Root
+	Template
+		SilentScript
+			Text
+			RenderCommand
+			Text
+		SilentScript
+		Text
+`,
+		},
+		"ego with an empty block": {
+			input: "@ego test() {\n\t<%@render foo() { %><% } %>\n\tafter\n}",
+			want: `Root
+	Template
+		RenderCommand
+		SilentScript
+		Text
+`,
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -859,6 +937,14 @@ func Test_ChildrenCommand(t *testing.T) {
 			ChildrenCommand
 		Element p2()
 			Text(S)
+`,
+		},
+		"ego with trimmed newline before a blank line": {
+			input: "@ego test() {\n\t<%@children $%>\n\n\tc\n}",
+			want: `Root
+	Template
+		ChildrenCommand
+		Text
 `,
 		},
 	}
