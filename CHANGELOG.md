@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.9.3](https://github.com/stackus/goht/compare/v0.9.2...v0.9.3) - 2026-10-14
+
+### Fixed
+
+- EGO `<%@render { %>` blocks no longer drop whitespace-only text, such as a
+	blank line between a render and the content that follows it.
+- EGO `-%>` closing tags on the last line of a template no longer fail to parse.
+- EGO `$%>` closing tags followed by more content on the same line no longer
+	fail to parse.
+- EGO templates that end with an unclosed block now report an error when the
+	closing tag before the end trims whitespace.
+
 ## [v0.9.2](https://github.com/stackus/goht/compare/v0.9.1...v0.9.2) - 2026-10-14
 
 ### Fixed
