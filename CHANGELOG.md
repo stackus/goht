@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.9.4](https://github.com/stackus/goht/compare/v0.9.3...v0.9.4) - 2026-10-14
+
+### Fixed
+
+- Haml and Slim text that mixes static content and `#{}` interpolation, nested
+	under a `@render`, no longer renders its interpolated parts after the render.
+- Slim and EGO templates no longer end their output with an added newline, so
+	rendering one inside another template no longer leaves a stray newline.
+- Slim `| ` text no longer drops the whitespace that follows a `#{}`
+	interpolation or a `#`, so `| Save #{title} now` keeps the space before `now`.
+- Haml text and `=` output nested under `- code`, `@render`, `@slot`,
+	`@ifslot`, `@noslot`, and `@eachslot` keep the newline that ends their line,
+	instead of running into the content that follows.
+- Slim text spread over several lines now joins its lines with newlines,
+	instead of running them together.
+- Slim `\#{}` now escapes interpolation in text and filters, as it does in
+	Haml; Slim filters with `\#{}` no longer fail to parse.
+- Haml filters now escape interpolation with `\#{}`.
+- Slim `/!` comments over several lines now render as one comment; their
+	content is not interpolated, as in Haml.
+- Haml and Slim HTML comments that contain a backslash no longer generate
+	invalid Go.
+
 ## [v0.9.3](https://github.com/stackus/goht/compare/v0.9.2...v0.9.3) - 2026-10-14
 
 ### Fixed
