@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.9.5](https://github.com/stackus/goht/compare/v0.9.4...v0.9.5) - 2026-10-14
+
+### Fixed
+
+- EGO `<%@slot %>` commands without a block no longer take the content that
+	follows them as their default; that content now renders after the slot,
+	whether or not the slot is filled.
+- EGO `<%@ifslot %>`, `<%@noslot %>`, and `<%@eachslot %>` commands without a
+	block no longer take the content that follows them as their body.
+- EGO `<%@slot { %><% } %>` with an empty block on one line now generates
+	valid Go.
+
 ## [v0.9.4](https://github.com/stackus/goht/compare/v0.9.3...v0.9.4) - 2026-10-14
 
 ### Fixed
