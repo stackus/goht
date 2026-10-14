@@ -60,5 +60,13 @@ package testdata
 	<%@render ChildrenTest("empty block") { %><% } %>
 	<%@render ChildrenTest("empty block on two lines") { -%>
 	<%- } %>
-	<div class="after">After renders</div>
+	<%@render ChildrenTest("block with a blank line") { %>
+	<%@render WrappedTest("first") $%>
+
+	<% if true { -%>
+	<div class="item">second</div>
+	<%- } %>
+	<% } $%>
+	<%@render WrapperTest() { %><%@render WrappedTest("first") $%> <%@render WrappedTest("second") $%><% } $%>
+	<div class="after">After renders</div><%# trimmed to the end of the template -%>
 }

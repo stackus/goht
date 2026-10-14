@@ -504,7 +504,64 @@ func EgoRenderTest() *EgoRenderTestTemplate {
 		if __err = ChildrenTest("empty block on two lines").WithChildren(__var1...).Render(ctx, __buf); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString("\n<div class=\"after\">After renders</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("\n"); __err != nil {
+			return
+		}
+		__var2 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __noSlots goht.Slots) (__err error) {
+			__buf, __isBuf := __w.(goht.Buffer)
+			if !__isBuf {
+				__buf = goht.GetBuffer()
+				defer goht.ReleaseBuffer(__buf)
+			}
+			if _, __err = __buf.WriteString("\n"); __err != nil {
+				return
+			}
+			if __err = WrappedTest("first").Render(ctx, __buf); __err != nil {
+				return
+			}
+			if _, __err = __buf.WriteString("\n"); __err != nil {
+				return
+			}
+			if true {
+				if _, __err = __buf.WriteString("<div class=\"item\">second</div>"); __err != nil {
+					return
+				}
+			}
+			if _, __err = __buf.WriteString("\n"); __err != nil {
+				return
+			}
+			if !__isBuf {
+				_, __err = io.Copy(__w, __buf)
+			}
+			return
+		})}
+		if __err = ChildrenTest("block with a blank line").WithChildren(__var2...).Render(ctx, __buf); __err != nil {
+			return
+		}
+		__var3 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __noSlots goht.Slots) (__err error) {
+			__buf, __isBuf := __w.(goht.Buffer)
+			if !__isBuf {
+				__buf = goht.GetBuffer()
+				defer goht.ReleaseBuffer(__buf)
+			}
+			if __err = WrappedTest("first").Render(ctx, __buf); __err != nil {
+				return
+			}
+			if _, __err = __buf.WriteString(" "); __err != nil {
+				return
+			}
+			if __err = WrappedTest("second").Render(ctx, __buf); __err != nil {
+				return
+			}
+			if !__isBuf {
+				_, __err = io.Copy(__w, __buf)
+			}
+			return
+		})}
+		if __err = WrapperTest().WithChildren(__var3...).Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("<div class=\"after\">After renders</div>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

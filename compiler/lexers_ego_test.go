@@ -819,6 +819,127 @@ func Test_EgoTrimWhitespace(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"trailing newline removal without a newline": {
+			input: "@ego test() {\n\t<% bar $%> baz\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tSilentScript, lit: "bar"},
+				{typ: tRawText, lit: " baz"},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing newline removal before a tag": {
+			input: "@ego test() {\n\t<% bar $%><% baz %>\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tSilentScript, lit: "bar"},
+				{typ: tSilentScript, lit: "baz"},
+				{typ: tRawText, lit: ""},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing newline removal before an unclosed end": {
+			input: "@ego test() {\n\t<% if true { $%>\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tSilentScript, lit: "if true {"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: "unexpected closing brace: a block is not closed"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing whitespace on the last line after unescaped output": {
+			input: "@ego test() {\n\ta <%! b -%>\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tRawText, lit: "a "},
+				{typ: tUnescaped, lit: ""},
+				{typ: tScript, lit: "b"},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing whitespace on the last line after output": {
+			input: "@ego test() {\n\ta <%= b -%>\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tRawText, lit: "a "},
+				{typ: tScript, lit: "b"},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing whitespace on the last line after a script": {
+			input: "@ego test() {\n\ta <% b -%>\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tRawText, lit: "a "},
+				{typ: tSilentScript, lit: "b"},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing whitespace on the last line after a block": {
+			input: "@ego test() {\n\t<% if true { -%>\n\ta\n\t<%- } -%>\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tSilentScript, lit: "if true {"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tRawText, lit: "a"},
+				{typ: tIndent, lit: ""},
+				{typ: tSilentScript, lit: "}"},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing whitespace on the last line inside a render block": {
+			input: "@ego test() {\n\t<%@render foo() { %>\n\ta <%! b -%>\n\t<% } %>\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tRenderCommand, lit: "foo() {"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tRawText, lit: "\na "},
+				{typ: tUnescaped, lit: ""},
+				{typ: tScript, lit: "b"},
+				{typ: tIndent, lit: ""},
+				{typ: tSilentScript, lit: "}"},
+				{typ: tRawText, lit: ""},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing whitespace before blank lines and the end": {
+			input: "@ego test() {\n\ta <% b -%>\n\n\t\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tRawText, lit: "a "},
+				{typ: tSilentScript, lit: "b"},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing whitespace before a carriage return and the end": {
+			input: "@ego test() {\n\ta <% b -%>\r\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tRawText, lit: "a "},
+				{typ: tSilentScript, lit: "b"},
+				{typ: tTemplateEnd, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"trailing whitespace before an unclosed end": {
+			input: "@ego test() {\n\t<% if true { -%>\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tSilentScript, lit: "if true {"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tError, lit: "unexpected closing brace: a block is not closed"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"not indented": {
 			input: "@ego test() {\n\tfoo\n\t<% bar -%>\nbaz",
 			want: []token{

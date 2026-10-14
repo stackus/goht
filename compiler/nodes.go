@@ -1726,10 +1726,6 @@ func (n *RenderCommandNode) parse(p *parser) error {
 		// an EGO render without a block has no children; what follows belongs to the parent
 		return p.backToParent()
 	}
-	if p.peek().Type() == tRawText && strings.TrimSpace(p.peek().lit) == "" {
-		p.next()
-		return nil
-	}
 	return n.handleNode(p, n.indent+1)
 }
 

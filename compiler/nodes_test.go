@@ -678,6 +678,21 @@ func Test_SilentScriptNode(t *testing.T) {
 		Text
 `,
 		},
+		"ego with a blank line inside a block": {
+			input: "@ego test() {\n\t<% if true { %>\n\t<% x := 1 $%>\n\n\t<% if x == 1 { -%>\n\tafter\n\t<%- } %>\n\t<% } $%>\n}",
+			want: `Root
+	Template
+		SilentScript
+			Text
+			SilentScript
+			Text
+			SilentScript
+				Text
+			SilentScript
+			Text
+		SilentScript
+`,
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -891,6 +906,63 @@ func Test_RenderNode(t *testing.T) {
 			want: `Root
 	Template
 		RenderCommand
+		SilentScript
+		Text
+`,
+		},
+		"ego with a blank line inside a block": {
+			input: "@ego test() {\n\t<%@render wrap() { %>\n\t<%@render foo() $%>\n\n\t<% if true { -%>\n\tafter\n\t<%- } %>\n\t<% } $%>\n}",
+			want: `Root
+	Template
+		RenderCommand
+			Text
+			RenderCommand
+			Text
+			SilentScript
+				Text
+			SilentScript
+			Text
+		SilentScript
+`,
+		},
+		"ego with a newline and a blank line inside a block": {
+			input: "@ego test() {\n\t<%@render wrap() { %>\n\t<%@render foo() %>\n\n\t<% if true { -%>\n\tafter\n\t<%- } %>\n\t<% } $%>\n}",
+			want: `Root
+	Template
+		RenderCommand
+			Text
+			RenderCommand
+			Text
+			SilentScript
+				Text
+			SilentScript
+			Text
+		SilentScript
+`,
+		},
+		"ego with a blank line between scripts inside a block": {
+			input: "@ego test() {\n\t<%@render wrap() { %>\n\t<% x := 1 $%>\n\n\t<% if x == 1 { -%>\n\tafter\n\t<%- } %>\n\t<% } $%>\n}",
+			want: `Root
+	Template
+		RenderCommand
+			Text
+			SilentScript
+			Text
+			SilentScript
+				Text
+			SilentScript
+			Text
+		SilentScript
+`,
+		},
+		"ego with a space between renders inside a block": {
+			input: "@ego test() {\n\t<%@render wrap() { %><%@render foo() %> <%@render foo() %><% } %>\n}",
+			want: `Root
+	Template
+		RenderCommand
+			RenderCommand
+			Text
+			RenderCommand
 		SilentScript
 		Text
 `,

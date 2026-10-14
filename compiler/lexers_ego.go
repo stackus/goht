@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"fmt"
 	"strings"
 	"text/scanner"
 )
@@ -42,13 +41,11 @@ func lexEgoLineStart(next lexFn) lexFn {
 			return next
 		case '}':
 			// end of the template
+			// if the indent is not at 0, then we know that we're ending early and should report an error
+			if l.indent != 0 {
+				return l.errorf("unexpected closing brace: a block is not closed")
+			}
 			if l.current() != "" {
-				// if the indent is not at 1, then we know that we're ending early and should report an error
-				if l.indent != 0 {
-					fmt.Println("indent", l.indent)
-					fmt.Printf("current %q\n", l.current())
-					return l.errorf("unexpected closing brace: %q", l.current())
-				}
 				// assumption: if there is anything in the buffer, then it is text, AND we can trim it
 				l.s = strings.TrimRight(l.s, " \t\n\r")
 				l.emit(tRawText)
@@ -198,6 +195,9 @@ func lexEgoClosingTag(l *lexer) lexFn {
 			if l.peek() == '\n' {
 				l.skip() // skip the newline
 			}
+		default:
+			// no newline to remove; the rest of the line is text
+			return lexEgoText
 		}
 		if l.peek() == '\n' || l.peek() == '\r' {
 			// a blank line follows; it is text and does not need an indent
@@ -381,6 +381,10 @@ func lexStripWhitespace(l *lexer) lexFn {
 		case '\n', '\r':
 			// enforce indents even when we are stripping whitespace
 			l.skipRun("\n\r") // skip newlines
+			if l.peek() == '}' {
+				// end of the template
+				return lexEgoLineStart(lexEgoText)
+			}
 			if l.peek() != '\t' {
 				return l.errorf("unexpected character at start of line: %q", l.peek())
 			}
