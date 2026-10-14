@@ -253,7 +253,7 @@ func lexHamlAttributeValue(l *lexer) lexFn {
 	case '#':
 		return lexHamlAttributeDynamicValue
 	}
-	return l.errorf("unexpected character: %q", l.peek())
+	return attributeValueError(l)
 }
 
 func lexHamlAttributeStaticValue(l *lexer) lexFn {
@@ -344,6 +344,10 @@ func lexHamlHtmlAttribute(l *lexer) lexFn {
 		return lexHamlHtmlAttributesEnd
 	case '@':
 		return lexHamlHtmlAttributeCommandStart
+	case '}', scanner.EOF:
+		return l.errorf("attribute list not closed: missing ')'")
+	case ',':
+		return l.errorf("unexpected character: ','; HTML style attributes are separated by whitespace")
 	default:
 		return lexHamlHtmlAttributeName
 	}
@@ -356,7 +360,7 @@ func lexHamlHtmlAttributeName(l *lexer) lexFn {
 			return l.errorf("attribute name not closed: eof")
 		}
 	} else {
-		l.acceptUntil("= )\t\n\r\"`")
+		l.acceptUntil("?=, )}\t\n\r\"`")
 		if l.current() == "" {
 			return l.errorf("attribute name expected")
 		}
@@ -365,20 +369,22 @@ func lexHamlHtmlAttributeName(l *lexer) lexFn {
 
 	l.skipRun(" \t\n\r")
 	switch l.peek() {
-	case '=':
+	case '=', '?':
 		return lexHamlHtmlAttributeOperator
-	case ')':
-		return lexHamlHtmlAttributeEnd
 	default:
-		return l.errorf("unexpected character: %q", l.peek())
+		return lexHamlHtmlAttributeEnd
 	}
 }
 
 func lexHamlHtmlAttributeOperator(l *lexer) lexFn {
-	l.skip() // eat '=', don't accumulate it
-	l.skipRun(" \t\n\r")
-	l.s = ":"
+	if l.peek() == '?' {
+		l.next()
+	} else {
+		l.skip() // eat '=', don't accumulate it
+		l.s = ":"
+	}
 	l.emit(tAttrOperator)
+	l.skipRun(" \t\n\r")
 	return lexHamlHtmlAttributeValue
 }
 
@@ -389,7 +395,7 @@ func lexHamlHtmlAttributeValue(l *lexer) lexFn {
 	case '#':
 		return lexHamlHtmlAttributeDynamicValue
 	}
-	return l.errorf("unexpected character: %q", l.peek())
+	return attributeValueError(l)
 }
 
 func lexHamlHtmlAttributeStaticValue(l *lexer) lexFn {

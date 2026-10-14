@@ -50,6 +50,14 @@ func ConditionalAttrs() *ConditionalAttrsTemplate {
 				return
 			}
 		}
+		if _, __err = __buf.WriteString(">Click me!</button>\n<button"); __err != nil {
+			return
+		}
+		if disabled {
+			if _, __err = __buf.WriteString(" disabled"); __err != nil {
+				return
+			}
+		}
 		if _, __err = __buf.WriteString(">Click me!</button>\n"); __err != nil {
 			return
 		}
@@ -101,6 +109,14 @@ func HamlConditionalAttrs() *HamlConditionalAttrsTemplate {
 				return
 			}
 		}
+		if _, __err = __buf.WriteString(">Click me!</button>\n<button"); __err != nil {
+			return
+		}
+		if disabled {
+			if _, __err = __buf.WriteString(" disabled"); __err != nil {
+				return
+			}
+		}
 		if _, __err = __buf.WriteString(">Click me!</button>\n"); __err != nil {
 			return
 		}
@@ -148,6 +164,14 @@ func SlimConditionalAttrs() *SlimConditionalAttrsTemplate {
 			return
 		}
 		if foo == "bar" {
+			if _, __err = __buf.WriteString(" disabled"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString(">Click me!</button><button"); __err != nil {
+			return
+		}
+		if disabled {
 			if _, __err = __buf.WriteString(" disabled"); __err != nil {
 				return
 			}

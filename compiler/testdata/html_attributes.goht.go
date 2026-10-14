@@ -30,7 +30,23 @@ func HtmlAttributesTest() *HtmlAttributesTestTemplate {
 		if _, __err = __buf.WriteString(goht.EscapeString(dynVal) + "\""); __err != nil {
 			return
 		}
-		if _, __err = __buf.WriteString(">Dynamic paren attr</p>\n<button disabled>Boolean paren attr</button>\n<p class=\"multiline\" id=\"paren\">Multiline paren attrs</p>\n"); __err != nil {
+		if _, __err = __buf.WriteString(">Dynamic paren attr</p>\n<button disabled>Boolean paren attr</button>\n<button class=\"first\" disabled>Boolean paren attr before another</button>\n<button class=\"on\""); __err != nil {
+			return
+		}
+		if true {
+			if _, __err = __buf.WriteString(" disabled"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString(">Conditional paren attr true</button>\n<button class=\"off\""); __err != nil {
+			return
+		}
+		if false {
+			if _, __err = __buf.WriteString(" disabled"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString(">Conditional paren attr false</button>\n<p class=\"multiline\" id=\"paren\">Multiline paren attrs</p>\n"); __err != nil {
 			return
 		}
 		if !__isBuf {

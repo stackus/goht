@@ -6,6 +6,9 @@ package testdata
 	- dynVal := "dynamic"
 	%p(id=#{dynVal}) Dynamic paren attr
 	%button(disabled) Boolean paren attr
+	%button(disabled class="first") Boolean paren attr before another
+	%button(disabled? #{true} class="on") Conditional paren attr true
+	%button(disabled?#{false} class="off") Conditional paren attr false
 	%p(
 		class="multiline"
 		id="paren"

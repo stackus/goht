@@ -825,6 +825,12 @@ Boolean attributes (no value) are written as just the attribute name.
   button(disabled) Click me
 ```
 
+Conditional attributes use the `?` operator in place of `=`, the same as with the curly brace style.
+
+```slim
+  button(disabled? #{isDisabled}) Click me
+```
+
 Multiline HTML style attributes are supported within the parentheses.
 
 ```haml

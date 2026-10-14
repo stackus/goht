@@ -153,6 +153,14 @@ func lexTemplateStart(l *lexer, keepNewlines bool, next lexFn) lexFn {
 	return next
 }
 
+// attributeValueError reports an unexpected character where an attribute value was expected.
+func attributeValueError(l *lexer) lexFn {
+	if l.peek() == '\'' {
+		return l.errorf("single quoted attribute values are not supported; use double quotes, backticks, or #{}")
+	}
+	return l.errorf("unexpected character: %q", l.peek())
+}
+
 func continueToMatchingQuote(l *lexer, typ tokenType, captureQuotes bool) rune {
 	quote := l.peek()
 	if quote != '`' && quote != '"' {

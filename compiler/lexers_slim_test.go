@@ -872,6 +872,17 @@ func Test_SlimAttributes(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"single quoted value": {
+			input: "@slim test() {\n\tfoo{id: 'bar'}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tError, lit: "single quoted attribute values are not supported; use double quotes, backticks, or #{}"},
+			},
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -1679,6 +1690,80 @@ func Test_SlimHtmlAttributes(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"conditional attr": {
+			input: "@slim test() {\n\tfoo(disabled?#{isDisabled})",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "disabled"},
+				{typ: tAttrOperator, lit: "?"},
+				{typ: tAttrDynamicValue, lit: "isDisabled"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"conditional attr with whitespace": {
+			input: "@slim test() {\n\tfoo(disabled \t\n\r? \t\n\r#{isDisabled})",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "disabled"},
+				{typ: tAttrOperator, lit: "?"},
+				{typ: tAttrDynamicValue, lit: "isDisabled"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"conditional attr followed by attr": {
+			input: "@slim test() {\n\tfoo(disabled ? #{isDisabled} class=\"baz\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "disabled"},
+				{typ: tAttrOperator, lit: "?"},
+				{typ: tAttrDynamicValue, lit: "isDisabled"},
+				{typ: tAttrName, lit: "class"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"baz\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"comma after value": {
+			input: "@slim test() {\n\tfoo(id=\"bar\", class=\"baz\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tError, lit: "unexpected character: ','; HTML style attributes are separated by whitespace"},
+			},
+		},
+		"comma after boolean attr": {
+			input: "@slim test() {\n\tfoo(disabled, class=\"baz\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "disabled"},
+				{typ: tError, lit: "unexpected character: ','; HTML style attributes are separated by whitespace"},
+			},
+		},
+		"boolean attr followed by attr": {
+			input: "@slim test() {\n\tfoo(disabled class=\"baz\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "disabled"},
+				{typ: tAttrName, lit: "class"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"baz\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"paren boolean": {
 			input: "@slim test() {\n\tfoo(disabled)",
 			want: []token{
@@ -1687,6 +1772,51 @@ func Test_SlimHtmlAttributes(t *testing.T) {
 				{typ: tTag, lit: "foo"},
 				{typ: tAttrName, lit: "disabled"},
 				{typ: tEOF, lit: ""},
+			},
+		},
+		"single quoted value": {
+			input: "@slim test() {\n\tfoo(id='bar')",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tError, lit: "single quoted attribute values are not supported; use double quotes, backticks, or #{}"},
+			},
+		},
+		"not closed: eof": {
+			input: "@slim test() {\n\tfoo(id=\"bar\"",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tError, lit: "attribute list not closed: missing ')'"},
+			},
+		},
+		"not closed: template end": {
+			input: "@slim test() {\n\tfoo(id=\"bar\"\n}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "id"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"bar\""},
+				{typ: tError, lit: "attribute list not closed: missing ')'"},
+			},
+		},
+		"not closed: template end after boolean": {
+			input: "@slim test() {\n\tfoo(disabled}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "foo"},
+				{typ: tAttrName, lit: "disabled"},
+				{typ: tError, lit: "attribute list not closed: missing ')'"},
 			},
 		},
 	}
