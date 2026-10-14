@@ -43,6 +43,29 @@ package commands
 			| No available actions.
 }
 
+@haml HamlSlotTemplate() {
+	.name-content
+		=@slot name
+	.actions
+		=@slot actions
+			No available actions.
+}
+
+// In EGO, a slot only has default content when its tag opens a block. A slot
+// tag without a block renders the slot's content, or nothing, and what follows
+// it is part of the template.
+
+@ego EgoSlotTemplate() {
+	<div class="name-content">
+		<%@slot name -%>
+	</div>
+	<div class="actions">
+		<%@slot actions { -%>
+			No available actions.
+		<%- } -%>
+	</div>
+}
+
 @ego SlotWithDefaultTemplate() {
 	<div class="name-content">
 		<%@slot name { -%>

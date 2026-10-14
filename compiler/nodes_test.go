@@ -1108,3 +1108,267 @@ func Test_ChildrenCommand(t *testing.T) {
 		})
 	}
 }
+
+func Test_SlotCommand(t *testing.T) {
+	tests := map[string]struct {
+		input   string
+		want    string
+		wantErr bool
+	}{
+		"haml without a default": {
+			input: "@haml test() {\n\t= @slot action\n\t%p after\n}",
+			want: `Root
+	Template
+		SlotCommand
+		Element p()
+			Text(S)
+`,
+		},
+		"haml with a default": {
+			input: "@haml test() {\n\t= @slot action\n\t\t%p default\n\t%p after\n}",
+			want: `Root
+	Template
+		SlotCommand
+			Element p()
+				Text(S)
+		Element p()
+			Text(S)
+`,
+		},
+		"haml without a default twice": {
+			input: "@haml test() {\n\t= @slot one\n\t= @slot two\n\t%p after\n}",
+			want: `Root
+	Template
+		SlotCommand
+		SlotCommand
+		Element p()
+			Text(S)
+`,
+		},
+		"haml inside a render": {
+			input: "@haml test() {\n\t= @render foo()\n\t\t= @slot action\n\t%p after\n}",
+			want: `Root
+	Template
+		RenderCommand
+			SlotCommand
+		Element p()
+			Text(S)
+`,
+		},
+		"haml with a render as the default": {
+			input: "@haml test() {\n\t= @slot action\n\t\t= @render foo()\n\t%p after\n}",
+			want: `Root
+	Template
+		SlotCommand
+			RenderCommand
+		Element p()
+			Text(S)
+`,
+		},
+		"slim without a default": {
+			input: "@slim test() {\n\t= @slot action\n\tp after\n}",
+			want: `Root
+	Template
+		SlotCommand
+		Element p()
+			Text(S)
+`,
+		},
+		"slim with a default": {
+			input: "@slim test() {\n\t= @slot action\n\t\tp default\n\tp after\n}",
+			want: `Root
+	Template
+		SlotCommand
+			Element p()
+				Text(S)
+		Element p()
+			Text(S)
+`,
+		},
+		"slim without a default twice": {
+			input: "@slim test() {\n\t= @slot one\n\t= @slot two\n\tp after\n}",
+			want: `Root
+	Template
+		SlotCommand
+		SlotCommand
+		Element p()
+			Text(S)
+`,
+		},
+		"ego without a block": {
+			input: "@ego test() {\n\t<%@slot action %>\n\tafter\n}",
+			want: `Root
+	Template
+		SlotCommand
+		Text
+`,
+		},
+		"ego without a block, trimmed newline": {
+			input: "@ego test() {\n\t<%@slot action $%>\n\tafter\n}",
+			want: `Root
+	Template
+		SlotCommand
+		Text
+`,
+		},
+		"ego without a block between text": {
+			input: "@ego test() {\n\tbefore <%@slot action %> after\n}",
+			want: `Root
+	Template
+		Text
+		SlotCommand
+		Text
+`,
+		},
+		"ego without a block twice": {
+			input: "@ego test() {\n\t<%@slot one %>\n\t<%@slot two %>\n\tafter\n}",
+			want: `Root
+	Template
+		SlotCommand
+		Text
+		SlotCommand
+		Text
+`,
+		},
+		"ego without a block before a render": {
+			input: "@ego test() {\n\t<%@slot action %>\n\t<%@render foo() %>\n\tafter\n}",
+			want: `Root
+	Template
+		SlotCommand
+		Text
+		RenderCommand
+		Text
+`,
+		},
+		"ego without a block after a render": {
+			input: "@ego test() {\n\t<%@render foo() %>\n\t<%@slot action %>\n\tafter\n}",
+			want: `Root
+	Template
+		RenderCommand
+		Text
+		SlotCommand
+		Text
+`,
+		},
+		"ego without a block next to children": {
+			input: "@ego test() {\n\t<%@slot action %><%@children %>\n\tafter\n}",
+			want: `Root
+	Template
+		SlotCommand
+		ChildrenCommand
+		Text
+`,
+		},
+		"ego without a block inside a render block": {
+			input: "@ego test() {\n\t<%@render wrap() { %>\n\t<%@slot action %>\n\tafter\n\t<% } %>\n}",
+			want: `Root
+	Template
+		RenderCommand
+			Text
+			SlotCommand
+			Text
+		SilentScript
+		Text
+`,
+		},
+		"ego without a block inside an if block": {
+			input: "@ego test() {\n\t<% if true { %>\n\t<%@slot action %>\n\tafter\n\t<% } %>\n}",
+			want: `Root
+	Template
+		SilentScript
+			Text
+			SlotCommand
+			Text
+		SilentScript
+		Text
+`,
+		},
+		"ego without a block after a noslot block": {
+			input: "@ego test() {\n\t<%@noslot action { %>none<% } %>\n\t<%@slot action %>\n\tafter\n}",
+			want: `Root
+	Template
+		NoSlotCommand
+			Text
+		SilentScript
+		Text
+		SlotCommand
+		Text
+`,
+		},
+		"ego with a block": {
+			input: "@ego test() {\n\t<%@slot action { %>default<% } %>\n\tafter\n}",
+			want: `Root
+	Template
+		SlotCommand
+			Text
+		SilentScript
+		Text
+`,
+		},
+		"ego with an empty block": {
+			input: "@ego test() {\n\t<%@slot action { %><% } %>\n\tafter\n}",
+			want: `Root
+	Template
+		SlotCommand
+		SilentScript
+		Text
+`,
+		},
+		"ego with a render inside a block": {
+			input: "@ego test() {\n\t<%@slot action { %>\n\t<%@render foo() %>\n\tdefault\n\t<% } %>\n\tafter\n}",
+			want: `Root
+	Template
+		SlotCommand
+			Text
+			RenderCommand
+			Text
+		SilentScript
+		Text
+`,
+		},
+		"ego without a block inside a block": {
+			input: "@ego test() {\n\t<%@slot action { %><%@slot inner %> default<% } %>\n\tafter\n}",
+			want: `Root
+	Template
+		SlotCommand
+			SlotCommand
+			Text
+		SilentScript
+		Text
+`,
+		},
+		"ego without a block inside an ifslot block": {
+			input: "@ego test() {\n\t<%@ifslot action { %><%@slot action %><% } %>\n\tafter\n}",
+			want: `Root
+	Template
+		IfSlotCommand
+			SlotCommand
+		SilentScript
+		Text
+`,
+		},
+		"ego ifslot without a block": {
+			input: "@ego test() {\n\t<%@ifslot action %>\n\tafter\n}",
+			want: `Root
+	Template
+		IfSlotCommand
+		Text
+`,
+		},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			p := newParser([]byte(test.input))
+			err := p.parse()
+			if (err != nil) != test.wantErr {
+				t.Fatalf("parse() error = %v, wantErr %v", err, test.wantErr)
+			}
+			buf := new(bytes.Buffer)
+			_ = p.template.Root.Tree(buf, 0)
+			got := buf.String()
+			if got != test.want {
+				t.Errorf("got \n%s----\nwant \n%s----", got, test.want)
+			}
+		})
+	}
+}

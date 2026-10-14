@@ -524,6 +524,453 @@ func (t *SlotWithDefaultTestTemplate) WithThird(templates ...goht.Template) *Slo
 	return t.Slot("third", templates...)
 }
 
+type SlimRenderWithSlotTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimRenderWithSlotTest returns a new instance of SlimRenderWithSlotTestTemplate.
+// Slots: children, content.
+func SlimRenderWithSlotTest() *SlimRenderWithSlotTestTemplate {
+	return &SlimRenderWithSlotTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __noSlots goht.Slots) (__err error) {
+			__buf, __isBuf := __w.(goht.Buffer)
+			if !__isBuf {
+				__buf = goht.GetBuffer()
+				defer goht.ReleaseBuffer(__buf)
+			}
+			if __slot, __hasSlot := __slots.Has("content"); __hasSlot {
+				if __err = __slot.Render(ctx, __buf); __err != nil {
+					return
+				}
+			}
+			if !__isBuf {
+				_, __err = io.Copy(__w, __buf)
+			}
+			return
+		})}
+		if __err = ChildrenTest("").WithChildren(__var1...).Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("<div class=\"after\">After render</div>"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "content")}
+}
+
+// Slot sets a named slot for SlimRenderWithSlotTestTemplate and returns a new instance.
+func (t *SlimRenderWithSlotTestTemplate) Slot(name string, templates ...goht.Template) *SlimRenderWithSlotTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimRenderWithSlotTestTemplate.
+func (t *SlimRenderWithSlotTestTemplate) WithChildren(templates ...goht.Template) *SlimRenderWithSlotTestTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithContent sets the "content" slot for SlimRenderWithSlotTestTemplate.
+func (t *SlimRenderWithSlotTestTemplate) WithContent(templates ...goht.Template) *SlimRenderWithSlotTestTemplate {
+	return t.Slot("content", templates...)
+}
+
+type EgoRenderWithSlotTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// EgoRenderWithSlotTest returns a new instance of EgoRenderWithSlotTestTemplate.
+// Slots: children, content.
+func EgoRenderWithSlotTest() *EgoRenderWithSlotTestTemplate {
+	return &EgoRenderWithSlotTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		__var1 := goht.Fragment{goht.TemplateFunc(func(ctx context.Context, __w io.Writer, __noSlots goht.Slots) (__err error) {
+			__buf, __isBuf := __w.(goht.Buffer)
+			if !__isBuf {
+				__buf = goht.GetBuffer()
+				defer goht.ReleaseBuffer(__buf)
+			}
+			if __slot, __hasSlot := __slots.Has("content"); __hasSlot {
+				if __err = __slot.Render(ctx, __buf); __err != nil {
+					return
+				}
+			}
+			if !__isBuf {
+				_, __err = io.Copy(__w, __buf)
+			}
+			return
+		})}
+		if __err = ChildrenTest("").WithChildren(__var1...).Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("content"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("\n<div class=\"after\">After render</div>"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "content")}
+}
+
+// Slot sets a named slot for EgoRenderWithSlotTestTemplate and returns a new instance.
+func (t *EgoRenderWithSlotTestTemplate) Slot(name string, templates ...goht.Template) *EgoRenderWithSlotTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for EgoRenderWithSlotTestTemplate.
+func (t *EgoRenderWithSlotTestTemplate) WithChildren(templates ...goht.Template) *EgoRenderWithSlotTestTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithContent sets the "content" slot for EgoRenderWithSlotTestTemplate.
+func (t *EgoRenderWithSlotTestTemplate) WithContent(templates ...goht.Template) *EgoRenderWithSlotTestTemplate {
+	return t.Slot("content", templates...)
+}
+
+type SlimSlotTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimSlotTest returns a new instance of SlimSlotTestTemplate.
+// Slots: children, first, second, third.
+func SlimSlotTest() *SlimSlotTestTemplate {
+	return &SlimSlotTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<div class=\"wrapper\">"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("first"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if __slot, __hasSlot := __slots.Has("second"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if __slot, __hasSlot := __slots.Has("third"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("</div><div class=\"after\">After slots</div>"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "first", "second", "third")}
+}
+
+// Slot sets a named slot for SlimSlotTestTemplate and returns a new instance.
+func (t *SlimSlotTestTemplate) Slot(name string, templates ...goht.Template) *SlimSlotTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimSlotTestTemplate.
+func (t *SlimSlotTestTemplate) WithChildren(templates ...goht.Template) *SlimSlotTestTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithFirst sets the "first" slot for SlimSlotTestTemplate.
+func (t *SlimSlotTestTemplate) WithFirst(templates ...goht.Template) *SlimSlotTestTemplate {
+	return t.Slot("first", templates...)
+}
+
+// WithSecond sets the "second" slot for SlimSlotTestTemplate.
+func (t *SlimSlotTestTemplate) WithSecond(templates ...goht.Template) *SlimSlotTestTemplate {
+	return t.Slot("second", templates...)
+}
+
+// WithThird sets the "third" slot for SlimSlotTestTemplate.
+func (t *SlimSlotTestTemplate) WithThird(templates ...goht.Template) *SlimSlotTestTemplate {
+	return t.Slot("third", templates...)
+}
+
+type EgoSlotTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// EgoSlotTest returns a new instance of EgoSlotTestTemplate.
+// Slots: children, first, second, third.
+func EgoSlotTest() *EgoSlotTestTemplate {
+	return &EgoSlotTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<div class=\"wrapper\">\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("first"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("second"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if __slot, __hasSlot := __slots.Has("third"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if __err = WrappedTest("after slots").Render(ctx, __buf); __err != nil {
+			return
+		}
+		if _, __err = __buf.WriteString("\n</div>\n<div class=\"after\">After slots</div>"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "first", "second", "third")}
+}
+
+// Slot sets a named slot for EgoSlotTestTemplate and returns a new instance.
+func (t *EgoSlotTestTemplate) Slot(name string, templates ...goht.Template) *EgoSlotTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for EgoSlotTestTemplate.
+func (t *EgoSlotTestTemplate) WithChildren(templates ...goht.Template) *EgoSlotTestTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithFirst sets the "first" slot for EgoSlotTestTemplate.
+func (t *EgoSlotTestTemplate) WithFirst(templates ...goht.Template) *EgoSlotTestTemplate {
+	return t.Slot("first", templates...)
+}
+
+// WithSecond sets the "second" slot for EgoSlotTestTemplate.
+func (t *EgoSlotTestTemplate) WithSecond(templates ...goht.Template) *EgoSlotTestTemplate {
+	return t.Slot("second", templates...)
+}
+
+// WithThird sets the "third" slot for EgoSlotTestTemplate.
+func (t *EgoSlotTestTemplate) WithThird(templates ...goht.Template) *EgoSlotTestTemplate {
+	return t.Slot("third", templates...)
+}
+
+type SlimSlotWithDefaultTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// SlimSlotWithDefaultTest returns a new instance of SlimSlotWithDefaultTestTemplate.
+// Slots: children, first, second, third.
+func SlimSlotWithDefaultTest() *SlimSlotWithDefaultTestTemplate {
+	return &SlimSlotWithDefaultTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<div class=\"wrapper\">"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("first"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		} else {
+			if _, __err = __buf.WriteString("<p>Default first</p>"); __err != nil {
+				return
+			}
+		}
+		if __slot, __hasSlot := __slots.Has("second"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		} else {
+			if _, __err = __buf.WriteString("<p>Default second</p>"); __err != nil {
+				return
+			}
+		}
+		if __slot, __hasSlot := __slots.Has("third"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		} else {
+			if _, __err = __buf.WriteString("<p>Default third</p>"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("</div><div class=\"after\">After slots</div>"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "first", "second", "third")}
+}
+
+// Slot sets a named slot for SlimSlotWithDefaultTestTemplate and returns a new instance.
+func (t *SlimSlotWithDefaultTestTemplate) Slot(name string, templates ...goht.Template) *SlimSlotWithDefaultTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for SlimSlotWithDefaultTestTemplate.
+func (t *SlimSlotWithDefaultTestTemplate) WithChildren(templates ...goht.Template) *SlimSlotWithDefaultTestTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithFirst sets the "first" slot for SlimSlotWithDefaultTestTemplate.
+func (t *SlimSlotWithDefaultTestTemplate) WithFirst(templates ...goht.Template) *SlimSlotWithDefaultTestTemplate {
+	return t.Slot("first", templates...)
+}
+
+// WithSecond sets the "second" slot for SlimSlotWithDefaultTestTemplate.
+func (t *SlimSlotWithDefaultTestTemplate) WithSecond(templates ...goht.Template) *SlimSlotWithDefaultTestTemplate {
+	return t.Slot("second", templates...)
+}
+
+// WithThird sets the "third" slot for SlimSlotWithDefaultTestTemplate.
+func (t *SlimSlotWithDefaultTestTemplate) WithThird(templates ...goht.Template) *SlimSlotWithDefaultTestTemplate {
+	return t.Slot("third", templates...)
+}
+
+type EgoSlotWithDefaultTestTemplate struct {
+	goht.SlotTemplate
+}
+
+// EgoSlotWithDefaultTest returns a new instance of EgoSlotWithDefaultTestTemplate.
+// Slots: children, first, second, third, fourth.
+func EgoSlotWithDefaultTest() *EgoSlotWithDefaultTestTemplate {
+	return &EgoSlotWithDefaultTestTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<div class=\"wrapper\">\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("first"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		} else {
+			if _, __err = __buf.WriteString("<p>Default first</p>"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("second"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		} else {
+			if _, __err = __buf.WriteString("<p>Default second</p>"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("third"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		} else {
+			if __err = WrappedTest("default third").Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("fourth"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("\n</div>\n<div class=\"after\">After slots</div>"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "first", "second", "third", "fourth")}
+}
+
+// Slot sets a named slot for EgoSlotWithDefaultTestTemplate and returns a new instance.
+func (t *EgoSlotWithDefaultTestTemplate) Slot(name string, templates ...goht.Template) *EgoSlotWithDefaultTestTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for EgoSlotWithDefaultTestTemplate.
+func (t *EgoSlotWithDefaultTestTemplate) WithChildren(templates ...goht.Template) *EgoSlotWithDefaultTestTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithFirst sets the "first" slot for EgoSlotWithDefaultTestTemplate.
+func (t *EgoSlotWithDefaultTestTemplate) WithFirst(templates ...goht.Template) *EgoSlotWithDefaultTestTemplate {
+	return t.Slot("first", templates...)
+}
+
+// WithSecond sets the "second" slot for EgoSlotWithDefaultTestTemplate.
+func (t *EgoSlotWithDefaultTestTemplate) WithSecond(templates ...goht.Template) *EgoSlotWithDefaultTestTemplate {
+	return t.Slot("second", templates...)
+}
+
+// WithThird sets the "third" slot for EgoSlotWithDefaultTestTemplate.
+func (t *EgoSlotWithDefaultTestTemplate) WithThird(templates ...goht.Template) *EgoSlotWithDefaultTestTemplate {
+	return t.Slot("third", templates...)
+}
+
+// WithFourth sets the "fourth" slot for EgoSlotWithDefaultTestTemplate.
+func (t *EgoSlotWithDefaultTestTemplate) WithFourth(templates ...goht.Template) *EgoSlotWithDefaultTestTemplate {
+	return t.Slot("fourth", templates...)
+}
+
 type EgoRenderTestTemplate struct {
 	goht.SlotTemplate
 }

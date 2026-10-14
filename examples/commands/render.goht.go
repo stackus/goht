@@ -151,7 +151,7 @@ func EgoRenderExample() *EgoRenderExampleTemplate {
 		if _, __err = __buf.WriteString("<p>"); __err != nil {
 			return
 		}
-		if __err = SlimChildrenExample().Render(ctx, __buf); __err != nil {
+		if __err = EgoChildrenExample().Render(ctx, __buf); __err != nil {
 			return
 		}
 		if _, __err = __buf.WriteString("</p>\n<p>the other template was rendered above.</p>"); __err != nil {
@@ -358,7 +358,7 @@ func EgoRenderWithChildrenExample() *EgoRenderWithChildrenExampleTemplate {
 				__buf = goht.GetBuffer()
 				defer goht.ReleaseBuffer(__buf)
 			}
-			if _, __err = __buf.WriteString("\n\t<span>this content will be rendered by the other template.<span>\n"); __err != nil {
+			if _, __err = __buf.WriteString("\n\t<span>this content will be rendered by the other template.</span>\n"); __err != nil {
 				return
 			}
 			if !__isBuf {
@@ -366,7 +366,7 @@ func EgoRenderWithChildrenExample() *EgoRenderWithChildrenExampleTemplate {
 			}
 			return
 		})}
-		if __err = SlimChildrenExample().WithChildren(__var1...).Render(ctx, __buf); __err != nil {
+		if __err = EgoChildrenExample().WithChildren(__var1...).Render(ctx, __buf); __err != nil {
 			return
 		}
 		if !__isBuf {

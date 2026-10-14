@@ -30,3 +30,11 @@ package commands
 		| The following was passed in from the calling template:
 		= @children
 }
+
+@ego EgoChildrenExample() {
+	<p>Ego Child Template</p>
+	<p>
+		The following was passed in from the calling template:
+		<%@children %>
+	</p>
+}

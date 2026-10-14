@@ -21,7 +21,7 @@ package commands
 }
 
 @ego EgoRenderExample() {
-	<p><%@render SlimChildrenExample() %></p>
+	<p><%@render EgoChildrenExample() %></p>
 	<p>the other template was rendered above.</p>
 }
 
@@ -49,7 +49,7 @@ package commands
 
 @ego EgoRenderWithChildrenExample() {
 	<p>The other template will be rendered below.</p>
-	<%@render SlimChildrenExample() { %>
-		<span>this content will be rendered by the other template.<span>
+	<%@render EgoChildrenExample() { %>
+		<span>this content will be rendered by the other template.</span>
 	<% } %>
 }

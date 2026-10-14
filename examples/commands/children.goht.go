@@ -145,3 +145,46 @@ func (t *SlimChildrenExampleTemplate) Slot(name string, templates ...goht.Templa
 func (t *SlimChildrenExampleTemplate) WithChildren(templates ...goht.Template) *SlimChildrenExampleTemplate {
 	return t.Slot("children", templates...)
 }
+
+type EgoChildrenExampleTemplate struct {
+	goht.SlotTemplate
+}
+
+// EgoChildrenExample returns a new instance of EgoChildrenExampleTemplate.
+// Slots: children.
+func EgoChildrenExample() *EgoChildrenExampleTemplate {
+	return &EgoChildrenExampleTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<p>Ego Child Template</p>\n<p>\n\tThe following was passed in from the calling template:\n\t"); __err != nil {
+			return
+		}
+		if __children, __hasChildren := __slots.Has("children"); __hasChildren {
+			if __err = __children.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("\n</p>"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children")}
+}
+
+// Slot sets a named slot for EgoChildrenExampleTemplate and returns a new instance.
+func (t *EgoChildrenExampleTemplate) Slot(name string, templates ...goht.Template) *EgoChildrenExampleTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for EgoChildrenExampleTemplate.
+func (t *EgoChildrenExampleTemplate) WithChildren(templates ...goht.Template) *EgoChildrenExampleTemplate {
+	return t.Slot("children", templates...)
+}

@@ -188,6 +188,140 @@ func (t *SlotTemplateTemplate) WithActions(templates ...goht.Template) *SlotTemp
 	return t.Slot("actions", templates...)
 }
 
+type HamlSlotTemplateTemplate struct {
+	goht.SlotTemplate
+}
+
+// HamlSlotTemplate returns a new instance of HamlSlotTemplateTemplate.
+// Slots: children, name, actions.
+func HamlSlotTemplate() *HamlSlotTemplateTemplate {
+	return &HamlSlotTemplateTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<div class=\"name-content\">\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("name"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("</div>\n<div class=\"actions\">\n"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("actions"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		} else {
+			if _, __err = __buf.WriteString("No available actions.\n"); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("</div>\n"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "name", "actions")}
+}
+
+// Slot sets a named slot for HamlSlotTemplateTemplate and returns a new instance.
+func (t *HamlSlotTemplateTemplate) Slot(name string, templates ...goht.Template) *HamlSlotTemplateTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for HamlSlotTemplateTemplate.
+func (t *HamlSlotTemplateTemplate) WithChildren(templates ...goht.Template) *HamlSlotTemplateTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithName sets the "name" slot for HamlSlotTemplateTemplate.
+func (t *HamlSlotTemplateTemplate) WithName(templates ...goht.Template) *HamlSlotTemplateTemplate {
+	return t.Slot("name", templates...)
+}
+
+// WithActions sets the "actions" slot for HamlSlotTemplateTemplate.
+func (t *HamlSlotTemplateTemplate) WithActions(templates ...goht.Template) *HamlSlotTemplateTemplate {
+	return t.Slot("actions", templates...)
+}
+
+// In EGO, a slot only has default content when its tag opens a block. A slot
+// tag without a block renders the slot's content, or nothing, and what follows
+// it is part of the template.
+
+type EgoSlotTemplateTemplate struct {
+	goht.SlotTemplate
+}
+
+// EgoSlotTemplate returns a new instance of EgoSlotTemplateTemplate.
+// Slots: children, name, actions.
+func EgoSlotTemplate() *EgoSlotTemplateTemplate {
+	return &EgoSlotTemplateTemplate{SlotTemplate: goht.NewSlotTemplate(func(ctx context.Context, __w io.Writer, __slots goht.Slots) (__err error) {
+		__buf, __isBuf := __w.(goht.Buffer)
+		if !__isBuf {
+			__buf = goht.GetBuffer()
+			defer goht.ReleaseBuffer(__buf)
+		}
+		if _, __err = __buf.WriteString("<div class=\"name-content\">\n\t"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("name"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("</div>\n<div class=\"actions\">\n\t"); __err != nil {
+			return
+		}
+		if __slot, __hasSlot := __slots.Has("actions"); __hasSlot {
+			if __err = __slot.Render(ctx, __buf); __err != nil {
+				return
+			}
+		} else {
+			if _, __err = __buf.WriteString("No available actions."); __err != nil {
+				return
+			}
+		}
+		if _, __err = __buf.WriteString("</div>"); __err != nil {
+			return
+		}
+		if !__isBuf {
+			_, __err = __w.Write(__buf.Bytes())
+		}
+		return
+	}, "children", "name", "actions")}
+}
+
+// Slot sets a named slot for EgoSlotTemplateTemplate and returns a new instance.
+func (t *EgoSlotTemplateTemplate) Slot(name string, templates ...goht.Template) *EgoSlotTemplateTemplate {
+	next := *t
+	next.SlotTemplate = t.SlotTemplate.Slot(name, templates...)
+	return &next
+}
+
+// WithChildren sets the "children" slot for EgoSlotTemplateTemplate.
+func (t *EgoSlotTemplateTemplate) WithChildren(templates ...goht.Template) *EgoSlotTemplateTemplate {
+	return t.Slot("children", templates...)
+}
+
+// WithName sets the "name" slot for EgoSlotTemplateTemplate.
+func (t *EgoSlotTemplateTemplate) WithName(templates ...goht.Template) *EgoSlotTemplateTemplate {
+	return t.Slot("name", templates...)
+}
+
+// WithActions sets the "actions" slot for EgoSlotTemplateTemplate.
+func (t *EgoSlotTemplateTemplate) WithActions(templates ...goht.Template) *EgoSlotTemplateTemplate {
+	return t.Slot("actions", templates...)
+}
+
 type SlotWithDefaultTemplateTemplate struct {
 	goht.SlotTemplate
 }

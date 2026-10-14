@@ -60,6 +60,58 @@ package testdata
 			%p Default third
 }
 
+@slim SlimRenderWithSlotTest() {
+	= @render ChildrenTest("")
+		= @slot content
+	.after After render
+}
+
+@ego EgoRenderWithSlotTest() {
+	<%@render ChildrenTest("") { %><%@slot content %><% } %>
+	<%@slot content %>
+	<div class="after">After render</div>
+}
+
+@slim SlimSlotTest() {
+	.wrapper
+		= @slot first
+		= @slot second
+		= @slot third
+	.after After slots
+}
+
+@ego EgoSlotTest() {
+	<div class="wrapper">
+	<%@slot first %>
+	<%@slot second $%>
+	<%@slot third %><%@render WrappedTest("after slots") %>
+	</div>
+	<div class="after">After slots</div>
+}
+
+@slim SlimSlotWithDefaultTest() {
+	.wrapper
+		= @slot first
+			p Default first
+		= @slot second
+			p Default second
+		= @slot third
+			p Default third
+	.after After slots
+}
+
+@ego EgoSlotWithDefaultTest() {
+	<div class="wrapper">
+	<%@slot first { %><p>Default first</p><% } %>
+	<%@slot second { -%>
+	<p>Default second</p>
+	<%- } %>
+	<%@slot third { %><%@render WrappedTest("default third") %><% } %>
+	<%@slot fourth { %><% } %>
+	</div>
+	<div class="after">After slots</div>
+}
+
 @ego EgoRenderTest() {
 	<%@render ChildrenTest("without a block") %>
 	<%@render ChildrenTest("without a block, trimmed newline") $%>

@@ -110,6 +110,48 @@ func TestRender(t *testing.T) {
 			template: testdata.SlotWithDefaultTest(),
 			htmlFile: "slots_with_defaults",
 		},
+		"slim render with slot": {
+			template: testdata.SlimRenderWithSlotTest().WithContent(templateText("slotted content")),
+			htmlFile: "slim_render_with_slot",
+		},
+		"ego render with slot": {
+			template: testdata.EgoRenderWithSlotTest().WithContent(templateText("slotted content")),
+			htmlFile: "ego_render_with_slot",
+		},
+		"slim slots": {
+			template: testdata.SlimSlotTest().
+				WithFirst(templateText("first")).
+				WithSecond(goht.Fragment{templateText("second one"), templateText("second two")}).
+				WithThird(templateText("third")),
+			htmlFile: "slim_slots",
+		},
+		"ego slots": {
+			template: testdata.EgoSlotTest().
+				WithFirst(templateText("first")).
+				WithSecond(goht.Fragment{templateText("second one"), templateText("second two")}).
+				WithThird(templateText("third")),
+			htmlFile: "ego_slots",
+		},
+		"ego slots without content": {
+			template: testdata.EgoSlotTest(),
+			htmlFile: "ego_slots_without_content",
+		},
+		"slim slots with defaults": {
+			template: testdata.SlimSlotWithDefaultTest(),
+			htmlFile: "slim_slots_with_defaults",
+		},
+		"ego slots with defaults": {
+			template: testdata.EgoSlotWithDefaultTest(),
+			htmlFile: "ego_slots_with_defaults",
+		},
+		"ego slots with defaults replaced": {
+			template: testdata.EgoSlotWithDefaultTest().
+				WithFirst(templateText("first")).
+				WithSecond(templateText("second")).
+				WithThird(templateText("third")).
+				WithFourth(templateText("fourth")),
+			htmlFile: "ego_slots_with_defaults_replaced",
+		},
 		"without children": {
 			template: testdata.ChildrenTest("passed-in"),
 			htmlFile: "without_children",

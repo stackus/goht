@@ -123,6 +123,14 @@ func TestHamlExamples(t *testing.T) {
 			template: commands.HamlRenderWithChildrenExample(),
 			htmlFile: "commands_renderWithChildrenExample",
 		},
+		"commands_slotTemplate": {
+			template: commands.HamlSlotTemplate().WithName(commands.Name("UserName")),
+			htmlFile: "commands_slotTemplate",
+		},
+		"commands_slotWithoutContent": {
+			template: commands.HamlSlotTemplate(),
+			htmlFile: "commands_slotWithoutContent",
+		},
 		"comments_htmlComments": {
 			template: comments.HamlHtmlComments(),
 			htmlFile: "comments_htmlComments",
@@ -399,6 +407,14 @@ func TestSlimExamples(t *testing.T) {
 			template: commands.SlimRenderWithChildrenExample(),
 			htmlFile: "commands_renderWithChildrenExample",
 		},
+		"commands_slotTemplate": {
+			template: commands.SlotTemplate().WithName(commands.Name("UserName")),
+			htmlFile: "commands_slotTemplate",
+		},
+		"commands_slotWithoutContent": {
+			template: commands.SlotTemplate(),
+			htmlFile: "commands_slotWithoutContent",
+		},
 		"comments_htmlComments": {
 			template: comments.SlimHtmlComments(),
 			htmlFile: "comments_htmlComments",
@@ -585,9 +601,29 @@ func TestEgoExamples(t *testing.T) {
 		template goht.Template
 		htmlFile string
 	}{
+		"commands_childrenExample": {
+			template: commands.EgoChildrenExample(),
+			htmlFile: "commands_childrenExample",
+		},
 		"commands_renderExample": {
 			template: commands.EgoRenderExample(),
 			htmlFile: "commands_renderExample",
+		},
+		"commands_renderWithChildrenExample": {
+			template: commands.EgoRenderWithChildrenExample(),
+			htmlFile: "commands_renderWithChildrenExample",
+		},
+		"commands_slotTemplate": {
+			template: commands.EgoSlotTemplate().WithName(commands.Name("UserName")),
+			htmlFile: "commands_slotTemplate",
+		},
+		"commands_slotWithoutContent": {
+			template: commands.EgoSlotTemplate(),
+			htmlFile: "commands_slotWithoutContent",
+		},
+		"commands_slotWithDefaultTemplate": {
+			template: commands.SlotWithDefaultTemplate(),
+			htmlFile: "commands_slotWithDefaultTemplate",
 		},
 		"hello_world": {
 			template: hello.EgoWorld(),

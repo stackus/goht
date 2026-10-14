@@ -185,6 +185,21 @@ func (n *node) handleNewLine(p *parser) error {
 	return n.handleNode(p, n.indent+1)
 }
 
+// handleIndentedNode parses a command that takes nested content only after an indent; an EGO
+// command without a block is a leaf, so what follows it belongs to the parent
+func (n *node) handleIndentedNode(p *parser) error {
+	switch p.peek().Type() {
+	case tNewLine:
+		return n.handleNewLine(p)
+	case tIndent:
+		return n.handleNode(p, n.indent+1)
+	}
+	if len(n.children) == 0 {
+		return p.backToParent()
+	}
+	return n.handleNode(p, n.indent+1)
+}
+
 func (n *node) handleNode(p *parser, indent int) error {
 	t := p.peek()
 	_ = t
@@ -1792,6 +1807,10 @@ func (n *SlotCommandNode) Source(tw *templateWriter) error {
 	}
 
 	if len(n.children) == 0 {
+		if next, ok := n.nextSibling.(*SilentScriptNode); ok && strings.TrimSpace(next.code) == "}" {
+			// an empty block; the closing brace closes the slot
+			return nil
+		}
 		_, err := tw.WriteIndent("}\n")
 		return err
 	}
@@ -1825,12 +1844,7 @@ func (n *SlotCommandNode) Source(tw *templateWriter) error {
 }
 
 func (n *SlotCommandNode) parse(p *parser) error {
-	switch p.peek().Type() {
-	case tNewLine:
-		return n.handleNewLine(p)
-	default:
-		return n.handleNode(p, n.indent+1)
-	}
+	return n.handleIndentedNode(p)
 }
 
 type IfSlotCommandNode struct {
@@ -1870,12 +1884,7 @@ func (n *IfSlotCommandNode) Source(tw *templateWriter) error {
 }
 
 func (n *IfSlotCommandNode) parse(p *parser) error {
-	switch p.peek().Type() {
-	case tNewLine:
-		return n.handleNewLine(p)
-	default:
-		return n.handleNode(p, n.indent+1)
-	}
+	return n.handleIndentedNode(p)
 }
 
 // NoSlotCommandNode renders its body only when its named slot was not assigned.
@@ -1916,12 +1925,7 @@ func (n *NoSlotCommandNode) Source(tw *templateWriter) error {
 }
 
 func (n *NoSlotCommandNode) parse(p *parser) error {
-	switch p.peek().Type() {
-	case tNewLine:
-		return n.handleNewLine(p)
-	default:
-		return n.handleNode(p, n.indent+1)
-	}
+	return n.handleIndentedNode(p)
 }
 
 type EachSlotCommandNode struct {
@@ -1974,12 +1978,7 @@ func (n *EachSlotCommandNode) Source(tw *templateWriter) error {
 }
 
 func (n *EachSlotCommandNode) parse(p *parser) error {
-	switch p.peek().Type() {
-	case tNewLine:
-		return n.handleNewLine(p)
-	default:
-		return n.handleNode(p, n.indent+1)
-	}
+	return n.handleIndentedNode(p)
 }
 
 func validateSlotReference(name string) error {
