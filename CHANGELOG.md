@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.9.8](https://github.com/stackus/goht/compare/v0.9.7...v0.9.8) - 2026-10-17
+
+### Added
+
+- Haml and Slim class shorthand supports opacity suffixes such as
+	`.text-red/80` and `.bg-red/[0.5]`.
+
 ## [v0.9.7](https://github.com/stackus/goht/compare/v0.9.6...v0.9.7) - 2026-10-17
 
 ### Added
