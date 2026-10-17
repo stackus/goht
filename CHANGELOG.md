@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.9.7](https://github.com/stackus/goht/compare/v0.9.6...v0.9.7) - 2026-10-17
+
+### Added
+
+- Haml and Slim class shorthand supports Tailwind-style variants and balanced
+	square-bracket values, including classes with colons.
+- Haml and Slim Ruby-style and HTML-style attribute lists accept unquoted
+	framework names such as `@click`, `:class`, `x-on:click`, and `data-[state]`.
+	Attribute names are escaped when rendered into HTML.
+
 ## [v0.9.6](https://github.com/stackus/goht/compare/v0.9.5...v0.9.6) - 2026-10-14
 
 ### Added
