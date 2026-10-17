@@ -27,6 +27,9 @@ func TestTemplate_Generate(t *testing.T) {
 		"attributes": {
 			templateFile: "attributes",
 		},
+		"complex names": {
+			templateFile: "complex_names",
+		},
 		"newlines": {
 			templateFile: "newlines",
 		},

@@ -851,8 +851,9 @@ func (n *ElementNode) renderAttributes(tw *templateWriter) error {
 	}
 	for _, key := range n.attributes.keys {
 		attr := n.attributes.values[key]
+		name := html.EscapeString(attr.name)
 		if attr.value == "" {
-			if _, err := tw.WriteStringLiteral(` ` + attr.name); err != nil {
+			if _, err := tw.WriteStringLiteral(` ` + name); err != nil {
 				return err
 			}
 			continue
@@ -870,7 +871,7 @@ func (n *ElementNode) renderAttributes(tw *templateWriter) error {
 				return err
 			}
 			itw := tw.Indent(1)
-			if _, err := itw.WriteStringLiteral(" " + attr.name); err != nil {
+			if _, err := itw.WriteStringLiteral(" " + name); err != nil {
 				return err
 			}
 			if _, err := itw.Close(); err != nil {
@@ -881,7 +882,7 @@ func (n *ElementNode) renderAttributes(tw *templateWriter) error {
 			}
 			continue
 		}
-		if _, err := tw.WriteStringLiteral(` ` + attr.name + `=\"`); err != nil {
+		if _, err := tw.WriteStringLiteral(` ` + name + `=\"`); err != nil {
 			return err
 		}
 		if attr.isDynamic {

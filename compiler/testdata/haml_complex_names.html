@@ -1,0 +1,6 @@
+<div class="hover:bg-red-500 w-[12px] bg-[url('/images/hero.jpg')] [&>p]:underline">Tailwind classes</div>
+<button @click="act" :class="active" x-on:click="toggle" data-[state]="open">Ruby attributes</button>
+<button @click="act" :class="active" x-on:click="toggle" data-[state]="open">HTML attributes</button>
+<button @keyup.enter="submit">Quoted HTML name</button>
+<div &lt;unsafe&gt;="value">Escaped name</div>
+<div class="w-[&>p]">Dynamic class</div>

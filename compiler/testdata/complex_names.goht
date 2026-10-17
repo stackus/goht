@@ -1,0 +1,21 @@
+package testdata
+
+@haml HamlComplexNamesTest() {
+	%div.hover:bg-red-500.w-[12px].bg-[url('/images/hero.jpg')].[&>p]:underline Tailwind classes
+	%button{@click: "act", :class: "active", x-on:click: "toggle", data-[state]: "open"} Ruby attributes
+	%button(@click="act" :class="active" x-on:click="toggle" data-[state]="open") HTML attributes
+	%button("@keyup.enter"="submit") Quoted HTML name
+	%div{"<unsafe>": "value"} Escaped name
+	- dynamicClass := `w-[&>p]`
+	%div{class: #{dynamicClass}} Dynamic class
+}
+
+@slim SlimComplexNamesTest() {
+	div.hover:bg-red-500.w-[12px].bg-[url('/images/hero.jpg')].[&>p]:underline Tailwind classes
+	button{@click: "act", :class: "active", x-on:click: "toggle", data-[state]: "open"} Ruby attributes
+	button(@click="act" :class="active" x-on:click="toggle" data-[state]="open") HTML attributes
+	button("@keyup.enter"="submit") Quoted HTML name
+	div.foo: span Inline tag
+	- dynamicClass := `w-[&>p]`
+	div{class: #{dynamicClass}} Dynamic class
+}

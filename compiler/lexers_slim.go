@@ -160,7 +160,8 @@ func lexSlimId(l *lexer) lexFn {
 }
 
 func lexSlimClass(l *lexer) lexFn {
-	return slimIdentifier(tClass, l)
+	const mayFollowIdentifier = "#.[{(=!/<>: \t\n\r"
+	return lexClassIdentifier(l, mayFollowIdentifier, lexSlimContent)
 }
 
 func lexSlimInlineTag(l *lexer) lexFn {
@@ -550,6 +551,9 @@ func lexSlimAttribute(l *lexer) lexFn {
 	case '}':
 		return lexSlimAttributesEnd
 	case '@':
+		if !isAttributesCommand(l, ':') {
+			return lexSlimAttributeName
+		}
 		return lexSlimAttributeCommandStart
 	default:
 		return lexSlimAttributeName
@@ -565,11 +569,9 @@ func lexSlimAttributeName(l *lexer) lexFn {
 			return l.errorf("unexpected character: %q", r)
 		}
 	} else {
-		l.acceptUntil("?:,}{\" \t\n\r")
-		if l.current() == "" {
-			return l.errorf("attribute name expected")
+		if next := lexRubyAttributeName(l); next != nil {
+			return next
 		}
-		l.emit(tAttrName)
 	}
 
 	l.skipRun(" \t\n\r")
@@ -705,6 +707,9 @@ func lexSlimHtmlAttribute(l *lexer) lexFn {
 	case ')':
 		return lexSlimHtmlAttributesEnd
 	case '@':
+		if !isAttributesCommand(l, '=') {
+			return lexSlimHtmlAttributeName
+		}
 		return lexSlimHtmlAttributeCommandStart
 	case '}', scanner.EOF:
 		return l.errorf("attribute list not closed: missing ')'")

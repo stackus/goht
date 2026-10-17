@@ -527,6 +527,57 @@ func Test_SlimClass(t *testing.T) {
 		input string
 		want  []token
 	}{
+		"colon class": {
+			input: "@slim test() {\n\tdiv.hover:bg-red-500",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "hover:bg-red-500"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"quoted URL bracket class": {
+			input: "@slim test() {\n\tdiv.bg-[url('/images/hero.jpg')]",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "bg-[url('/images/hero.jpg')]"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"inline tag after class": {
+			input: "@slim test() {\n\tdiv.foo: span",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "foo"},
+				{typ: tTag, lit: "span"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"colon without space": {
+			input: "@slim test() {\n\tdiv.foo:span",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "foo:span"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"unclosed bracket class": {
+			input: "@slim test() {\n\tdiv.w-[12px",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tError, lit: "class bracket not closed: eof"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"simple": {
 			input: "@slim test() {\n\t.bar",
 			want: []token{
@@ -1627,6 +1678,30 @@ func Test_SlimHtmlAttributes(t *testing.T) {
 		input string
 		want  []token
 	}{
+		"framework name": {
+			input: "@slim test() {\n\tbutton(@click=\"act\")",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "button"},
+				{typ: tAttrName, lit: "@click"},
+				{typ: tAttrOperator, lit: ":"},
+				{typ: tAttrEscapedValue, lit: "\"act\""},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"conditional bracket name": {
+			input: "@slim test() {\n\tbutton(data-[active]?#{active})",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "button"},
+				{typ: tAttrName, lit: "data-[active]"},
+				{typ: tAttrOperator, lit: "?"},
+				{typ: tAttrDynamicValue, lit: "active"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"paren simple": {
 			input: "@slim test() {\n\tfoo(id=\"bar\")",
 			want: []token{

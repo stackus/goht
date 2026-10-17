@@ -162,7 +162,8 @@ func lexHamlId(l *lexer) lexFn {
 }
 
 func lexHamlClass(l *lexer) lexFn {
-	return hamlIdentifier(tClass, l)
+	const mayFollowIdentifier = "%#.[{(=!/<> \t\n\r"
+	return lexClassIdentifier(l, mayFollowIdentifier, lexHamlContent)
 }
 
 func lexHamlObjectReference(l *lexer) lexFn {
@@ -200,6 +201,9 @@ func lexHamlAttribute(l *lexer) lexFn {
 	case '}':
 		return lexHamlAttributesEnd
 	case '@':
+		if !isAttributesCommand(l, ':') {
+			return lexHamlAttributeName
+		}
 		return lexHamlAttributeCommandStart
 	default:
 		return lexHamlAttributeName
@@ -215,11 +219,9 @@ func lexHamlAttributeName(l *lexer) lexFn {
 			return l.errorf("unexpected character: %q", r)
 		}
 	} else {
-		l.acceptUntil("?:,}{\" \t\n\r")
-		if l.current() == "" {
-			return l.errorf("attribute name expected")
+		if next := lexRubyAttributeName(l); next != nil {
+			return next
 		}
-		l.emit(tAttrName)
 	}
 
 	l.skipRun(" \t\n\r")
@@ -343,6 +345,9 @@ func lexHamlHtmlAttribute(l *lexer) lexFn {
 	case ')':
 		return lexHamlHtmlAttributesEnd
 	case '@':
+		if !isAttributesCommand(l, '=') {
+			return lexHamlHtmlAttributeName
+		}
 		return lexHamlHtmlAttributeCommandStart
 	case '}', scanner.EOF:
 		return l.errorf("attribute list not closed: missing ')'")

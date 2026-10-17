@@ -38,6 +38,14 @@ func TestRender(t *testing.T) {
 			template: testdata.HtmlAttributesTest(),
 			htmlFile: "html_attributes",
 		},
+		"haml complex names": {
+			template: testdata.HamlComplexNamesTest(),
+			htmlFile: "haml_complex_names",
+		},
+		"slim complex names": {
+			template: testdata.SlimComplexNamesTest(),
+			htmlFile: "slim_complex_names",
+		},
 		"newlines": {
 			template: testdata.NewlinesTest(),
 			htmlFile: "newlines",

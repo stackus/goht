@@ -161,6 +161,89 @@ func attributeValueError(l *lexer) lexFn {
 	return l.errorf("unexpected character: %q", l.peek())
 }
 
+func lexClassIdentifier(l *lexer, mayFollowIdentifier string, next lexFn) lexFn {
+	l.skip() // eat '.'
+
+	for {
+		r := l.peek()
+		if r == '[' && (l.current() == "" || strings.HasSuffix(l.current(), "-") || strings.HasSuffix(l.current(), ":")) {
+			l.next()
+			if continueToMatchingBrace(l, ']', false) == scanner.EOF {
+				return l.errorf("class bracket not closed: eof")
+			}
+			continue
+		}
+		if r == ':' {
+			if strings.ContainsRune(mayFollowIdentifier, ':') {
+				ahead := []rune(l.peekAhead(2))
+				if len(ahead) > 1 && strings.ContainsRune(" \t\n\r", ahead[1]) {
+					break
+				}
+			}
+			l.next()
+			continue
+		}
+		if strings.ContainsRune(mayFollowIdentifier, r) || r == scanner.EOF {
+			break
+		}
+		l.next()
+	}
+
+	if l.current() == "" {
+		return l.errorf("%s identifier expected", tClass)
+	}
+
+	l.emit(tClass)
+
+	return next
+}
+
+func rubyAttributeOperatorAhead(l *lexer, op rune) bool {
+	ahead := l.peekAhead(l.reader.Len())
+	if !strings.HasPrefix(ahead, string(op)) {
+		return false
+	}
+
+	value := strings.TrimLeft(ahead[1:], " \t\n\r")
+	if op == '?' {
+		return strings.HasPrefix(value, "#{")
+	}
+
+	return strings.HasPrefix(value, "\"") || strings.HasPrefix(value, "`") || strings.HasPrefix(value, "'") || strings.HasPrefix(value, "#{")
+}
+
+func lexRubyAttributeName(l *lexer) lexFn {
+	for {
+		r := l.peek()
+		if r == ':' || r == '?' {
+			if rubyAttributeOperatorAhead(l, r) {
+				break
+			}
+		} else if strings.ContainsRune(",}{\"` \t\n\r", r) || r == scanner.EOF {
+			break
+		}
+		l.next()
+	}
+	if l.current() == "" {
+		return l.errorf("attribute name expected")
+	}
+
+	l.emit(tAttrName)
+
+	return nil
+}
+
+func isAttributesCommand(l *lexer, operator byte) bool {
+	ahead := l.peekAhead(l.reader.Len())
+	if !strings.HasPrefix(ahead, "@attributes") {
+		return false
+	}
+
+	afterName := strings.TrimLeft(ahead[len("@attributes"):], " \t\n\r")
+
+	return len(afterName) > 0 && afterName[0] == operator
+}
+
 func continueToMatchingQuote(l *lexer, typ tokenType, captureQuotes bool) rune {
 	quote := l.peek()
 	if quote != '`' && quote != '"' {

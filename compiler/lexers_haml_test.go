@@ -420,6 +420,51 @@ func Test_HamlClass(t *testing.T) {
 		input string
 		want  []token
 	}{
+		"object reference after class": {
+			input: "@goht test() {\n\t%div.foo[obj]",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "foo"},
+				{typ: tObjectRef, lit: "obj"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"nested bracket class": {
+			input: "@goht test() {\n\t%div.bg-[url(foo.bar)]",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "bg-[url(foo.bar)]"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"quoted URL bracket class": {
+			input: "@goht test() {\n\t%div.bg-[url('/images/hero.jpg')]",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "bg-[url('/images/hero.jpg')]"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"unclosed bracket class": {
+			input: "@goht test() {\n\t%div.w-[12px",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tError, lit: "class bracket not closed: eof"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"simple": {
 			input: "@goht test() {\n\t.foo",
 			want: []token{
@@ -674,6 +719,19 @@ func Test_HamlAttributes(t *testing.T) {
 		input string
 		want  []token
 	}{
+		"conditional framework name": {
+			input: "@goht test() {\n\t%button{:class?#{active}}",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "button"},
+				{typ: tAttrName, lit: ":class"},
+				{typ: tAttrOperator, lit: "?"},
+				{typ: tAttrDynamicValue, lit: "active"},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"simple": {
 			input: "@goht test() {\n\t%foo{id:\"bar\"}",
 			want: []token{

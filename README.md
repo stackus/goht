@@ -775,7 +775,7 @@ statement.
 > Note: The final comma is not required on the last attribute when they are spread across multiple lines like it would be in Go. Including
 > it is fine and will not cause any issues.
 
-Certain characters in the attribute name will require that the name be escaped.
+Attribute names can be quoted when punctuation makes their boundaries ambiguous.
 
 ```haml
   %button{
@@ -783,6 +783,14 @@ Certain characters in the attribute name will require that the name be escaped.
     ":disabled": "disabled",
   } Click me
 ```
+
+Framework names such as `@click`, `:class`, `x-on:click`, and `data-[state]` can also be written without quotes when the attribute operator is clear:
+
+```haml
+  %button{@click: "onClick", :class: "active", x-on:click: "toggle", data-[state]: "open"} Click me
+```
+
+The `@attributes` name is reserved for the attribute-list directive. Quote names when their punctuation could be confused with an operator.
 
 Keep in mind that attribute names cannot be replaced with an interpolated string; only the value can. Attribute names and rendered attribute
 values are HTML-escaped.
@@ -812,6 +820,8 @@ Attributes are separated by whitespace; commas are not used.
 ```haml
   %a(href="https://github.com/stackus/goht" target="_blank") GoHT
 ```
+
+Complex names use the same unquoted forms in HTML style lists, for example `(@click="onClick" :class="active" data-[state]="open")`.
 
 Dynamic values use the same `#{...}` interpolation syntax.
 
@@ -859,11 +869,15 @@ Examples:
 
 ```haml
   %button.foo.bar.baz Click me
+  %button.hover:bg-red-500.w-[12px] Click me
   %button.fizz{class:"foo bar baz"} Click me
   %button.foo{class:#{myStrClasses, myBoolClasses}} Click me
 ```
 
 All sources of classes will be combined into a single class attribute in the order GoHT receives them.
+Class shorthand accepts Tailwind variants and balanced arbitrary-value brackets, such as `.[&>p]:underline`.
+In Slim, a colon followed by whitespace starts an inline child tag (`div.foo: span`); a colon without following whitespace stays in the class name.
+In Haml, `.foo[obj]` remains an object reference. Use a hyphen before an arbitrary-value bracket, as in `.w-[12px]`.
 
 ### Object References
 
