@@ -166,7 +166,7 @@ func lexClassIdentifier(l *lexer, mayFollowIdentifier string, next lexFn) lexFn 
 
 	for {
 		r := l.peek()
-		if r == '[' && (l.current() == "" || strings.HasSuffix(l.current(), "-") || strings.HasSuffix(l.current(), ":")) {
+		if r == '[' && (l.current() == "" || strings.HasSuffix(l.current(), "-") || strings.HasSuffix(l.current(), ":") || strings.HasSuffix(l.current(), "/")) {
 			l.next()
 			if continueToMatchingBrace(l, ']', false) == scanner.EOF {
 				return l.errorf("class bracket not closed: eof")
@@ -182,6 +182,13 @@ func lexClassIdentifier(l *lexer, mayFollowIdentifier string, next lexFn) lexFn 
 			}
 			l.next()
 			continue
+		}
+		if r == '/' {
+			ahead := []rune(l.peekAhead(2))
+			if len(ahead) > 1 && (isLetter(ahead[1]) || ahead[1] >= '0' && ahead[1] <= '9' || ahead[1] == '[') {
+				l.next()
+				continue
+			}
 		}
 		if strings.ContainsRune(mayFollowIdentifier, r) || r == scanner.EOF {
 			break

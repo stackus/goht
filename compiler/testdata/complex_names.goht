@@ -1,7 +1,7 @@
 package testdata
 
 @haml HamlComplexNamesTest() {
-	%div.hover:bg-red-500.w-[12px].bg-[url('/images/hero.jpg')].[&>p]:underline Tailwind classes
+	%div.hover:bg-red-500.w-[12px].bg-[url('/images/hero.jpg')].[&>p]:underline.text-red/80.bg-red/[0.5] Tailwind classes
 	%button{@click: "act", :class: "active", x-on:click: "toggle", data-[state]: "open"} Ruby attributes
 	%button(@click="act" :class="active" x-on:click="toggle" data-[state]="open") HTML attributes
 	%button("@keyup.enter"="submit") Quoted HTML name
@@ -11,7 +11,7 @@ package testdata
 }
 
 @slim SlimComplexNamesTest() {
-	div.hover:bg-red-500.w-[12px].bg-[url('/images/hero.jpg')].[&>p]:underline Tailwind classes
+	div.hover:bg-red-500.w-[12px].bg-[url('/images/hero.jpg')].[&>p]:underline.text-red/80.bg-red/[0.5] Tailwind classes
 	button{@click: "act", :class: "active", x-on:click: "toggle", data-[state]: "open"} Ruby attributes
 	button(@click="act" :class="active" x-on:click="toggle" data-[state]="open") HTML attributes
 	button("@keyup.enter"="submit") Quoted HTML name

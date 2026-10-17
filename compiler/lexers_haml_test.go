@@ -454,6 +454,40 @@ func Test_HamlClass(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"opacity class": {
+			input: "@goht test() {\n\t%div.text-red/80",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "text-red/80"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"arbitrary opacity class": {
+			input: "@goht test() {\n\t%div.text-red/[0.5]",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "text-red/[0.5]"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"class before self-closing slash": {
+			input: "@goht test() {\n\t%div.foo/",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tKeepNewlines, lit: ""},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "foo"},
+				{typ: tVoidTag, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"unclosed bracket class": {
 			input: "@goht test() {\n\t%div.w-[12px",
 			want: []token{

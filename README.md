@@ -870,12 +870,14 @@ Examples:
 ```haml
   %button.foo.bar.baz Click me
   %button.hover:bg-red-500.w-[12px] Click me
+  %button.text-red/80.bg-red/[0.5] Click me
   %button.fizz{class:"foo bar baz"} Click me
   %button.foo{class:#{myStrClasses, myBoolClasses}} Click me
 ```
 
 All sources of classes will be combined into a single class attribute in the order GoHT receives them.
 Class shorthand accepts Tailwind variants and balanced arbitrary-value brackets, such as `.[&>p]:underline`.
+Opacity suffixes such as `.text-red/80` and `.bg-red/[0.5]` are also accepted; a trailing `/` still marks a self-closing tag.
 In Slim, a colon followed by whitespace starts an inline child tag (`div.foo: span`); a colon without following whitespace stays in the class name.
 In Haml, `.foo[obj]` remains an object reference. Use a hyphen before an arbitrary-value bracket, as in `.w-[12px]`.
 

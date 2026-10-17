@@ -20,7 +20,7 @@ func HamlComplexNamesTest() *HamlComplexNamesTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<div class=\"hover:bg-red-500 w-[12px] bg-[url('/images/hero.jpg')] [&>p]:underline\">Tailwind classes</div>\n<button @click=\"act\" :class=\"active\" x-on:click=\"toggle\" data-[state]=\"open\">Ruby attributes</button>\n<button @click=\"act\" :class=\"active\" x-on:click=\"toggle\" data-[state]=\"open\">HTML attributes</button>\n<button @keyup.enter=\"submit\">Quoted HTML name</button>\n<div &lt;unsafe&gt;=\"value\">Escaped name</div>\n"); __err != nil {
+		if _, __err = __buf.WriteString("<div class=\"hover:bg-red-500 w-[12px] bg-[url('/images/hero.jpg')] [&>p]:underline text-red/80 bg-red/[0.5]\">Tailwind classes</div>\n<button @click=\"act\" :class=\"active\" x-on:click=\"toggle\" data-[state]=\"open\">Ruby attributes</button>\n<button @click=\"act\" :class=\"active\" x-on:click=\"toggle\" data-[state]=\"open\">HTML attributes</button>\n<button @keyup.enter=\"submit\">Quoted HTML name</button>\n<div &lt;unsafe&gt;=\"value\">Escaped name</div>\n"); __err != nil {
 			return
 		}
 		dynamicClass := `w-[&>p]`
@@ -70,7 +70,7 @@ func SlimComplexNamesTest() *SlimComplexNamesTestTemplate {
 			__buf = goht.GetBuffer()
 			defer goht.ReleaseBuffer(__buf)
 		}
-		if _, __err = __buf.WriteString("<div class=\"hover:bg-red-500 w-[12px] bg-[url('/images/hero.jpg')] [&>p]:underline\">Tailwind classes</div><button @click=\"act\" :class=\"active\" x-on:click=\"toggle\" data-[state]=\"open\">Ruby attributes</button><button @click=\"act\" :class=\"active\" x-on:click=\"toggle\" data-[state]=\"open\">HTML attributes</button><button @keyup.enter=\"submit\">Quoted HTML name</button><div class=\"foo\"><span>Inline tag</span></div>"); __err != nil {
+		if _, __err = __buf.WriteString("<div class=\"hover:bg-red-500 w-[12px] bg-[url('/images/hero.jpg')] [&>p]:underline text-red/80 bg-red/[0.5]\">Tailwind classes</div><button @click=\"act\" :class=\"active\" x-on:click=\"toggle\" data-[state]=\"open\">Ruby attributes</button><button @click=\"act\" :class=\"active\" x-on:click=\"toggle\" data-[state]=\"open\">HTML attributes</button><button @keyup.enter=\"submit\">Quoted HTML name</button><div class=\"foo\"><span>Inline tag</span></div>"); __err != nil {
 			return
 		}
 		dynamicClass := `w-[&>p]`

@@ -547,6 +547,37 @@ func Test_SlimClass(t *testing.T) {
 				{typ: tEOF, lit: ""},
 			},
 		},
+		"opacity class": {
+			input: "@slim test() {\n\tdiv.text-red/80",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "text-red/80"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"arbitrary opacity class": {
+			input: "@slim test() {\n\tdiv.text-red/[0.5]",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "text-red/[0.5]"},
+				{typ: tEOF, lit: ""},
+			},
+		},
+		"class before self-closing slash": {
+			input: "@slim test() {\n\tdiv.foo/",
+			want: []token{
+				{typ: tTemplateStart, lit: "test()"},
+				{typ: tIndent, lit: "\t"},
+				{typ: tTag, lit: "div"},
+				{typ: tClass, lit: "foo"},
+				{typ: tVoidTag, lit: ""},
+				{typ: tEOF, lit: ""},
+			},
+		},
 		"inline tag after class": {
 			input: "@slim test() {\n\tdiv.foo: span",
 			want: []token{
