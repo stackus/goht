@@ -45,7 +45,7 @@ if ! grep -Eq "^## \\[$version\\](\\([^[:space:]]+\\))?( |$)" CHANGELOG.md; then
 fi
 
 printf 'VERSION=%s\n' "$version" > .version
-if ! go run ./cmd/goht generate --force; then
+if ! go run ./cmd/goht generate --force --skip-dirs semantic; then
 	fail 'goht generation failed'
 fi
 
