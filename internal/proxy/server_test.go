@@ -22,6 +22,7 @@ const (
 type recordingServer struct {
 	protocol.Server
 	initializeResult          *protocol.InitializeResult
+	initializeCalls           []protocol.ParamInitialize
 	completionResult          *protocol.CompletionList
 	completionCalls           []protocol.CompletionParams
 	definitionResult          []protocol.Location
@@ -41,7 +42,8 @@ type recordingServer struct {
 	semanticTokensRangeCalls  []protocol.SemanticTokensRangeParams
 }
 
-func (s *recordingServer) Initialize(context.Context, *protocol.ParamInitialize) (*protocol.InitializeResult, error) {
+func (s *recordingServer) Initialize(_ context.Context, params *protocol.ParamInitialize) (*protocol.InitializeResult, error) {
+	s.initializeCalls = append(s.initializeCalls, *params)
 	if s.initializeResult != nil {
 		return s.initializeResult, nil
 	}
@@ -786,8 +788,9 @@ func TestServerSemanticTokensFull(t *testing.T) {
 			serverResult: &protocol.SemanticTokens{
 				Data: []uint32{10, 20, 2, 0, 0, 0, 2, 3, 1, 0},
 			},
+			// the second token ends at Go(10,23), which has no GoHT mapping, so it is dropped
 			want: &protocol.SemanticTokens{
-				Data: []uint32{1, 2, 2, 0, 0, 0, 2, 3, 1, 0},
+				Data: []uint32{1, 2, 2, 0, 0},
 			},
 			wantCalls: 1,
 		},
@@ -860,8 +863,6 @@ func TestServerSemanticTokensRange(t *testing.T) {
 		want         *protocol.SemanticTokens
 		wantCalls    int
 	}
-	// testSourceMap maps: GoHT(1,2)→Go(10,20), GoHT(1,4)→Go(10,22)
-	// So range GoHT(1,2)→(1,4) maps to Go(10,20)→(10,22)
 	tests := map[string]testcase{
 		"non-goht file returns nil": {
 			args: struct {
@@ -875,7 +876,7 @@ func TestServerSemanticTokensRange(t *testing.T) {
 			want:      nil,
 			wantCalls: 0,
 		},
-		"unmappable range returns nil": {
+		"range without tokens returns no tokens": {
 			args: struct {
 				params *protocol.SemanticTokensRangeParams
 			}{
@@ -884,10 +885,13 @@ func TestServerSemanticTokensRange(t *testing.T) {
 					Range:        rangeOf(99, 0, 99, 5),
 				},
 			},
-			want:      nil,
-			wantCalls: 0,
+			serverResult: &protocol.SemanticTokens{
+				Data: []uint32{10, 20, 2, 0, 0},
+			},
+			want:      &protocol.SemanticTokens{Data: []uint32{}},
+			wantCalls: 1,
 		},
-		"maps range and token positions to goht space": {
+		"filters full document tokens to the range": {
 			args: struct {
 				params *protocol.SemanticTokensRangeParams
 			}{
@@ -908,7 +912,7 @@ func TestServerSemanticTokensRange(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			server := &recordingServer{
-				semanticTokensRangeResult: tc.serverResult,
+				semanticTokensFullResult: tc.serverResult,
 			}
 			client := &recordingClient{}
 			proxy := newTestServer(server, client)
@@ -919,19 +923,19 @@ func TestServerSemanticTokensRange(t *testing.T) {
 				t.Fatalf("SemanticTokensRange() error = %v", err)
 			}
 
-			if len(server.semanticTokensRangeCalls) != tc.wantCalls {
-				t.Fatalf("SemanticTokensRange() gopls calls = %d, want %d",
-					len(server.semanticTokensRangeCalls), tc.wantCalls)
+			// range requests are answered from the full document tokens
+			if len(server.semanticTokensFullCalls) != tc.wantCalls {
+				t.Fatalf("SemanticTokensRange() gopls full calls = %d, want %d",
+					len(server.semanticTokensFullCalls), tc.wantCalls)
+			}
+			if len(server.semanticTokensRangeCalls) != 0 {
+				t.Fatalf("SemanticTokensRange() gopls range calls = %d, want 0", len(server.semanticTokensRangeCalls))
 			}
 
 			if tc.wantCalls > 0 {
-				call := server.semanticTokensRangeCalls[0]
+				call := server.semanticTokensFullCalls[0]
 				if call.TextDocument.URI != testGohtGoURI {
 					t.Errorf("SemanticTokensRange() forwarded URI = %q, want %q", call.TextDocument.URI, testGohtGoURI)
-				}
-				wantRange := rangeOf(10, 20, 10, 22)
-				if call.Range != wantRange {
-					t.Errorf("SemanticTokensRange() forwarded range = %+v, want %+v", call.Range, wantRange)
 				}
 			}
 
@@ -986,8 +990,9 @@ func TestServerMapSemanticTokens(t *testing.T) {
 			setupSmc: func(smc *SourceMapCache) {
 				smc.Set(string(testGohtURI), testSourceMap())
 			},
+			// the second token ends at Go(10,23), which has no GoHT mapping, so it is dropped
 			want: &protocol.SemanticTokens{
-				Data: []uint32{1, 2, 2, 0, 0, 0, 2, 3, 1, 0},
+				Data: []uint32{1, 2, 2, 0, 0},
 			},
 		},
 		"unmapped tokens filtered out": {

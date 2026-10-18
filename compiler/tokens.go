@@ -11,6 +11,11 @@ type token struct {
 	lit  string
 	line int
 	col  int
+	// start and end are the byte offsets of the source text the token was
+	// lexed from; end is exclusive. The span can include runes that were
+	// skipped from lit.
+	start int
+	end   int
 }
 
 const (

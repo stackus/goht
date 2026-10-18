@@ -300,6 +300,21 @@ goht lsp
 The LSP command supports `--logFile` for file logging, `--traceClient` for tracing editor-to-GoHT JSON-RPC traffic, and `--traceGoPls` for tracing GoHT-to-`gopls` JSON-RPC traffic.
 See `goht help lsp` for the current flag list.
 
+#### Semantic highlighting
+
+The LSP server provides `textDocument/semanticTokens/full` and `textDocument/semanticTokens/range`.
+GoHT classifies the template syntax itself and merges in the tokens `gopls` reports for the embedded Go code.
+The token legend starts with the `gopls` token types and adds these GoHT types:
+
+| Token type      | Used for                                                                   |
+|-----------------|----------------------------------------------------------------------------|
+| `gohtDirective` | `@goht`, `@haml`, `@slim`, `@ego`, `@render`, `@slot`, and other commands, and filters such as `:go` |
+| `gohtTag`       | element names                                                              |
+| `gohtAttribute` | attribute names and `#id` / `.class` shorthand                             |
+
+GoHT also emits the standard `string`, `comment`, and `keyword` types for quoted attribute values, comments, and doctypes.
+Editors should register the three `goht*` types and map them to suitable theme colors.
+
 Contributions are welcome. Please see the [contributing guide](CONTRIBUTING.md) for more information.
 
 ## Library Installation

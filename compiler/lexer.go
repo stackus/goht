@@ -10,7 +10,27 @@ import (
 
 type lexFn func(*lexer) lexFn
 
+// markKind identifies source text the lexer consumes without emitting a token.
+type markKind int
+
+const (
+	markTemplateKeyword markKind = iota
+	markCommand
+	markDoctype
+	markComment
+)
+
+// mark records the byte span of source text discarded by the lexer, such as
+// keywords, so editors can still classify it.
+type mark struct {
+	kind  markKind
+	start int
+	end   int
+}
+
 type lexer struct {
+	input  []byte
+	marks  []mark
 	reader *bytes.Reader
 	lex    lexFn
 	tokens chan token
@@ -18,10 +38,12 @@ type lexer struct {
 	width  int
 	pos    []int
 	indent int
+	start  int
 }
 
 func newLexer(input []byte) *lexer {
 	return &lexer{
+		input:  input,
 		reader: bytes.NewReader(input),
 		lex:    lexGoLineStart,
 		tokens: make(chan token, 64),
@@ -106,6 +128,50 @@ func (l *lexer) peekAhead(length int) string {
 // ignore discards the current captured string.
 func (l *lexer) ignore() {
 	l.s = ""
+	l.start = l.offset()
+}
+
+// ignoreAs discards the current captured string and records the span of
+// the discarded keyword, or of the whole trimmed text for comments.
+func (l *lexer) ignoreAs(k markKind) {
+	start, end := l.start, l.offset()
+	region := l.input[start:end]
+	switch k {
+	case markTemplateKeyword, markCommand:
+		at := bytes.IndexByte(region, '@')
+		if at < 0 {
+			break
+		}
+		n := at + 1
+		for n < len(region) && (region[n] >= 'a' && region[n] <= 'z' || region[n] >= 'A' && region[n] <= 'Z') {
+			n++
+		}
+		l.marks = append(l.marks, mark{kind: k, start: start + at, end: start + n})
+	case markComment:
+		if at := bytes.LastIndex(region, []byte("<%#")); at >= 0 {
+			// EGO comments are discarded before their closing tag is read
+			end := end
+			if closing := bytes.Index(l.input[end:], []byte("%>")); closing >= 0 {
+				end += closing + 2
+			}
+			l.marks = append(l.marks, mark{kind: k, start: start + at, end: end})
+			break
+		}
+		fallthrough
+	default:
+		trimmed := bytes.TrimLeft(region, " \t\r\n")
+		lead := len(region) - len(trimmed)
+		trimmed = bytes.TrimRight(trimmed, " \t\r\n")
+		if len(trimmed) > 0 {
+			l.marks = append(l.marks, mark{kind: k, start: start + lead, end: start + lead + len(trimmed)})
+		}
+	}
+	l.ignore()
+}
+
+// offset returns the byte offset of the next rune to be read.
+func (l *lexer) offset() int {
+	return int(l.reader.Size()) - l.reader.Len()
 }
 
 // accept consumes the next rune if it's contained in the acceptRunes list.
@@ -190,14 +256,17 @@ func (l *lexer) current() string {
 // emit creates a new token with the current string and sends it to the tokens channel.
 func (l *lexer) emit(t tokenType) {
 	line, col := l.position()
-	l.tokens <- token{typ: t, lit: l.s, line: line, col: col}
+	end := l.offset()
+	l.tokens <- token{typ: t, lit: l.s, line: line, col: col, start: l.start, end: end}
 	l.s = ""
+	l.start = end
 }
 
 // errorf creates a new error token with the formatted message and sends it to the tokens channel.
 func (l *lexer) errorf(format string, args ...any) lexFn {
 	line, col := l.position()
-	l.tokens <- token{typ: tError, lit: fmt.Sprintf(format, args...), line: line, col: col}
+	end := l.offset()
+	l.tokens <- token{typ: tError, lit: fmt.Sprintf(format, args...), line: line, col: col, start: l.start, end: end}
 	return func(l *lexer) lexFn { return nil }
 }
 

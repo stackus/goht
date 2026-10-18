@@ -218,7 +218,7 @@ func lexEgoCommentStart(l *lexer) lexFn {
 	l.skipRun(" \t\n\r") // skip whitespace
 
 	return findClosingTag(l, func(l *lexer) lexFn {
-		l.ignore() // ignore the comment
+		l.ignoreAs(markComment) // ignore the comment
 		return nil
 	})
 }
@@ -273,7 +273,7 @@ func lexEgoCommandStart(l *lexer) lexFn {
 func lexEgoSlotDirectiveStart(typ tokenType, command string) lexFn {
 	return func(l *lexer) lexFn {
 		l.skipRun(" \t")
-		l.ignore()
+		l.ignoreAs(markCommand)
 		return findClosingTag(l, func(l *lexer) lexFn {
 			l.s = strings.TrimSpace(l.s)
 			original := l.current()
@@ -293,8 +293,8 @@ func lexEgoSlotDirectiveStart(typ tokenType, command string) lexFn {
 }
 
 func lexEgoRenderStart(l *lexer) lexFn {
-	l.skipRun(" \t") // skip whitespace
-	l.ignore()       // ignore the command keyword and the whitespace
+	l.skipRun(" \t")        // skip whitespace
+	l.ignoreAs(markCommand) // ignore the command keyword and the whitespace
 
 	return findClosingTag(l, func(l *lexer) lexFn {
 		l.s = strings.TrimSpace(l.s)
@@ -311,8 +311,8 @@ func lexEgoRenderStart(l *lexer) lexFn {
 }
 
 func lexEgoChildrenStart(l *lexer) lexFn {
-	l.skipRun(" \t") // skip whitespace
-	l.ignore()       // ignore the command keyword and the whitespace
+	l.skipRun(" \t")        // skip whitespace
+	l.ignoreAs(markCommand) // ignore the command keyword and the whitespace
 
 	return findClosingTag(l, func(l *lexer) lexFn {
 		if strings.TrimSpace(l.s) != "" {
@@ -325,8 +325,8 @@ func lexEgoChildrenStart(l *lexer) lexFn {
 }
 
 func lexEgoSlotStart(l *lexer) lexFn {
-	l.skipRun(" \t") // skip whitespace
-	l.ignore()       // ignore the command keyword and the whitespace
+	l.skipRun(" \t")        // skip whitespace
+	l.ignoreAs(markCommand) // ignore the command keyword and the whitespace
 
 	return findClosingTag(l, func(l *lexer) lexFn {
 		l.s = strings.TrimSpace(l.s)

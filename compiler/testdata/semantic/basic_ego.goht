@@ -1,0 +1,9 @@
+package semantic
+
+@ego BasicEgo(name string) {
+	<%# a comment %>
+	<p class="lead">Hello <%= name %></p>
+	<% if name != "" { -%>
+		<span><%= name %></span>
+	<% } $%>
+}

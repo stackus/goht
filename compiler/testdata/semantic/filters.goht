@@ -1,0 +1,19 @@
+package semantic
+
+@haml HamlFilters() {
+	:go
+		name := "x"
+	:javascript
+		console.log("hi");
+	:css
+		p { color: red; }
+	%p= name
+}
+
+@slim SlimFilters() {
+	:go
+		name := "x"
+	:javascript
+		console.log("hi");
+	p= name
+}

@@ -1,0 +1,12 @@
+package semantic
+
+@haml HamlAttributes(active bool, isDisabled bool) {
+	%button(disabled? #{isDisabled} type="button") Go
+	%a{:class?#{active}, href: "/x"} Link
+	%div(@click="open = true" x-on:click="y" data-[state]="on") Body
+}
+
+@slim SlimAttributes(isDisabled bool) {
+	button(disabled? #{isDisabled} type="button") Go
+	div(@click="open = true" :class="z" x-on:click="y" data-[state]="on") Body
+}

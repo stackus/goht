@@ -144,7 +144,7 @@ func slimIdentifier(typ tokenType, l *lexer) lexFn {
 }
 
 func lexSlimDoctype(l *lexer) lexFn {
-	l.ignore()
+	l.ignoreAs(markDoctype)
 	l.skipRun(" \t")
 	l.acceptUntil("\n\r")
 	l.emit(tDoctype)
@@ -371,7 +371,7 @@ func lexSlimCommandCode(l *lexer) lexFn {
 	switch l.current() {
 	case "render":
 		l.acceptRun("() \t")
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.acceptUntil("\\\n\r")
 		if l.current() == "" {
 			return l.errorf("render argument expected")
@@ -386,7 +386,7 @@ func lexSlimCommandCode(l *lexer) lexFn {
 		l.emit(tRenderCommand)
 	case "children":
 		l.acceptRun("() \t")
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.acceptUntil("\n\r")
 		if l.current() != "" {
 			return l.errorf("children command does not accept arguments")
@@ -394,7 +394,7 @@ func lexSlimCommandCode(l *lexer) lexFn {
 		l.emit(tChildrenCommand)
 	case "slot":
 		l.acceptRun("() \t")
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.acceptUntil("\n\r")
 		if l.current() == "" {
 			return l.errorf("slot name expected")
@@ -406,7 +406,7 @@ func lexSlimCommandCode(l *lexer) lexFn {
 	case "ifslot", "noslot", "eachslot":
 		command := l.current()
 		l.acceptRun("() \t")
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.acceptUntil("\n\r")
 		if l.current() == "" {
 			return l.errorf("%s arguments expected", command)
@@ -650,7 +650,7 @@ func lexSlimAttributeCommandStart(l *lexer) lexFn {
 
 func lexSlimAttributeCommand(command tokenType) lexFn {
 	return func(l *lexer) lexFn {
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.skipUntil(":")
 		l.skipUntil("{")
 		l.skip() // skip opening brace
@@ -805,7 +805,7 @@ func lexSlimHtmlAttributeCommandStart(l *lexer) lexFn {
 
 func lexSlimHtmlAttributeCommand(command tokenType) lexFn {
 	return func(l *lexer) lexFn {
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.skipUntil("=")
 		l.skipUntil("{")
 		l.skip() // skip opening brace

@@ -121,7 +121,7 @@ func lexTemplate(l *lexer) lexFn {
 }
 
 func lexTemplateStart(l *lexer, keepNewlines bool, next lexFn) lexFn {
-	l.ignore()
+	l.ignoreAs(markTemplateKeyword)
 	l.skipRun(" ")
 	l.acceptUntil(")")
 

@@ -1,0 +1,6 @@
+package semantic
+
+@slim Incomplete(user User) {
+	div.card
+		h2 Title
+		p #{user.

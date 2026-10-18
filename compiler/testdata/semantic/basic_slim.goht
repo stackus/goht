@@ -1,0 +1,11 @@
+package semantic
+
+@slim BasicSlim(name string) {
+	doctype html
+	html
+		body
+			/ a comment
+			h1= name
+			p.lead Hello #{name}
+			a href="/profile" Profile
+}

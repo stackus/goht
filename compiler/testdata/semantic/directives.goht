@@ -1,0 +1,33 @@
+package semantic
+
+@haml HamlDirectives() {
+	= @render child()
+	= @slot header
+	= @ifslot items
+		= @eachslot item in items
+			= @render item
+	= @noslot items
+		%p No items
+	= @children
+}
+
+@slim SlimDirectives() {
+	= @slot header
+	= @ifslot items
+		= @eachslot item in items
+			= @render item
+	= @noslot items
+		p No items
+}
+
+@ego EgoDirectives() {
+	<%@slot header -%>
+	<%@ifslot items { -%>
+		<%@eachslot item in items { -%>
+			<%@render item %>
+		<%- } -%>
+	<%- } -%>
+	<%@noslot items { -%>
+		<p>No items</p>
+	<%- } -%>
+}

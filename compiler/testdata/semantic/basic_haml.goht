@@ -1,0 +1,14 @@
+package semantic
+
+import "fmt"
+
+@haml BasicHaml(user User) {
+	!!! 5
+	%html
+		%body#main.container
+			-# a ruby comment
+			/ an html comment
+			%h1= user.Name
+			%p.lead Hello #{fmt.Sprint(user.Age)}
+			%a{href: "/profile", class: #{user.Class}} Profile
+}

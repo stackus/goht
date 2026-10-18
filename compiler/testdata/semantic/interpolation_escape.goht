@@ -1,0 +1,9 @@
+package semantic
+
+@haml HamlEscape(title string) {
+	%p Save \#{title} now #{title}
+}
+
+@slim SlimEscape(title string) {
+	| Save \#{title} now #{title}
+}

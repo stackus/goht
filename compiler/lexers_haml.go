@@ -300,7 +300,7 @@ func lexHamlAttributeCommandStart(l *lexer) lexFn {
 
 func lexHamlAttributeCommand(command tokenType) lexFn {
 	return func(l *lexer) lexFn {
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.skipUntil(":")
 		l.skipUntil("{")
 		l.skip() // skip opening brace
@@ -443,7 +443,7 @@ func lexHamlHtmlAttributeCommandStart(l *lexer) lexFn {
 
 func lexHamlHtmlAttributeCommand(command tokenType) lexFn {
 	return func(l *lexer) lexFn {
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.skipUntil("=")
 		l.skipUntil("{")
 		l.skip() // skip opening brace
@@ -645,7 +645,7 @@ func lexHamlCommandCode(l *lexer) lexFn {
 	switch l.current() {
 	case "render":
 		l.acceptRun("() \t")
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.acceptUntil("\\\n\r")
 		if l.current() == "" {
 			return l.errorf("render argument expected")
@@ -660,7 +660,7 @@ func lexHamlCommandCode(l *lexer) lexFn {
 		l.emit(tRenderCommand)
 	case "children":
 		l.acceptRun("() \t")
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.acceptUntil("\n\r")
 		if l.current() != "" {
 			return l.errorf("children command does not accept arguments")
@@ -668,7 +668,7 @@ func lexHamlCommandCode(l *lexer) lexFn {
 		l.emit(tChildrenCommand)
 	case "slot":
 		l.acceptRun("() \t")
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.acceptUntil("\n\r")
 		if l.current() == "" {
 			return l.errorf("slot name expected")
@@ -680,7 +680,7 @@ func lexHamlCommandCode(l *lexer) lexFn {
 	case "ifslot", "noslot", "eachslot":
 		command := l.current()
 		l.acceptRun("() \t")
-		l.ignore()
+		l.ignoreAs(markCommand)
 		l.acceptUntil("\n\r")
 		if l.current() == "" {
 			return l.errorf("%s arguments expected", command)

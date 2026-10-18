@@ -1,0 +1,11 @@
+package semantic
+
+@haml HamlTailwind() {
+	%div.hover:bg-red/80.w-[10px] Body
+	.text-red/80.bg-red/[0.5] Body
+}
+
+@slim SlimTailwind() {
+	div.hover:bg-red/80.w-[10px] Body
+	.text-red/80.bg-red/[0.5] Body
+}

@@ -23,6 +23,8 @@ type Server struct {
 	srcs             *DocumentContents
 	goSrcs           map[string]string
 	positionEncoding protocol.PositionEncodingKind
+	legend           tokenLegend
+	goplsSemantic    bool
 	logger           zerolog.Logger
 }
 
@@ -37,6 +39,8 @@ func NewServer(s protocol.Server, c protocol.Client, smc *SourceMapCache, dc *Di
 		srcs:             srcs,
 		goSrcs:           make(map[string]string),
 		positionEncoding: protocol.UTF16,
+		legend:           buildLegend(nil),
+		goplsSemantic:    true,
 		logger:           logger,
 	}
 }
@@ -63,6 +67,7 @@ func (s *Server) Initialize(ctx context.Context, params *protocol.ParamInitializ
 	logger.Info().Msg("Initialize Started")
 	defer logger.Trace().Msg("Initialize Completed")
 
+	params.InitializationOptions = withGoplsSemanticTokens(params.InitializationOptions)
 	resp, err := s.Server.Initialize(ctx, params)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to initialize server")
@@ -72,6 +77,14 @@ func (s *Server) Initialize(ctx context.Context, params *protocol.ParamInitializ
 		resp.Capabilities.CompletionProvider = &protocol.CompletionOptions{}
 	}
 	s.sanitizeCapabilities(&resp.Capabilities)
+	goplsLegend, goplsSemantic := goplsSemanticLegend(resp.Capabilities.SemanticTokensProvider)
+	s.goplsSemantic = goplsSemantic
+	s.legend = buildLegend(goplsLegend)
+	resp.Capabilities.SemanticTokensProvider = &protocol.SemanticTokensOptions{
+		Legend: s.legend.legend,
+		Full:   &protocol.Or_SemanticTokensOptions_full{Value: true},
+		Range:  &protocol.Or_SemanticTokensOptions_range{Value: true},
+	}
 	syncKind := protocol.Full
 	if clientSupportsUTF8(params) {
 		s.positionEncoding = protocol.UTF8
@@ -377,12 +390,14 @@ func (s *Server) DidChange(ctx context.Context, params *protocol.DidChangeTextDo
 	template, err := s.parseTemplate(ctx, gohtURI, doc.String())
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to parse template")
+		s.smc.MarkStale(string(gohtURI))
 		return nil
 	}
 	buf := bytes.Buffer{}
 	sm, err := template.Compose(&buf)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to compose template")
+		s.smc.MarkStale(string(gohtURI))
 		return err
 	}
 	_, alreadyOpen := s.goSrcs[string(gohtURI)]
@@ -459,6 +474,7 @@ func (s *Server) DidOpen(ctx context.Context, params *protocol.DidOpenTextDocume
 	template, err := s.parseTemplate(ctx, params.TextDocument.URI, params.TextDocument.Text)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to parse template")
+		s.smc.MarkStale(string(params.TextDocument.URI))
 		return nil
 	}
 
@@ -466,6 +482,7 @@ func (s *Server) DidOpen(ctx context.Context, params *protocol.DidOpenTextDocume
 	sm, err := template.Compose(&buf)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to compose template")
+		s.smc.MarkStale(string(params.TextDocument.URI))
 		return err
 	}
 	s.smc.Set(string(params.TextDocument.URI), sm)
@@ -860,20 +877,13 @@ func (s *Server) SemanticTokensFull(ctx context.Context, params *protocol.Semant
 	logger.Info().Msg("SemanticTokensFull Started")
 	defer logger.Info().Msg("SemanticTokensFull Ended")
 
-	gohtURI := params.TextDocument.URI
-	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
-	if !isGohtFile {
+	if isGohtFile, _ := toGohtGoURI(params.TextDocument.URI); !isGohtFile {
 		logger.Warn().Msg("not a goht file")
 		return nil, nil
 	}
-	params.TextDocument.URI = goURI
-	resp, err := s.Server.SemanticTokensFull(ctx, params)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to perform semantic tokens full")
-		return resp, err
-	}
 
-	return s.mapSemanticTokens(gohtURI, resp), nil
+	tokens := s.semanticTokens(ctx, params.TextDocument.URI, logger)
+	return &protocol.SemanticTokens{Data: encodeSemanticTokens(tokens)}, nil
 }
 
 func (s *Server) SemanticTokensFullDelta(_ context.Context, params *protocol.SemanticTokensDeltaParams) (any, error) {
@@ -890,6 +900,8 @@ func (s *Server) SemanticTokensFullDelta(_ context.Context, params *protocol.Sem
 	return nil, nil
 }
 
+// SemanticTokensRange answers from the full document tokens so GoHT and
+// gopls tokens are merged the same way for both requests.
 func (s *Server) SemanticTokensRange(ctx context.Context, params *protocol.SemanticTokensRangeParams) (*protocol.SemanticTokens, error) {
 	logger := s.logger.With().
 		Str("method", "SemanticTokensRange").
@@ -900,27 +912,13 @@ func (s *Server) SemanticTokensRange(ctx context.Context, params *protocol.Seman
 	logger.Info().Msg("SemanticTokensRange Started")
 	defer logger.Info().Msg("SemanticTokensRange Ended")
 
-	gohtURI := params.TextDocument.URI
-	isGohtFile, goURI := toGohtGoURI(params.TextDocument.URI)
-	if !isGohtFile {
+	if isGohtFile, _ := toGohtGoURI(params.TextDocument.URI); !isGohtFile {
 		logger.Warn().Msg("not a goht file")
 		return nil, nil
 	}
 
-	goRange, ok := s.tryGohtRangeToGoRange(gohtURI, params.Range)
-	if !ok {
-		return nil, nil
-	}
-
-	params.TextDocument.URI = goURI
-	params.Range = goRange
-	resp, err := s.Server.SemanticTokensRange(ctx, params)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to perform semantic tokens range")
-		return resp, err
-	}
-
-	return s.mapSemanticTokens(gohtURI, resp), nil
+	tokens := filterTokensToRange(s.semanticTokens(ctx, params.TextDocument.URI, logger), params.Range)
+	return &protocol.SemanticTokens{Data: encodeSemanticTokens(tokens)}, nil
 }
 
 func (s *Server) Moniker(ctx context.Context, params *protocol.MonikerParams) ([]protocol.Moniker, error) {
@@ -1248,91 +1246,6 @@ var nonImportKeywordRegexp = regexp.MustCompile(`^(?:@?goht|func|var|const|type)
 type importInsert struct {
 	line int
 	text string
-}
-
-type semanticToken struct {
-	line, char, length, tokenType, tokenModifiers uint32
-}
-
-func decodeSemanticTokens(data []uint32) []semanticToken {
-	if len(data) == 0 {
-		return nil
-	}
-	tokens := make([]semanticToken, 0, len(data)/5)
-	var prevLine, prevChar uint32
-	for i := 0; i+4 < len(data); i += 5 {
-		deltaLine := data[i]
-		deltaChar := data[i+1]
-		length := data[i+2]
-		tokenType := data[i+3]
-		tokenMods := data[i+4]
-
-		var line, char uint32
-		if deltaLine == 0 {
-			line = prevLine
-			char = prevChar + deltaChar
-		} else {
-			line = prevLine + deltaLine
-			char = deltaChar
-		}
-
-		tokens = append(tokens, semanticToken{
-			line:           line,
-			char:           char,
-			length:         length,
-			tokenType:      tokenType,
-			tokenModifiers: tokenMods,
-		})
-		prevLine = line
-		prevChar = char
-	}
-	return tokens
-}
-
-func (s *Server) mapSemanticTokens(uri protocol.DocumentURI, tokens *protocol.SemanticTokens) *protocol.SemanticTokens {
-	if tokens == nil {
-		return nil
-	}
-	sm, ok := s.smc.Get(string(uri))
-	if !ok {
-		return nil
-	}
-
-	decoded := decodeSemanticTokens(tokens.Data)
-	mapped := make([]semanticToken, 0, len(decoded))
-	for _, t := range decoded {
-		gohtPos, ok := sm.SourcePositionFromTarget(int(t.line), int(t.char))
-		if !ok {
-			continue
-		}
-		mapped = append(mapped, semanticToken{
-			line:           uint32(gohtPos.Line),
-			char:           uint32(gohtPos.Col),
-			length:         t.length,
-			tokenType:      t.tokenType,
-			tokenModifiers: t.tokenModifiers,
-		})
-	}
-
-	return &protocol.SemanticTokens{Data: encodeSemanticTokens(mapped)}
-}
-
-func encodeSemanticTokens(tokens []semanticToken) []uint32 {
-	data := make([]uint32, 0, len(tokens)*5)
-	var prevLine, prevChar uint32
-	for _, t := range tokens {
-		deltaLine := t.line - prevLine
-		var deltaChar uint32
-		if deltaLine == 0 {
-			deltaChar = t.char - prevChar
-		} else {
-			deltaChar = t.char
-		}
-		data = append(data, deltaLine, deltaChar, t.length, t.tokenType, t.tokenModifiers)
-		prevLine = t.line
-		prevChar = t.char
-	}
-	return data
 }
 
 func addImport(lines []string, pkg string) importInsert {
