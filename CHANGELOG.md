@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v0.10.0](https://github.com/stackus/goht/compare/v0.9.8...v0.10.0) - 2026-10-17
+
+### Added
+
+- The language server classifies GoHT template syntax for semantic
+	highlighting. Directives, tags, attributes, quoted attribute values,
+	comments, and doctypes are reported as semantic tokens and merged with the
+	`gopls` tokens for embedded Go. New token types: `gohtDirective`,
+	`gohtTag`, and `gohtAttribute`.
+- The language server turns on the `gopls` `semanticTokens` setting, which
+	is off by default, unless the editor sets it explicitly.
+
+### Fixed
+
+- Semantic tokens from `gopls` are no longer placed at the wrong position
+	when a line contains non-ASCII text, when a token runs into generated
+	code, or while the template has a syntax error.
+
 ## [v0.9.8](https://github.com/stackus/goht/compare/v0.9.7...v0.9.8) - 2026-10-17
 
 ### Added
